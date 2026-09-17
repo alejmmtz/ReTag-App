@@ -1,1 +1,1 @@
-export class Garment {}
+export class GarmentEntity {}

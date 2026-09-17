@@ -9,10 +9,37 @@ import { PostsModule } from './posts/posts.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
 import { GarmentsModule } from './garments/garments.module';
 import { StoresModule } from './stores/stores.module';
-import { UsersModule } from './users/users.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [UsersModule, StoresModule, GarmentsModule, CatalogsModule, PostsModule, EventsModule, CartsModule, TransactionsModule],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DB_HOST'),
+        port: Number(configService.get<string>('DB_PORT')),
+        username: configService.get<string>('DB_USERNAME'),
+        password: configService.get<string>('DB_PASSWORD'),
+        database: configService.get<string>('DB_DATABASE'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
+    UsersModule,
+    StoresModule,
+    GarmentsModule,
+    CatalogsModule,
+    PostsModule,
+    EventsModule,
+    CartsModule,
+    TransactionsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: retag-db
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - '5432:${DB_PORT}'
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_DATABASE}']
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+    volumes:
+      - retag_data:/var/lib/postgresql/data
+
+volumes:
+  retag_data:

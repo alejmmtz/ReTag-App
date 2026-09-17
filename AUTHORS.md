@@ -17,9 +17,3 @@ ReTag consists of three college students majoring in interactive media design an
 ## Thanks to
 
 - **Depop** for the initial inspiration.
-
-<style>
-    table {
-        width: 100%;
-    }
-</style>

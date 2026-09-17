@@ -169,7 +169,7 @@ npm install
   <img src="./resources/World.png" alt="ReTag App Logo" width="150"/>
 </p>
 
-We are currently working on the server and its endpoints; once that work is complete, we will focus as quickly as possible to create a complete documentation. **[Documentation on Progress](a)**.
+We are currently working on the server and its endpoints, once that work is complete, we will focus as quickly as possible to create a complete documentation. **[Documentation on Progress](a)**.
 
 ## Development
 
