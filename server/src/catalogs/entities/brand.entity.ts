@@ -16,5 +16,5 @@ export class BrandEntity {
   description?: string;
 
   @OneToMany(() => GarmentEntity, (garment) => garment.brand)
-  garments!: GarmentEntity;
+  garments!: GarmentEntity[];
 }

@@ -7,11 +7,11 @@ export class SizeEntity {
   id!: string;
 
   @Column({ type: 'varchar', length: 20, default: 'unisex' })
-  type!: 'womens  ' | 'mens' | 'girls' | 'boys' | 'unisex' | 'kids';
+  type!: 'womens' | 'mens' | 'girls' | 'boys' | 'unisex' | 'kids';
 
   @Column({ type: 'varchar', length: 15 })
   label!: string;
 
   @OneToMany(() => GarmentEntity, (garment) => garment.size)
-  garments!: GarmentEntity;
+  garments!: GarmentEntity[];
 }

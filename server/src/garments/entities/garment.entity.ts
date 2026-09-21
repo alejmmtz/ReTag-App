@@ -3,12 +3,20 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BrandEntity } from '../../catalogs/entities/brand.entity';
 import { SizeEntity } from '../../catalogs/entities/size.entity';
 import { CategoryEntity } from '../../catalogs/entities/category.entity';
+import { GarmentImageEntity } from './garment-image.entity';
+import { ColorEntity } from '../../catalogs/entities/color.entity';
+import { CareEntity } from '../../catalogs/entities/care-details.entity';
+import { TagEntity } from '../../catalogs/entities/tag.entity';
+import { MaterialEnum } from '../types/enums';
 
 @Entity('garments')
 export class GarmentEntity {
@@ -34,27 +42,7 @@ export class GarmentEntity {
   size!: SizeEntity;
 
   @Column({ type: 'varchar', length: 20 })
-  material!:
-    | 'cotton'
-    | 'twill'
-    | 'voile'
-    | 'linen'
-    | 'silk'
-    | 'cotton silk'
-    | 'lyosell'
-    | 'viscose'
-    | 'hemp'
-    | 'mesh'
-    | 'poliester'
-    | 'velvet'
-    | 'elastane'
-    | 'canvas'
-    | 'panama'
-    | 'crêpe'
-    | 'georgette'
-    | 'gabardine'
-    | 'peach skin'
-    | 'u-circular';
+  material!: MaterialEnum;
 
   @ManyToOne(() => BrandEntity, (brand) => brand.garments, {
     nullable: false,
@@ -80,10 +68,10 @@ export class GarmentEntity {
     default: 'both',
     name: 'transaction_type',
   })
-  transactionType!: 'trade' | 'buy' | 'both';
+  transactionType!: 'trade' | 'purchase' | 'both';
 
   @ManyToOne(() => EventEntity, (event) => event.garments, {
-    nullable: false,
+    nullable: true,
   })
   @JoinColumn({ name: 'event_id' })
   event?: EventEntity;
@@ -96,4 +84,19 @@ export class GarmentEntity {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
+
+  @OneToMany(() => GarmentImageEntity, (image) => image.garment)
+  images!: GarmentImageEntity[];
+
+  @ManyToMany(() => ColorEntity)
+  @JoinTable()
+  colors!: ColorEntity[];
+
+  @ManyToMany(() => CareEntity)
+  @JoinTable()
+  cares!: CareEntity[];
+
+  @ManyToMany(() => TagEntity)
+  @JoinTable()
+  tags!: TagEntity[];
 }
