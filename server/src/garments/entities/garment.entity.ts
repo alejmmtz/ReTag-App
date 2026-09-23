@@ -17,6 +17,7 @@ import { ColorEntity } from '../../catalogs/entities/color.entity';
 import { CareEntity } from '../../catalogs/entities/care-details.entity';
 import { TagEntity } from '../../catalogs/entities/tag.entity';
 import { MaterialEnum } from '../types/enums';
+import { UserEntity } from '../../users/entities/user.entity';
 
 @Entity('garments')
 export class GarmentEntity {
