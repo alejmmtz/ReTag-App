@@ -1,0 +1,1 @@
+@Entity('user_likes')

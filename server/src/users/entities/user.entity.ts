@@ -2,9 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserRoleEnum } from '../types/enums';
@@ -42,12 +41,26 @@ export class UserEntity {
     enum: UserRoleEnum,
   })
   role!: UserRoleEnum;
+  @OneToOne(() => StoreEntity, (store) => store.user)
+  store?: StoreEntity;
 
   @OneToMany(() => PostEntity, (post) => post.userId)
   posts!: PostEntity[];
 
   @OneToMany(() => GarmentEntity, (garment) => garment.seller)
   garments!: GarmentEntity[];
+
+  @OneToMany(() => CartItemEntity, (cartItem) => cartItem.user)
+  cartItems!: CartItemEntity[];
+
+  @OneToMany(() => TransactionEntity, (transaction) => transaction.buyer)
+  transactions!: TransactionEntity[];
+
+  @OneToMany(
+    () => EventParticipantEntity,
+    (eventParticipant) => eventParticipant.user,
+  )
+  eventParticipations!: EventParticipantEntity[];
 
   
 }
