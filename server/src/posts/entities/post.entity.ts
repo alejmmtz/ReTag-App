@@ -10,6 +10,7 @@ import {
 import { PostTypeEnum } from '../types/enums';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { PostImageEntity } from './post-image.entity';
+import { UserEntity } from '../../users/entities/user.entity';
 
 @Entity('posts')
 export class PostEntity {

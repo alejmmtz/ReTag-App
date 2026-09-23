@@ -1,1 +1,28 @@
-export class User {}
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+
+@Entity('users')
+export class UserEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column({ nullable: true })
+  name?: string;
+
+  @Column({ unique: true })
+  username!: string;
+
+  @Column({ unique: true })
+  email!: string;
+
+  @Column({ unique: true })
+  phone!: string;
+
+  @Column()
+  password!: string;
+
+  @Column({ name: 'profile_picture' })
+  profilePicture!: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
+}
