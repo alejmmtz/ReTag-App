@@ -22,6 +22,6 @@ export class EventImageEntity {
   @Column()
   url!: string;
 
-  @Column({ name: 'is_cover', default: false })
+  @Column({ type: 'boolean', name: 'is_cover', default: false })
   isCover!: boolean;
 }
