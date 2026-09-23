@@ -10,6 +10,7 @@ import {
 import { PostTypeEnum } from '../types/enums';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { PostImageEntity } from './post-image.entity';
+import { EventEntity } from '../../events/entities/event.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { UserLikesEntity } from '../../users/entities/user-like.entity';
 
