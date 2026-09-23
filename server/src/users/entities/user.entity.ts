@@ -2,9 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserRoleEnum } from '../types/enums';
+import { PostEntity } from '../../posts/entities/post.entity';
+import { GarmentEntity } from '../../garments/entities/garment.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -37,6 +42,12 @@ export class UserEntity {
     enum: UserRoleEnum,
   })
   role!: UserRoleEnum;
+
+  @OneToMany(() => PostEntity, (post) => post.userId)
+  posts!: PostEntity[];
+
+  @OneToMany(() => GarmentEntity, (garment) => garment.seller)
+  garments!: GarmentEntity[];
 
   
 }
