@@ -11,6 +11,7 @@ import { PostTypeEnum } from '../types/enums';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { PostImageEntity } from './post-image.entity';
 import { UserEntity } from '../../users/entities/user.entity';
+import { UserLikesEntity } from '../../users/entities/user-like.entity';
 
 @Entity('posts')
 export class PostEntity {
@@ -50,4 +51,7 @@ export class PostEntity {
 
   @OneToMany(() => PostImageEntity, (image) => image.post)
   images!: PostImageEntity[];
+
+  @OneToMany(() => UserLikesEntity, (like) => like.post)
+  likes!: UserLikesEntity[];
 }
