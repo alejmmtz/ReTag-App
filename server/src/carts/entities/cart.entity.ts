@@ -28,4 +28,14 @@ export class CartItemEntity {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
+
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.cartItems, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'user_id' })
+  user!: UserEntity;
+
+  @ManyToOne(() => GarmentEntity, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'garment_id' })
+  garment!: GarmentEntity;
 }
