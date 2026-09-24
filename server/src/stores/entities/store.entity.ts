@@ -36,5 +36,4 @@ export class StoreEntity {
 
   @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
   images!: StoreImage[];
-
 }
