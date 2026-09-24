@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { UserEntity } from '../../users/entities/user.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 
@@ -50,4 +51,16 @@ export class TransactionEntity {
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
+
+  @ManyToOne(() => UserEntity, (user) => user.transactions)
+  @JoinColumn({ name: 'buyer_id' })
+  buyer!: UserEntity;
+
+  @ManyToOne(() => GarmentEntity)
+  @JoinColumn({ name: 'garment_id' })
+  garment!: GarmentEntity;
+
+  @ManyToOne(() => GarmentEntity, { nullable: true })
+  @JoinColumn({ name: 'trade_garment_id' })
+  tradeGarment?: GarmentEntity;
 }
