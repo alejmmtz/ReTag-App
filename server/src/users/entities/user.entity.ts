@@ -11,6 +11,7 @@ import { PostEntity } from '../../posts/entities/post.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { UserLikesEntity } from './user-like.entity';
 import { FollowEntity } from './follow.entity';
+import { StoreEntity } from '../../stores/entities/store.entity';
 
 @Entity('users')
 export class UserEntity {
