@@ -13,13 +13,13 @@ import { StoreImage } from './store-image.entity';
 @Entity('stores')
 export class StoreEntity {
   @PrimaryGeneratedColumn('uuid')
-  id!: number;
+  id!: string;
 
   @Column({ name: 'user_id', unique: true })
-  userId!: number;
+  userId!: string;
 
   @Column({ nullable: true })
-  socialmedia!: string;
+  socialmedia?: string;
 
   @Column({ name: 'store_name' })
   storeName!: string;
@@ -32,7 +32,7 @@ export class StoreEntity {
 
   @OneToOne(() => UserEntity, (user) => user.store)
   @JoinColumn({ name: 'user_id' })
-  user!: UserEntity;
+  user?: UserEntity;
 
   @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
   images!: StoreImage[];

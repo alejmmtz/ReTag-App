@@ -14,7 +14,7 @@ export class StoreImage {
   id!: number;
 
   @Column({ name: 'store_id' })
-  storeId!: number;
+  storeId!: string;
 
   @Column({ name: 'is_profile', default: false })
   isProfile!: boolean;
