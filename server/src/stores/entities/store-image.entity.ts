@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { Store } from './store.entity';
+import { StoreEntity } from './store.entity';
 
 @Entity('store_images')
 export class StoreImage {
@@ -24,4 +24,8 @@ export class StoreImage {
 
   @Column({ name: 'is_cover', default: false })
   isCover!: boolean;
+
+  @ManyToOne(() => StoreEntity, (store) => store.images)
+  @JoinColumn({ name: 'store_id' })
+  store!: StoreEntity;
 }
