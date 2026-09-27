@@ -5,7 +5,7 @@ export class ColorEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ type: 'varchar', length: 25 })
   name!: string;
 
   @Column({ type: 'varchar', length: 10 })

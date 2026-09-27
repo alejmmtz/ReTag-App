@@ -16,9 +16,15 @@ import { GarmentImageEntity } from './garment-image.entity';
 import { ColorEntity } from '../../catalogs/entities/color.entity';
 import { CareEntity } from '../../catalogs/entities/care-details.entity';
 import { TagEntity } from '../../catalogs/entities/tag.entity';
-import { MaterialEnum } from '../types/enums';
 import { EventEntity } from '../../events/entities/event.entity';
 import { UserEntity } from '../../users/entities/user.entity';
+import { PostEntity } from '../../posts/entities/post.entity';
+import {
+  GarmentStatus,
+  MaterialEnum,
+  TransactionTypeEnum,
+} from '../../types/enums';
+import { BagEntity } from '../../bags/entities/bag.entity';
 
 @Entity('garments')
 export class GarmentEntity {
@@ -43,7 +49,10 @@ export class GarmentEntity {
   @JoinColumn({ name: 'size_id' })
   size!: SizeEntity;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({
+    type: 'enum',
+    enum: MaterialEnum,
+  })
   material!: MaterialEnum;
 
   @ManyToOne(() => BrandEntity, (brand) => brand.garments, {
@@ -55,8 +64,12 @@ export class GarmentEntity {
   @Column({ type: 'date', name: 'date_purchased' })
   datePurchased!: Date;
 
-  @Column({ type: 'varchar', length: 20, default: 'available' })
-  status!: 'available' | 'sold' | 'traded';
+  @Column({
+    type: 'enum',
+    enum: GarmentStatus,
+    default: 'available',
+  })
+  status!: GarmentStatus;
 
   @Column({ length: 350, name: 'water_saved' })
   waterSaved!: string;
@@ -65,18 +78,20 @@ export class GarmentEntity {
   price!: number;
 
   @Column({
-    type: 'varchar',
-    length: 20,
+    type: 'enum',
+    enum: TransactionTypeEnum,
     default: 'both',
-    name: 'transaction_type',
   })
-  transactionType!: 'trade' | 'purchase' | 'both';
+  transactionType!: TransactionTypeEnum;
 
   @ManyToOne(() => EventEntity, (event) => event.garments, {
     nullable: true,
   })
   @JoinColumn({ name: 'event_id' })
   event?: EventEntity;
+
+  @OneToMany(() => BagEntity, (bag) => bag.garment)
+  bag!: BagEntity[];
 
   @ManyToOne(() => UserEntity, (seller) => seller.garments, {
     nullable: false,
@@ -90,15 +105,18 @@ export class GarmentEntity {
   @OneToMany(() => GarmentImageEntity, (image) => image.garment)
   images!: GarmentImageEntity[];
 
+  @OneToMany(() => PostEntity, (post) => post.garmentId)
+  posts!: PostEntity[];
+
   @ManyToMany(() => ColorEntity)
-  @JoinTable()
+  @JoinTable({ name: 'garment_colors' })
   colors!: ColorEntity[];
 
   @ManyToMany(() => CareEntity)
-  @JoinTable()
-  cares!: CareEntity[];
+  @JoinTable({ name: 'garment_care' })
+  care!: CareEntity[];
 
   @ManyToMany(() => TagEntity)
-  @JoinTable()
+  @JoinTable({ name: 'garment_tags' })
   tags!: TagEntity[];
 }

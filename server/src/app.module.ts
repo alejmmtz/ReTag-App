@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import { CartsModule } from './carts/carts.module';
+import { CartsModule } from './bags/bags.module';
 import { EventsModule } from './events/events.module';
 import { PostsModule } from './posts/posts.module';
 import { CatalogsModule } from './catalogs/catalogs.module';

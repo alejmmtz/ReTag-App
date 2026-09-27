@@ -9,6 +9,7 @@ import {
 
 import { UserEntity } from '../../users/entities/user.entity';
 import { StoreImage } from './store-image.entity';
+import { EventEntity } from '../../events/entities/event.entity';
 
 @Entity('stores')
 export class StoreEntity {
@@ -21,18 +22,21 @@ export class StoreEntity {
   @Column({ nullable: true })
   socialmedia?: string;
 
-  @Column({ name: 'store_name' })
+  @Column({ name: 'store_name', length: 40 })
   storeName!: string;
 
   @Column({ nullable: true })
   location?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 350 })
   description?: string;
 
-  @OneToOne(() => UserEntity, (user) => user.store)
+  @OneToOne(() => UserEntity)
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
+
+  @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
+  events!: EventEntity[];
 
   @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
   images!: StoreImage[];

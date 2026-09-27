@@ -1,4 +1,10 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 import { UserEntity } from './user.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
 
@@ -9,6 +15,9 @@ export class UserLikesEntity {
 
   @PrimaryColumn('uuid', { name: 'post_id' })
   postId!: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.likes, {
     nullable: false,

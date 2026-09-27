@@ -9,17 +9,7 @@ import {
 
 import { UserEntity } from '../../users/entities/user.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
-
-export enum TransactionTypeEnum {
-  SALE = 'SALE',
-  TRADE = 'TRADE',
-}
-
-export enum TransactionStatusEnum {
-  PENDING = 'PENDING',
-  COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED',
-}
+import { TransactionStatusEnum, TransactionTypeEnum } from '../../types/enums';
 
 @Entity('transactions')
 export class TransactionEntity {
@@ -33,7 +23,7 @@ export class TransactionEntity {
   garmentId!: string;
 
   @Column({
-    name: 'transaction_type',
+    name: 'type',
     type: 'enum',
     enum: TransactionTypeEnum,
   })
@@ -45,7 +35,7 @@ export class TransactionEntity {
   @Column({
     type: 'enum',
     enum: TransactionStatusEnum,
-    default: TransactionStatusEnum.PENDING,
+    default: 'pending',
   })
   status!: TransactionStatusEnum;
 

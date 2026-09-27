@@ -1,4 +1,10 @@
-import { Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import {
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 import { UserEntity } from './user.entity';
 
@@ -7,18 +13,21 @@ export class FollowEntity {
   @PrimaryColumn('uuid', { name: 'follower_id' })
   followerId!: string;
 
-  @PrimaryColumn('uuid', { name: 'followed_user_id' })
-  followedUserId!: string;
+  @PrimaryColumn('uuid', { name: 'followed_id' })
+  followedId!: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt!: Date;
 
   @ManyToOne(() => UserEntity, (user) => user.following, {
-    nullable: false,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'follower_id' })
   follower!: UserEntity;
 
   @ManyToOne(() => UserEntity, (user) => user.followers, {
-    nullable: false,
+    onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'followed_user_id' })
-  followedUser!: UserEntity;
+  @JoinColumn({ name: 'followed_id' })
+  followed!: UserEntity;
 }

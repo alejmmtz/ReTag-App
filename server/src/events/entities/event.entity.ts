@@ -3,17 +3,16 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-import { EventStatusEnum } from '../types/enums';
 import { EventImageEntity } from './event-image.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
+import { StoreEntity } from '../../stores/entities/store.entity';
+import { EventStatusEnum } from '../../types/enums';
 
 @Entity('events')
 export class EventEntity {
@@ -29,7 +28,7 @@ export class EventEntity {
   @Column()
   title!: string;
 
-  @Column()
+  @Column({ length: 650 })
   description!: string;
 
   @Column({
@@ -55,10 +54,6 @@ export class EventEntity {
     name: 'created_at',
   })
   createdAt!: Date;
-
-  @ManyToMany(() => UserEntity, (user) => user.events)
-  @JoinTable()
-  participants!: UserEntity[];
 
   @OneToMany(() => EventImageEntity, (image) => image.event)
   images!: EventImageEntity[];
