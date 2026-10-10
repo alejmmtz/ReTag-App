@@ -53,6 +53,7 @@ export enum TransactionTypeEnum {
 export enum TransactionStatusEnum {
   PENDING = 'pending',
   COMPLETED = 'completed',
+  IN_PROGRESS = 'in_progress',
   CANCELLED = 'canceled',
 }
 
