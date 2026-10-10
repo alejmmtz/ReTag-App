@@ -11,7 +11,7 @@ import { UserLikesEntity } from './user-like.entity';
 import { FollowEntity } from './follow.entity';
 import { BagEntity } from '../../bags/entities/bag.entity';
 import { TransactionEntity } from '../../transactions/entities/transaction.entity';
-import { UserRoleEnum } from '../../types/enums';
+import { UserRoleEnum } from '../../common/types/enums';
 
 @Entity('users')
 export class UserEntity {

@@ -9,7 +9,10 @@ import {
 
 import { UserEntity } from '../../users/entities/user.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
-import { TransactionStatusEnum, TransactionTypeEnum } from '../../types/enums';
+import {
+  TransactionStatusEnum,
+  TransactionTypeEnum,
+} from '../../common/types/enums';
 
 @Entity('transactions')
 export class TransactionEntity {

@@ -12,7 +12,7 @@ import { EventImageEntity } from './event-image.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { StoreEntity } from '../../stores/entities/store.entity';
-import { EventStatusEnum } from '../../types/enums';
+import { EventStatusEnum } from '../../common/types/enums';
 
 @Entity('events')
 export class EventEntity {

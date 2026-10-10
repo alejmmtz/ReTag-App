@@ -20,10 +20,11 @@ import { EventEntity } from '../../events/entities/event.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
 import {
+  GarmentConditionEnum,
   GarmentStatus,
   MaterialEnum,
   TransactionTypeEnum,
-} from '../../types/enums';
+} from '../../common/types/enums';
 import { BagEntity } from '../../bags/entities/bag.entity';
 
 @Entity('garments')
@@ -71,8 +72,11 @@ export class GarmentEntity {
   })
   status!: GarmentStatus;
 
-  @Column({ length: 350, name: 'water_saved' })
-  waterSaved!: string;
+  @Column({ type: 'double precision', precision: 2, name: 'water_saved' })
+  waterSaved!: number;
+
+  @Column({ type: 'enum', enum: GarmentConditionEnum, default: 'good' })
+  condition!: GarmentConditionEnum;
 
   @Column({ type: 'decimal' })
   price!: number;

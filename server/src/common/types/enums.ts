@@ -55,3 +55,11 @@ export enum TransactionStatusEnum {
   COMPLETED = 'completed',
   CANCELLED = 'canceled',
 }
+
+export enum GarmentConditionEnum {
+  LIKENEW = 'like new',
+  VERYGOOD = 'very good',
+  GOOD = 'good',
+  ACCEPTABLE = 'acceptable',
+  REFURBISHED = 'refurbished',
+}

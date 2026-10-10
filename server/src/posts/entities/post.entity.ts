@@ -12,7 +12,7 @@ import { PostImageEntity } from './post-image.entity';
 import { EventEntity } from '../../events/entities/event.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { UserLikesEntity } from '../../users/entities/user-like.entity';
-import { PostTypeEnum } from '../../types/enums';
+import { PostTypeEnum } from '../../common/types/enums';
 
 @Entity('posts')
 export class PostEntity {
