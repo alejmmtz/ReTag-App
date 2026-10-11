@@ -72,7 +72,12 @@ export class GarmentEntity {
   })
   status!: GarmentStatus;
 
-  @Column({ type: 'double precision', precision: 2, name: 'water_saved' })
+  @Column({
+    type: 'numeric',
+    precision: 10,
+    scale: 2,
+    name: 'water_saved',
+  })
   waterSaved!: number;
 
   @Column({ type: 'enum', enum: GarmentConditionEnum, default: 'good' })
