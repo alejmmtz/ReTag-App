@@ -6,9 +6,13 @@ import {
   Put,
   ParseUUIDPipe,
   Req,
+  Query,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 
 interface AuthenticatedRequest {
   user: { id: string };
@@ -25,5 +29,22 @@ export class UsersController {
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
+  }
+
+  @Get(':id/garments')
+  findGarments(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query(requestValidationPipe) query: FilterUserGarmentsQueryDto,
+  ) {
+    return this.usersService.findGarments(id, query);
+  }
+
+  // RF-19
+  @Get(':id/posts')
+  findPosts(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query(requestValidationPipe) query: PaginationQueryDto,
+  ) {
+    return this.usersService.findPosts(id, query);
   }
 }
