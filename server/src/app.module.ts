@@ -12,6 +12,7 @@ import { StoresModule } from './stores/stores.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { UsersStatisticsController } from './users/users-statistics.controller';
 
 @Module({
   imports: [
@@ -42,7 +43,7 @@ import { AuthModule } from './auth/auth.module';
     TransactionsModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, UsersStatisticsController],
   providers: [AppService],
 })
 export class AppModule {}
