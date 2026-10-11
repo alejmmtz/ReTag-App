@@ -6,6 +6,8 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { PostEntity } from '../posts/entities/post.entity';
 
 void describe('UsersServiceTest', () => {
   let service: UsersService;
@@ -13,6 +15,16 @@ void describe('UsersServiceTest', () => {
   const usersRepositoryMock = {
     findOne: jest.fn<(options: any) => Promise<UserEntity | null>>(),
     save: jest.fn<(user: UserEntity) => Promise<UserEntity>>(),
+    exists: jest.fn<(options: any) => Promise<boolean>>(),
+  };
+
+  const garmentsRepositoryMock = {
+    findAndCount:
+      jest.fn<(options: any) => Promise<[GarmentEntity[], number]>>(),
+  };
+
+  const postsRepositoryMock = {
+    findAndCount: jest.fn<(options: any) => Promise<[PostEntity[], number]>>(),
   };
 
   beforeEach(async () => {
