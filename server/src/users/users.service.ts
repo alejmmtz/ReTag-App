@@ -88,6 +88,7 @@ export class UsersService {
       createdAt: saved.createdAt,
     };
   }
+
   async findGarments(userId: string, query: FilterUserGarmentsQueryDto) {
     await this.ensureUserExists(userId);
 
