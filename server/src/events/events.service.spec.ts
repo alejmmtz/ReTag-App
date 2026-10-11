@@ -10,6 +10,9 @@ import {
   EventStatusEnum,
 } from '../common/types/enums';
 import { EventParticipantEntity } from './entities/event-participant.entity';
+import { StoreEntity } from '../stores/entities/store.entity';
+import { CreateEventDto } from './dto/create-event.dto';
+import { UpdateEventDto } from './dto/update-event.dto';
 
 void describe('EventsServiceTest', () => {
   let service: EventsService;
@@ -17,6 +20,14 @@ void describe('EventsServiceTest', () => {
   const eventsRepositoryMock = {
     find: jest.fn<(options: any) => Promise<EventEntity[]>>(),
     findOne: jest.fn<(options: any) => Promise<EventEntity | null>>(),
+    create: jest.fn(),
+    save: jest.fn<(event: EventEntity) => Promise<EventEntity>>(),
+    merge: jest.fn<(event: EventEntity, dto: UpdateEventDto) => EventEntity>(),
+    remove: jest.fn<(event: EventEntity) => Promise<EventEntity>>(),
+  };
+
+  const storesRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<StoreEntity | null>>(),
   };
 
   const eventParticipantsRepositoryMock = {
@@ -39,6 +50,10 @@ void describe('EventsServiceTest', () => {
           useValue: eventsRepositoryMock,
         },
         {
+          provide: getRepositoryToken(StoreEntity),
+          useValue: storesRepositoryMock,
+        },
+        {
           provide: getRepositoryToken(EventParticipantEntity),
           useValue: eventParticipantsRepositoryMock,
         },
@@ -50,6 +65,153 @@ void describe('EventsServiceTest', () => {
 
   it('is defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('creates and saves an event', async () => {
+    const userId = '1';
+
+    const data: CreateEventDto = {
+      title: 'Vintage Market',
+      description: 'Second-hand fashion event',
+      startsAt: new Date('2026-11-15T15:00:00.000Z'),
+      endsAt: new Date('2026-11-15T20:00:00.000Z'),
+      location: 'Cali',
+      capacity: 100,
+    };
+
+    const store = {
+      id: '2',
+      userId: '1',
+      storeName: 'Vintage Store',
+    } as StoreEntity;
+
+    const createdEvent = {
+      ...data,
+      store,
+      status: EventStatusEnum.UPCOMING,
+    } as EventEntity;
+
+    const savedEvent = {
+      ...createdEvent,
+      id: '3',
+    };
+
+    storesRepositoryMock.findOne.mockResolvedValue(store);
+    eventsRepositoryMock.create.mockReturnValue(createdEvent);
+    eventsRepositoryMock.save.mockResolvedValue(savedEvent);
+
+    const result = await service.create(userId, data);
+
+    expect(result).toEqual(savedEvent);
+
+    expect(storesRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: {
+        userId: '1',
+      },
+    });
+
+    expect(eventsRepositoryMock.create).toHaveBeenCalledWith({
+      ...data,
+      store,
+      status: EventStatusEnum.UPCOMING,
+    });
+
+    expect(eventsRepositoryMock.save).toHaveBeenCalledWith(createdEvent);
+  });
+
+  it('throws NotFoundException when store does not exist', async () => {
+    const userId = '1';
+
+    const data: CreateEventDto = {
+      title: 'Vintage Market',
+      description: 'Second-hand fashion event',
+      startsAt: new Date('2026-11-15T15:00:00.000Z'),
+      endsAt: new Date('2026-11-15T20:00:00.000Z'),
+    };
+
+    storesRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.create(userId, data)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('updates and saves an event', async () => {
+    const userId = '1';
+    const eventId = '3';
+
+    const event = {
+      id: '3',
+      title: 'Vintage Market',
+      description: 'Second-hand fashion event',
+      startsAt: new Date('2026-11-15T15:00:00.000Z'),
+      endsAt: new Date('2026-11-15T20:00:00.000Z'),
+      status: EventStatusEnum.UPCOMING,
+    } as EventEntity;
+
+    const data: UpdateEventDto = {
+      location: 'Centro de Eventos Cali',
+    };
+
+    eventsRepositoryMock.findOne.mockResolvedValue(event);
+
+    eventsRepositoryMock.merge.mockImplementation(
+      (eventToUpdate: EventEntity, updateData: UpdateEventDto) =>
+        Object.assign(eventToUpdate, updateData),
+    );
+
+    eventsRepositoryMock.save.mockResolvedValue(event);
+
+    const result = await service.update(userId, eventId, data);
+
+    expect(result.location).toBe('Centro de Eventos Cali');
+
+    expect(eventsRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: {
+        id: '3',
+        store: {
+          userId: '1',
+        },
+      },
+      relations: {
+        store: true,
+      },
+    });
+
+    expect(eventsRepositoryMock.merge).toHaveBeenCalledWith(event, data);
+    expect(eventsRepositoryMock.save).toHaveBeenCalledWith(event);
+  });
+
+  it('removes an event', async () => {
+    const userId = '1';
+    const eventId = '3';
+
+    const event = {
+      id: '3',
+      title: 'Vintage Market',
+      status: EventStatusEnum.UPCOMING,
+    } as EventEntity;
+
+    eventsRepositoryMock.findOne.mockResolvedValue(event);
+    eventsRepositoryMock.remove.mockResolvedValue(event);
+
+    const result = await service.remove(userId, eventId);
+
+    expect(result).toEqual(event);
+
+    expect(eventsRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: {
+        id: '3',
+        store: {
+          userId: '1',
+        },
+      },
+      relations: {
+        store: true,
+      },
+    });
+
+    expect(eventsRepositoryMock.remove).toHaveBeenCalledWith(event);
   });
 
   it('returns all the events', async () => {
