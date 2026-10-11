@@ -15,18 +15,27 @@ export class UsersService {
     return `This action returns all users`;
   }
 
-  async findOne(id: string): Promise<UserEntity> {
+  async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
-      relations: ['posts', 'garments'],
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        profilePicture: true,
+        description: true,
+        role: true,
+        createdAt: true,
+      },
     });
-
+ 
     if (!user) {
-      throw new NotFoundException(`User with id ${id} was not found`);
+      throw new NotFoundException(`User with id ${id} not found`);
     }
-
+ 
     return user;
   }
+ 
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserEntity> {
     const user = await this.findOne(id);
