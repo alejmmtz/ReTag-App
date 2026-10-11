@@ -1,7 +1,11 @@
 import { beforeEach, describe, jest, it, expect } from '@jest/globals';
 import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
@@ -11,6 +15,7 @@ import { PostEntity } from '../posts/entities/post.entity';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { GarmentStatus } from '../common/types/enums';
+import { FollowEntity } from './entities/follow.entity';
 
 void describe('UsersServiceTest', () => {
   let service: UsersService;
@@ -30,6 +35,13 @@ void describe('UsersServiceTest', () => {
     findAndCount: jest.fn<(options: any) => Promise<[PostEntity[], number]>>(),
   };
 
+  const followsRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<FollowEntity | null>>(),
+    create: jest.fn<(data: Partial<FollowEntity>) => FollowEntity>(),
+    save: jest.fn<(follow: FollowEntity) => Promise<FollowEntity>>(),
+    remove: jest.fn<(follow: FollowEntity) => Promise<FollowEntity>>(),
+  };
+
   beforeEach(async () => {
     jest.resetAllMocks();
 
@@ -47,6 +59,10 @@ void describe('UsersServiceTest', () => {
         {
           provide: getRepositoryToken(PostEntity),
           useValue: postsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(FollowEntity),
+          useValue: followsRepositoryMock,
         },
       ],
     }).compile();
@@ -245,5 +261,77 @@ void describe('UsersServiceTest', () => {
       service.findPosts('1', new PaginationQueryDto()),
     ).rejects.toBeInstanceOf(NotFoundException);
     expect(postsRepositoryMock.findAndCount).not.toHaveBeenCalled();
+  });
+  //R22
+
+  it('creates and saves a follow relation', async () => {
+    const createdFollow = {
+      followerId: '1',
+      followedId: '2',
+    } as FollowEntity;
+
+    usersRepositoryMock.exists.mockResolvedValue(true);
+    followsRepositoryMock.findOne.mockResolvedValue(null);
+    followsRepositoryMock.create.mockReturnValue(createdFollow);
+    followsRepositoryMock.save.mockResolvedValue(createdFollow);
+
+    const result = await service.follow('1', '2');
+
+    expect(result).toEqual(createdFollow);
+    expect(followsRepositoryMock.create).toHaveBeenCalledWith({
+      followerId: '1',
+      followedId: '2',
+    });
+    expect(followsRepositoryMock.save).toHaveBeenCalledWith(createdFollow);
+  });
+
+  it('throws BadRequestException when a user tries to follow themselves', async () => {
+    await expect(service.follow('1', '1')).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
+    expect(followsRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  it('throws NotFoundException when the user to follow does not exist', async () => {
+    usersRepositoryMock.exists.mockResolvedValue(false);
+
+    await expect(service.follow('1', '2')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(followsRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  it('throws ConflictException when the user is already followed', async () => {
+    usersRepositoryMock.exists.mockResolvedValue(true);
+    followsRepositoryMock.findOne.mockResolvedValue({
+      followerId: '1',
+      followedId: '2',
+    } as FollowEntity);
+
+    await expect(service.follow('1', '2')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(followsRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  it('removes the follow relation when unfollowing', async () => {
+    const followMock = { followerId: '1', followedId: '2' } as FollowEntity;
+
+    followsRepositoryMock.findOne.mockResolvedValue(followMock);
+    followsRepositoryMock.remove.mockResolvedValue(followMock);
+
+    const result = await service.unfollow('1', '2');
+
+    expect(result).toEqual({ message: 'User unfollowed successfully' });
+    expect(followsRepositoryMock.remove).toHaveBeenCalledWith(followMock);
+  });
+
+  it('throws NotFoundException when unfollowing a user that is not followed', async () => {
+    followsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.unfollow('1', '2')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(followsRepositoryMock.remove).not.toHaveBeenCalled();
   });
 });

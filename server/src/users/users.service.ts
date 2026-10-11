@@ -164,7 +164,6 @@ export class UsersService {
     return this.followsRepository.save(follow);
   }
 
-  // RF-22: dejar de seguir
   async unfollow(followerId: string, followedId: string) {
     const follow = await this.followsRepository.findOne({
       where: { followerId, followedId },
