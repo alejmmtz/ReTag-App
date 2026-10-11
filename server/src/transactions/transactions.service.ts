@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-
 import { TransactionEntity } from './entities/transaction.entity';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
@@ -13,6 +12,8 @@ import {
   TransactionStatusEnum,
   TransactionTypeEnum,
 } from '../common/types/enums';
+import { FilterTransactionsQueryDto } from './dto/filter-transactions-query.dto';
+import { UpdateTransactionStatusDto } from './dto/update-transaction-status.dto';
 
 @Injectable()
 export class TransactionsService {
@@ -81,6 +82,53 @@ export class TransactionsService {
       tradeGarmentId: dto.tradeGarmentId,
       status: TransactionStatusEnum.PENDING,
     });
+
+    return this.transactionsRepository.save(transaction);
+  }
+
+  async findAll(buyerId: string, query: FilterTransactionsQueryDto) {
+    return this.transactionsRepository.find({
+      where: {
+        buyerId,
+        ...(query.status && { status: query.status }),
+      },
+      relations: {
+        garment: true,
+        tradeGarment: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
+  async findOne(buyerId: string, id: string) {
+    const transaction = await this.transactionsRepository.findOne({
+      where: {
+        id,
+        buyerId,
+      },
+      relations: {
+        garment: true,
+        tradeGarment: true,
+      },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    return transaction;
+  }
+
+  async updateStatus(
+    buyerId: string,
+    id: string,
+    dto: UpdateTransactionStatusDto,
+  ) {
+    const transaction = await this.findOne(buyerId, id);
+
+    transaction.status = dto.status;
 
     return this.transactionsRepository.save(transaction);
   }
