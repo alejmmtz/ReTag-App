@@ -45,6 +45,9 @@ export class UserEntity {
   })
   role!: UserRoleEnum;
 
+  @Column({ nullable: true, length: 300 })
+  description?: string;
+
   @OneToMany(() => PostEntity, (post) => post.userId)
   posts!: PostEntity[];
 
