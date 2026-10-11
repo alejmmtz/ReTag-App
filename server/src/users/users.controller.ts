@@ -7,6 +7,8 @@ import {
   ParseUUIDPipe,
   Req,
   Query,
+  Post,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -45,5 +47,22 @@ export class UsersController {
     @Query(requestValidationPipe) query: PaginationQueryDto,
   ) {
     return this.usersService.findPosts(id, query);
+  }
+
+  @Post(':id/follow')
+  follow(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.usersService.follow(req.user.id, id);
+  }
+
+  // RF-22
+  @Delete(':id/follow')
+  unfollow(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.usersService.unfollow(req.user.id, id);
   }
 }
