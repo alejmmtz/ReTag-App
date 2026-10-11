@@ -1,26 +1,79 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
+  ) {}
+
+  async findOne(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        profilePicture: true,
+        description: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+
+    return user;
   }
 
-  findAll() {
-    return `This action returns all users`;
-  }
+  async update(userId: string, data: UpdateUserDto) {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+    if (data.username && data.username !== user.username) {
+      const taken = await this.usersRepository.findOne({
+        where: { username: data.username },
+      });
+      if (taken) {
+        throw new ConflictException('Username is already in use');
+      }
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+    if (data.phone && data.phone !== user.phone) {
+      const taken = await this.usersRepository.findOne({
+        where: { phone: data.phone },
+      });
+      if (taken) {
+        throw new ConflictException('Phone is already in use');
+      }
+    }
+
+    Object.assign(user, data);
+    const saved = await this.usersRepository.save(user);
+
+    return {
+      id: saved.id,
+      name: saved.name,
+      username: saved.username,
+      email: saved.email,
+      phone: saved.phone,
+      profilePicture: saved.profilePicture,
+      description: saved.description,
+      role: saved.role,
+      createdAt: saved.createdAt,
+    };
   }
 }
