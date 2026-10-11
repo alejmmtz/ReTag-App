@@ -15,10 +15,6 @@ export class UsersService {
     private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
-  findAll() {
-    return `This action returns all users`;
-  }
-
   async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
@@ -79,9 +75,5 @@ export class UsersService {
       role: saved.role,
       createdAt: saved.createdAt,
     };
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} user`;
   }
 }
