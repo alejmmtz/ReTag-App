@@ -35,6 +35,7 @@ export class StoreEntity {
   @JoinColumn({ name: 'user_id' })
   user?: UserEntity;
 
+  // TODO: Review relation. This should probably reference EventEntity instead of StoreImage
   @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
   events!: EventEntity[];
 

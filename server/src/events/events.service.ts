@@ -29,10 +29,10 @@ export class EventsService {
     private readonly storesRepository: Repository<StoreEntity>,
   ) {}
 
-  async create(storeId: string, dto: CreateEventDto) {
+  async create(userId: string, dto: CreateEventDto) {
     const store = await this.storesRepository.findOne({
       where: {
-        id: storeId,
+        userId,
       },
     });
 
@@ -40,7 +40,7 @@ export class EventsService {
       throw new NotFoundException('Store not found');
     }
 
-    if (dto.endsAt <= dto.startsAt) {
+    if (dto.endsAt.getTime() <= dto.startsAt.getTime()) {
       throw new BadRequestException(
         'The event end date must be after the start date',
       );
@@ -55,12 +55,12 @@ export class EventsService {
     return this.eventsRepository.save(event);
   }
 
-  async update(storeId: string, id: string, dto: UpdateEventDto) {
+  async update(userId: string, id: string, dto: UpdateEventDto) {
     const event = await this.eventsRepository.findOne({
       where: {
         id,
         store: {
-          id: storeId,
+          userId,
         },
       },
       relations: {
@@ -75,7 +75,7 @@ export class EventsService {
     const startsAt = dto.startsAt ?? event.startsAt;
     const endsAt = dto.endsAt ?? event.endsAt;
 
-    if (endsAt <= startsAt) {
+    if (endsAt.getTime() <= startsAt.getTime()) {
       throw new BadRequestException(
         'The event end date must be after the start date',
       );
@@ -86,12 +86,12 @@ export class EventsService {
     return this.eventsRepository.save(event);
   }
 
-  async remove(storeId: string, id: string) {
+  async remove(userId: string, id: string) {
     const event = await this.eventsRepository.findOne({
       where: {
         id,
         store: {
-          id: storeId,
+          userId,
         },
       },
       relations: {
