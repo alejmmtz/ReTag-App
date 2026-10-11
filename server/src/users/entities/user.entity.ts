@@ -12,6 +12,7 @@ import { FollowEntity } from './follow.entity';
 import { BagEntity } from '../../bags/entities/bag.entity';
 import { TransactionEntity } from '../../transactions/entities/transaction.entity';
 import { UserRoleEnum } from '../../common/types/enums';
+import { EventParticipantEntity } from '../../events/entities/event-participant.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -68,4 +69,7 @@ export class UserEntity {
 
   @OneToMany(() => FollowEntity, (follow) => follow.followed)
   followers!: FollowEntity[];
+
+  @OneToMany(() => EventParticipantEntity, (participant) => participant.user)
+  eventParticipations!: EventParticipantEntity[];
 }

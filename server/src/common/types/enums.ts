@@ -37,6 +37,11 @@ export enum EventStatusEnum {
   COMPLETED = 'completed',
 }
 
+export enum EventParticipantStatusEnum {
+  ACTIVE = 'active',
+  LEFT = 'left',
+}
+
 export enum PostTypeEnum {
   SHOWOFF = 'show off',
   COMMUNITY = 'community',

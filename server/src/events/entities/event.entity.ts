@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { EventParticipantEntity } from './event-participant.entity';
 import { EventImageEntity } from './event-image.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
@@ -63,4 +64,7 @@ export class EventEntity {
 
   @OneToMany(() => GarmentEntity, (garment) => garment.event)
   garments!: GarmentEntity[];
+
+  @OneToMany(() => EventParticipantEntity, (participant) => participant.event)
+  participants!: EventParticipantEntity[];
 }
