@@ -13,6 +13,7 @@ import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
 import { paginate } from '../common/utils/paginate';
+import { FollowEntity } from './entities/follow.entity';
 
 @Injectable()
 export class UsersService {
@@ -25,6 +26,9 @@ export class UsersService {
 
     @InjectRepository(PostEntity)
     private readonly postsRepository: Repository<PostEntity>,
+
+    @InjectRepository(FollowEntity)
+    private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
   async findOne(id: string) {
