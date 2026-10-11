@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -142,5 +143,39 @@ export class UsersService {
     if (!exists) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
+  }
+  async follow(followerId: string, followedId: string) {
+    if (followerId === followedId) {
+      throw new BadRequestException('You cannot follow yourself');
+    }
+
+    await this.ensureUserExists(followedId);
+
+    const existingFollow = await this.followsRepository.findOne({
+      where: { followerId, followedId },
+    });
+
+    if (existingFollow) {
+      throw new ConflictException('You already follow this user');
+    }
+
+    const follow = this.followsRepository.create({ followerId, followedId });
+
+    return this.followsRepository.save(follow);
+  }
+
+  // RF-22: dejar de seguir
+  async unfollow(followerId: string, followedId: string) {
+    const follow = await this.followsRepository.findOne({
+      where: { followerId, followedId },
+    });
+
+    if (!follow) {
+      throw new NotFoundException('Follow relation not found');
+    }
+
+    await this.followsRepository.remove(follow);
+
+    return { message: 'User unfollowed successfully' };
   }
 }
