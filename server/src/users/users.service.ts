@@ -110,4 +110,32 @@ export class UsersService {
 
     return paginate(garments, total, page, limit);
   }
+
+  async findPosts(userId: string, query: PaginationQueryDto) {
+    await this.ensureUserExists(userId);
+
+    const { page, limit } = query;
+
+    const [posts, total] = await this.postsRepository.findAndCount({
+      where: {
+        userId: { id: userId },
+      },
+      relations: {
+        images: true,
+      },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return paginate(posts, total, page, limit);
+  }
+
+  private async ensureUserExists(id: string) {
+    const exists = await this.usersRepository.exists({ where: { id } });
+
+    if (!exists) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+  }
 }
