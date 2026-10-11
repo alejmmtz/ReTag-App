@@ -39,7 +39,6 @@ export class UsersController {
     return this.usersService.findGarments(id, query);
   }
 
-  // RF-19
   @Get(':id/posts')
   findPosts(
     @Param('id', ParseUUIDPipe) id: string,
