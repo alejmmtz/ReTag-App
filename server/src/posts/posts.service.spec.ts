@@ -9,6 +9,7 @@ import { PostTypeEnum, UserRoleEnum } from '../common/types/enums';
 import { UNDERGROUND_MAX_FOLLOWERS } from './posts.constants';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 type AnyFn = (...args: any[]) => any;
 
@@ -73,6 +74,10 @@ void describe('PostsServiceTest', () => {
     remove: jest.fn<(like: UserLikesEntity) => Promise<UserLikesEntity>>(),
     count: jest.fn<(options: any) => Promise<number>>(),
     createQueryBuilder: jest.fn<AnyFn>(),
+  };
+
+  const followsRepositoryMock = {
+    exists: jest.fn<(options: any) => Promise<boolean>>(),
   };
 
   const mockLikes = (
@@ -233,5 +238,124 @@ void describe('PostsServiceTest', () => {
     expect(result.data).toEqual([]);
     expect(postsRepositoryMock.find).not.toHaveBeenCalled();
     expect(likesRepositoryMock.createQueryBuilder).not.toHaveBeenCalled();
+  });
+  it('returns the post detail with likes and follow state', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(buildPost('p1'));
+    mockLikes([{ postId: 'p1', count: '2' }], []);
+    followsRepositoryMock.exists.mockResolvedValue(true);
+
+    const result = await service.findOne('viewer', 'p1');
+
+    expect(result).toEqual(
+      expect.objectContaining({
+        id: 'p1',
+        likesCount: 2,
+        likedByMe: false,
+        isFollowingAuthor: true,
+      }),
+    );
+    expect(followsRepositoryMock.exists).toHaveBeenCalledWith({
+      where: { followerId: 'viewer', followedId: 'author-1' },
+    });
+  });
+
+  it('includes the garment and event references in the detail', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(
+      buildPost('p1', {
+        garmentId: {
+          id: 'g1',
+          name: 'Chaqueta',
+          price: '45000.00',
+          status: 'available',
+        },
+        eventId: { id: 'e1', title: 'Swap', startsAt: new Date('2026-02-01') },
+      }),
+    );
+    mockLikes([], []);
+    followsRepositoryMock.exists.mockResolvedValue(false);
+
+    const result = await service.findOne('viewer', 'p1');
+
+    expect(result.garment).toEqual({
+      id: 'g1',
+      name: 'Chaqueta',
+      price: 45000,
+      status: 'available',
+    });
+    expect(result.event).toEqual(
+      expect.objectContaining({ id: 'e1', title: 'Swap' }),
+    );
+  });
+
+  it('throws NotFoundException when the post does not exist', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.findOne('viewer', 'p1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('creates a like and returns the new count', async () => {
+    postsRepositoryMock.exists.mockResolvedValue(true);
+    likesRepositoryMock.findOne.mockResolvedValue(null);
+    likesRepositoryMock.create.mockReturnValue({
+      userId: 'viewer',
+      postId: 'p1',
+    } as UserLikesEntity);
+    likesRepositoryMock.save.mockResolvedValue({} as UserLikesEntity);
+    likesRepositoryMock.count.mockResolvedValue(4);
+
+    const result = await service.like('viewer', 'p1');
+
+    expect(result).toEqual({ postId: 'p1', liked: true, likesCount: 4 });
+    expect(likesRepositoryMock.create).toHaveBeenCalledWith({
+      userId: 'viewer',
+      postId: 'p1',
+    });
+    expect(likesRepositoryMock.save).toHaveBeenCalled();
+  });
+
+  it('throws NotFoundException when liking a post that does not exist', async () => {
+    postsRepositoryMock.exists.mockResolvedValue(false);
+
+    await expect(service.like('viewer', 'p1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(likesRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  it('throws ConflictException when the post is already liked', async () => {
+    postsRepositoryMock.exists.mockResolvedValue(true);
+    likesRepositoryMock.findOne.mockResolvedValue({
+      userId: 'viewer',
+      postId: 'p1',
+    } as UserLikesEntity);
+
+    await expect(service.like('viewer', 'p1')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
+    expect(likesRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  it('removes the like and returns the new count', async () => {
+    const likeMock = { userId: 'viewer', postId: 'p1' } as UserLikesEntity;
+
+    likesRepositoryMock.findOne.mockResolvedValue(likeMock);
+    likesRepositoryMock.remove.mockResolvedValue(likeMock);
+    likesRepositoryMock.count.mockResolvedValue(1);
+
+    const result = await service.unlike('viewer', 'p1');
+
+    expect(result).toEqual({ postId: 'p1', liked: false, likesCount: 1 });
+    expect(likesRepositoryMock.remove).toHaveBeenCalledWith(likeMock);
+  });
+
+  it('throws NotFoundException when removing a like that does not exist', async () => {
+    likesRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.unlike('viewer', 'p1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+    expect(likesRepositoryMock.remove).not.toHaveBeenCalled();
   });
 });
