@@ -13,6 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersStatisticsController } from './users/users-statistics.controller';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UsersStatisticsController } from './users/users-statistics.controller';
     CartsModule,
     TransactionsModule,
     AuthModule,
+    NotificationsModule,
   ],
   controllers: [AppController, UsersStatisticsController],
   providers: [AppService],
