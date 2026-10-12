@@ -1,12 +1,14 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, SelectQueryBuilder } from 'typeorm';
+import { In, Repository, SelectQueryBuilder, DataSource } from 'typeorm';
 import { paginate } from '../common/utils/paginate';
 import {
   POST_RELATIONS,
@@ -17,7 +19,6 @@ import {
   PostDetailResponse,
   PostResponse,
 } from '../common/types/post-response.type';
-import { PostTypeEnum } from '../common/types/enums';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 import { FollowEntity } from '../users/entities/follow.entity';
@@ -27,11 +28,11 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import {
   EventParticipantStatusEnum,
   UserRoleEnum,
+  PostTypeEnum,
 } from '../common/types/enums';
 import { UserEntity } from '../users/entities/user.entity';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { EventEntity } from '../events/entities/event.entity';
-import { DataSource } from 'typeorm/browser';
 import { PostImageEntity } from './entities/post-image.entity';
 
 @Injectable()
@@ -212,6 +213,7 @@ export class PostsService {
       ? await this.findLinkableEvent(user, dto.eventId)
       : undefined;
 
+    // Post + imágenes en una transacción: o se guarda todo o nada
     const saved = await this.dataSource.transaction(async (manager) => {
       const post = await manager.save(PostEntity, {
         caption: dto.caption,
@@ -239,6 +241,7 @@ export class PostsService {
   }
 
   async update(userId: string, id: string, dto: UpdatePostDto) {
+    // Lanza 404 si no existe y 403 si no es tuyo
     const post = await this.findOwnedPost(userId, id);
 
     await this.dataSource.transaction(async (manager) => {
@@ -300,7 +303,115 @@ export class PostsService {
 
     return qb;
   }
+  private validatePostRules(role: UserRoleEnum, dto: CreatePostDto) {
+    if (
+      role === UserRoleEnum.STORE &&
+      dto.postType === PostTypeEnum.COMMUNITY
+    ) {
+      throw new ForbiddenException(
+        'Stores can only publish offer, show off or event posts',
+      );
+    }
 
+    if (role === UserRoleEnum.USER && dto.postType === PostTypeEnum.EVENT) {
+      throw new ForbiddenException(
+        'Only stores can publish event promotion posts',
+      );
+    }
+
+    if (dto.postType === PostTypeEnum.OFFER && !dto.garmentId) {
+      throw new BadRequestException('Offer posts require a garmentId');
+    }
+
+    if (dto.postType === PostTypeEnum.EVENT && !dto.eventId) {
+      throw new BadRequestException('Event posts require an eventId');
+    }
+
+    if (
+      dto.postType === PostTypeEnum.COMMUNITY &&
+      (dto.garmentId || dto.eventId)
+    ) {
+      throw new BadRequestException(
+        'Community posts cannot reference a garment or an event',
+      );
+    }
+  }
+
+  //solo se pueden destacar prendas del propio clóset
+  private async findOwnGarment(userId: string, garmentId: string) {
+    const garment = await this.garmentsRepository.findOne({
+      where: { id: garmentId, seller: { id: userId } },
+      select: { id: true },
+    });
+
+    if (!garment) {
+      throw new NotFoundException('Garment not found in your closet');
+    }
+
+    return garment;
+  }
+
+  //tienda solo sus eventos usuario solo eventos donde participa
+  private async findLinkableEvent(
+    user: Pick<UserEntity, 'id' | 'role'>,
+    eventId: string,
+  ) {
+    const event = await this.eventsRepository.findOne({
+      where: { id: eventId },
+      relations: { store: true },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    if (user.role === UserRoleEnum.STORE) {
+      if (event.store?.userId !== user.id) {
+        throw new ForbiddenException(
+          'You can only link posts to your own events',
+        );
+      }
+    } else {
+      const participates = await this.eventParticipantsRepository.exists({
+        where: {
+          eventId,
+          userId: user.id,
+          status: EventParticipantStatusEnum.ACTIVE,
+        },
+      });
+
+      if (!participates) {
+        throw new ForbiddenException(
+          'Only active participants can post about this event',
+        );
+      }
+    }
+
+    return event;
+  }
+
+  //404 si no existe, 403 si no es del usuario
+  private async findOwnedPost(userId: string, id: string) {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+      select: {
+        id: true,
+        userId: { id: true },
+        images: { id: true, url: true, isCover: true },
+      },
+      relations: { userId: true, images: true },
+    });
+
+    if (!post) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+
+    if (post.userId.id !== userId) {
+      throw new ForbiddenException('You can only modify your own posts');
+    }
+
+    return post;
+  }
   private async toPostResponses(
     posts: PostEntity[],
     viewerId: string,
