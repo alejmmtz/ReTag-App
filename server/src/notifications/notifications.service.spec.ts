@@ -74,4 +74,88 @@ void describe('NotificationsServiceTest', () => {
 
     service = moduleRef.get(NotificationsService);
   });
+
+  it('is defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  it('merges likes, follows and bags sorted from newest to oldest', async () => {
+    likesRepositoryMock.findAndCount.mockResolvedValue([[likeMock], 1]);
+    followsRepositoryMock.findAndCount.mockResolvedValue([[followMock], 1]);
+    bagsRepositoryMock.findAndCount.mockResolvedValue([[bagMock], 1]);
+
+    const result = await service.findAll('1', new PaginationQueryDto());
+
+    expect(result.meta).toEqual({
+      page: 1,
+      limit: 10,
+      total: 3,
+      totalPages: 1,
+    });
+    expect(result.data.map((n) => n.type)).toEqual([
+      NotificationTypeEnum.FOLLOW,
+      NotificationTypeEnum.LIKE,
+      NotificationTypeEnum.BAG,
+    ]);
+    expect(result.data[1]).toEqual(
+      expect.objectContaining({ postId: 'post-1' }),
+    );
+    expect(result.data[2]).toEqual(
+      expect.objectContaining({ garmentId: 'garment-1' }),
+    );
+  });
+
+  it('only exposes public data of the user who triggered the notification', async () => {
+    likesRepositoryMock.findAndCount.mockResolvedValue([[likeMock], 1]);
+    followsRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+    bagsRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+
+    const result = await service.findAll('1', new PaginationQueryDto());
+
+    expect(result.data[0].actor).toEqual({
+      id: 'u2',
+      username: 'ana',
+      profilePicture: 'ana.jpg',
+    });
+    expect(result.data[0].actor).not.toHaveProperty('password');
+    expect(result.data[0].actor).not.toHaveProperty('email');
+  });
+
+  it('paginates the merged notifications', async () => {
+    const query = Object.assign(new PaginationQueryDto(), {
+      page: 2,
+      limit: 1,
+    });
+
+    likesRepositoryMock.findAndCount.mockResolvedValue([[likeMock], 1]);
+    followsRepositoryMock.findAndCount.mockResolvedValue([[followMock], 1]);
+    bagsRepositoryMock.findAndCount.mockResolvedValue([[bagMock], 1]);
+
+    const result = await service.findAll('1', query);
+
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0].type).toBe(NotificationTypeEnum.LIKE);
+    expect(result.meta).toEqual({
+      page: 2,
+      limit: 1,
+      total: 3,
+      totalPages: 3,
+    });
+    expect(followsRepositoryMock.findAndCount).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 2 }),
+    );
+  });
+
+  it('returns an empty list when the user has no notifications', async () => {
+    likesRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+    followsRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+    bagsRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+
+    const result = await service.findAll('1', new PaginationQueryDto());
+
+    expect(result).toEqual({
+      data: [],
+      meta: { page: 1, limit: 10, total: 0, totalPages: 0 },
+    });
+  });
 });
