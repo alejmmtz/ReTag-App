@@ -6,14 +6,13 @@ import {
 import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { paginate } from '../common/utils/paginate';
 import {
   POST_RELATIONS,
   POST_SELECT,
   UNDERGROUND_MAX_FOLLOWERS,
 } from './posts.constants';
-import { In } from 'typeorm/browser';
 import {
   PostDetailResponse,
   PostResponse,
@@ -31,6 +30,9 @@ export class PostsService {
 
     @InjectRepository(UserLikesEntity)
     private readonly likesRepository: Repository<UserLikesEntity>,
+
+    @InjectRepository(FollowEntity)
+    private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
   async findAll(viewerId: string, query: FilterPostsQueryDto) {
@@ -117,6 +119,13 @@ export class PostsService {
     return { ...responses[0], isFollowingAuthor };
   }
 
+  private async ensurePostExists(id: string) {
+    const exists = await this.postsRepository.exists({ where: { id } });
+
+    if (!exists) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+  }
   async like(userId: string, postId: string) {
     await this.ensurePostExists(postId);
 
