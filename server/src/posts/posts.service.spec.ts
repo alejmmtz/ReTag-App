@@ -7,6 +7,9 @@ import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { PostTypeEnum, UserRoleEnum } from '../common/types/enums';
+import { UNDERGROUND_MAX_FOLLOWERS } from './posts.constants';
+import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
+import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 
 type AnyFn = (...args: any[]) => any;
 
