@@ -5,6 +5,9 @@ import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { paginate } from '../common/utils/paginate';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { POST_RELATIONS, POST_SELECT } from './posts.constants';
 
 @Injectable()
 export class PostsService {
@@ -16,8 +19,20 @@ export class PostsService {
     private readonly likesRepository: Repository<UserLikesEntity>,
   ) {}
 
-  findAll() {
-    return `This action returns all posts`;
+  async findAll(viewerId: string, query: PaginationQueryDto) {
+    const { page, limit } = query;
+
+    const [posts, total] = await this.postsRepository.findAndCount({
+      select: POST_SELECT,
+      relations: POST_RELATIONS,
+      order: { createdAt: 'DESC', images: { isCover: 'DESC', id: 'ASC' } },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    const data = await this.toPostResponses(posts, viewerId);
+
+    return paginate(data, total, page, limit);
   }
 
   findOne(id: number) {
