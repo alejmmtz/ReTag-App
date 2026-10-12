@@ -22,7 +22,10 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put('me')
-  update(@Req() req: AuthenticatedRequest, @Body() data: UpdateUserDto) {
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Body(requestValidationPipe) data: UpdateUserDto,
+  ) {
     return this.usersService.update(req.user.id, data);
   }
 
