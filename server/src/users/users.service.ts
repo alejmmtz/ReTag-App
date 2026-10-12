@@ -32,6 +32,13 @@ export class UsersService {
     private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
+  private async ensureUserExists(id: string) {
+    const exists = await this.usersRepository.exists({ where: { id } });
+
+    if (!exists) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+  }
   async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
@@ -137,13 +144,6 @@ export class UsersService {
     return paginate(posts, total, page, limit);
   }
 
-  private async ensureUserExists(id: string) {
-    const exists = await this.usersRepository.exists({ where: { id } });
-
-    if (!exists) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
-  }
   async follow(followerId: string, followedId: string) {
     if (followerId === followedId) {
       throw new BadRequestException('You cannot follow yourself');
