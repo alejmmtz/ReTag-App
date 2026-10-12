@@ -6,6 +6,11 @@ import { ConflictException, NotFoundException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { PostEntity } from '../posts/entities/post.entity';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
+import { GarmentStatus } from '../common/types/enums';
 
 void describe('UsersServiceTest', () => {
   let service: UsersService;
@@ -13,6 +18,16 @@ void describe('UsersServiceTest', () => {
   const usersRepositoryMock = {
     findOne: jest.fn<(options: any) => Promise<UserEntity | null>>(),
     save: jest.fn<(user: UserEntity) => Promise<UserEntity>>(),
+    exists: jest.fn<(options: any) => Promise<boolean>>(),
+  };
+
+  const garmentsRepositoryMock = {
+    findAndCount:
+      jest.fn<(options: any) => Promise<[GarmentEntity[], number]>>(),
+  };
+
+  const postsRepositoryMock = {
+    findAndCount: jest.fn<(options: any) => Promise<[PostEntity[], number]>>(),
   };
 
   beforeEach(async () => {
@@ -25,6 +40,14 @@ void describe('UsersServiceTest', () => {
           provide: getRepositoryToken(UserEntity),
           useValue: usersRepositoryMock,
         },
+        {
+          provide: getRepositoryToken(GarmentEntity),
+          useValue: garmentsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(PostEntity),
+          useValue: postsRepositoryMock,
+        },
       ],
     }).compile();
 
@@ -34,7 +57,7 @@ void describe('UsersServiceTest', () => {
   it('is defined', () => {
     expect(service).toBeDefined();
   });
-
+  //R18
   it('returns the public profile of a user', async () => {
     const userMock = {
       id: '1',
@@ -136,5 +159,91 @@ void describe('UsersServiceTest', () => {
       ConflictException,
     );
     expect(usersRepositoryMock.save).not.toHaveBeenCalled();
+  });
+
+  //R19
+  it('returns the first page of available garments by default', async () => {
+    const garmentMock = { id: 'g1' } as GarmentEntity;
+
+    usersRepositoryMock.exists.mockResolvedValue(true);
+    garmentsRepositoryMock.findAndCount.mockResolvedValue([[garmentMock], 1]);
+
+    const result = await service.findGarments(
+      '1',
+      new FilterUserGarmentsQueryDto(),
+    );
+
+    expect(result).toEqual({
+      data: [garmentMock],
+      meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
+    });
+    expect(garmentsRepositoryMock.findAndCount).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { seller: { id: '1' }, status: GarmentStatus.AVAILABLE },
+        skip: 0,
+        take: 10,
+      }),
+    );
+  });
+
+  it('applies status filter and pagination to the closet', async () => {
+    const query = Object.assign(new FilterUserGarmentsQueryDto(), {
+      page: 2,
+      limit: 5,
+      status: GarmentStatus.PURCHASED,
+    });
+
+    usersRepositoryMock.exists.mockResolvedValue(true);
+    garmentsRepositoryMock.findAndCount.mockResolvedValue([[], 7]);
+
+    const result = await service.findGarments('1', query);
+
+    expect(result.meta).toEqual({ page: 2, limit: 5, total: 7, totalPages: 2 });
+    expect(garmentsRepositoryMock.findAndCount).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { seller: { id: '1' }, status: GarmentStatus.PURCHASED },
+        skip: 5,
+        take: 5,
+      }),
+    );
+  });
+
+  it('throws NotFoundException when the closet owner does not exist', async () => {
+    usersRepositoryMock.exists.mockResolvedValue(false);
+
+    await expect(
+      service.findGarments('1', new FilterUserGarmentsQueryDto()),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(garmentsRepositoryMock.findAndCount).not.toHaveBeenCalled();
+  });
+
+  it('returns the posts of a user paginated', async () => {
+    const postMock = { id: 'p1' } as PostEntity;
+
+    usersRepositoryMock.exists.mockResolvedValue(true);
+    postsRepositoryMock.findAndCount.mockResolvedValue([[postMock], 1]);
+
+    const result = await service.findPosts('1', new PaginationQueryDto());
+
+    expect(result).toEqual({
+      data: [postMock],
+      meta: { page: 1, limit: 10, total: 1, totalPages: 1 },
+    });
+    expect(postsRepositoryMock.findAndCount).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { userId: { id: '1' } },
+        skip: 0,
+        take: 10,
+      }),
+    );
+  });
+
+  it('throws NotFoundException when the posts owner does not exist', async () => {
+    usersRepositoryMock.exists.mockResolvedValue(false);
+
+    await expect(
+      service.findPosts('1', new PaginationQueryDto()),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(postsRepositoryMock.findAndCount).not.toHaveBeenCalled();
   });
 });
