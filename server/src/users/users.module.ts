@@ -9,6 +9,8 @@ import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
 import { BagEntity } from '../bags/entities/bag.entity';
 import { TransactionEntity } from '../transactions/entities/transaction.entity';
+import { UsersStatisticsService } from './users-statistics.service';
+import { UsersStatisticsController } from './users-statistics.controller';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { TransactionEntity } from '../transactions/entities/transaction.entity';
       TransactionEntity,
     ]),
   ],
-  controllers: [UsersController],
-  providers: [UsersService],
+  controllers: [UsersController, UsersStatisticsController],
+  providers: [UsersService, UsersStatisticsService],
 })
 export class UsersModule {}
