@@ -33,4 +33,60 @@ export class NotificationsService {
     @InjectRepository(BagEntity)
     private readonly bagsRepository: Repository<BagEntity>,
   ) {}
+
+  async findAll(userId: string, query: PaginationQueryDto) {
+    const { page, limit } = query;
+    const take = page * limit;
+
+    const [[likes, likesTotal], [follows, followsTotal], [bags, bagsTotal]] =
+      await Promise.all([
+        this.likesRepository.findAndCount({
+          where: { post: { userId: { id: userId } }, userId: Not(userId) },
+          relations: { user: true },
+          order: { createdAt: 'DESC' },
+          take,
+        }),
+        this.followsRepository.findAndCount({
+          where: { followedId: userId },
+          relations: { follower: true },
+          order: { createdAt: 'DESC' },
+          take,
+        }),
+        this.bagsRepository.findAndCount({
+          where: { garment: { seller: { id: userId } }, userId: Not(userId) },
+          relations: { user: true },
+          order: { createdAt: 'DESC' },
+          take,
+        }),
+      ]);
+
+    const notifications: NotificationItem[] = [
+      ...likes.map((like) => ({
+        type: NotificationTypeEnum.LIKE,
+        createdAt: like.createdAt,
+        actor: this.toActor(like.user),
+        postId: like.postId,
+      })),
+      ...follows.map((follow) => ({
+        type: NotificationTypeEnum.FOLLOW,
+        createdAt: follow.createdAt,
+        actor: this.toActor(follow.follower),
+      })),
+      ...bags.map((bag) => ({
+        type: NotificationTypeEnum.BAG,
+        createdAt: bag.createdAt,
+        actor: this.toActor(bag.user),
+        garmentId: bag.garmentId,
+      })),
+    ]
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      .slice((page - 1) * limit, page * limit);
+
+    return paginate(
+      notifications,
+      likesTotal + followsTotal + bagsTotal,
+      page,
+      limit,
+    );
+  }
 }
