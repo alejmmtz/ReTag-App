@@ -136,6 +136,10 @@ void describe('PostsServiceTest', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
+    dataSourceMock.transaction.mockImplementation(
+      (callback: (manager: typeof managerMock) => Promise<unknown>) =>
+        callback(managerMock),
+    );
 
     const moduleRef = await Test.createTestingModule({
       providers: [
