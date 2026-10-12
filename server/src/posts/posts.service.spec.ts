@@ -9,8 +9,22 @@ import { PostTypeEnum, UserRoleEnum } from '../common/types/enums';
 import { UNDERGROUND_MAX_FOLLOWERS } from './posts.constants';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common';
 import { FollowEntity } from '../users/entities/follow.entity';
+import { DataSource } from 'typeorm';
+import { PostImageEntity } from './entities/post-image.entity';
+import { UserEntity } from '../users/entities/user.entity';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { EventEntity } from '../events/entities/event.entity';
+import { EventParticipantEntity } from '../events/entities/event-participant.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { PostDetailResponse } from '../common/types/post-response.type';
+
 type AnyFn = (...args: any[]) => any;
 
 const createQueryBuilderMock = (rows: unknown[] = [], count = 0) => {
@@ -79,6 +93,32 @@ void describe('PostsServiceTest', () => {
   const followsRepositoryMock = {
     exists: jest.fn<(options: any) => Promise<boolean>>(),
   };
+  const usersRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<UserEntity | null>>(),
+  };
+
+  const garmentsRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<GarmentEntity | null>>(),
+  };
+
+  const eventsRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<EventEntity | null>>(),
+  };
+
+  const eventParticipantsRepositoryMock = {
+    exists: jest.fn<(options: any) => Promise<boolean>>(),
+  };
+
+  const managerMock = {
+    save: jest.fn<AnyFn>(),
+    update: jest.fn<AnyFn>(),
+    remove: jest.fn<AnyFn>(),
+    delete: jest.fn<AnyFn>(),
+  };
+
+  const dataSourceMock = {
+    transaction: jest.fn<AnyFn>(),
+  };
 
   const mockLikes = (
     counts: { postId: string; count: string }[],
@@ -96,6 +136,10 @@ void describe('PostsServiceTest', () => {
 
   beforeEach(async () => {
     jest.resetAllMocks();
+    dataSourceMock.transaction.mockImplementation(
+      (callback: (manager: typeof managerMock) => Promise<unknown>) =>
+        callback(managerMock),
+    );
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -111,6 +155,26 @@ void describe('PostsServiceTest', () => {
         {
           provide: getRepositoryToken(FollowEntity),
           useValue: followsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(UserEntity),
+          useValue: usersRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(GarmentEntity),
+          useValue: garmentsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(EventEntity),
+          useValue: eventsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(EventParticipantEntity),
+          useValue: eventParticipantsRepositoryMock,
+        },
+        {
+          provide: DataSource,
+          useValue: dataSourceMock,
         },
       ],
     }).compile();
@@ -361,5 +425,319 @@ void describe('PostsServiceTest', () => {
       NotFoundException,
     );
     expect(likesRepositoryMock.remove).not.toHaveBeenCalled();
+  });
+  const detailMock = { id: 'new-post' } as PostDetailResponse;
+
+  const buildDto = (overrides: Partial<CreatePostDto> = {}) =>
+    Object.assign(new CreatePostDto(), {
+      caption: 'hola',
+      postType: PostTypeEnum.COMMUNITY,
+      ...overrides,
+    });
+
+  const mockUser = (role: UserRoleEnum) =>
+    usersRepositoryMock.findOne.mockResolvedValue({
+      id: 'user-1',
+      role,
+    } as UserEntity);
+
+  const mockSavedPost = () => {
+    managerMock.save
+      .mockResolvedValueOnce({ id: 'new-post' })
+      .mockResolvedValue([]);
+
+    return jest.spyOn(service, 'findOne').mockResolvedValue(detailMock);
+  };
+
+  it('creates a community post with its images in one transaction', async () => {
+    mockUser(UserRoleEnum.USER);
+    const findOneSpy = mockSavedPost();
+
+    const result = await service.create(
+      'user-1',
+      buildDto({ images: ['a.jpg', 'b.jpg'] }),
+    );
+
+    expect(result).toEqual(detailMock);
+    expect(dataSourceMock.transaction).toHaveBeenCalledTimes(1);
+    expect(managerMock.save).toHaveBeenNthCalledWith(
+      1,
+      PostEntity,
+      expect.objectContaining({
+        caption: 'hola',
+        postType: PostTypeEnum.COMMUNITY,
+        userId: { id: 'user-1' },
+      }),
+    );
+    expect(managerMock.save).toHaveBeenNthCalledWith(2, PostImageEntity, [
+      { url: 'a.jpg', isCover: true, post: { id: 'new-post' } },
+      { url: 'b.jpg', isCover: false, post: { id: 'new-post' } },
+    ]);
+    expect(findOneSpy).toHaveBeenCalledWith('user-1', 'new-post');
+  });
+
+  it('creates an offer post linked to a garment of the closet', async () => {
+    mockUser(UserRoleEnum.USER);
+    mockSavedPost();
+    garmentsRepositoryMock.findOne.mockResolvedValue({
+      id: 'g1',
+    } as GarmentEntity);
+
+    await service.create(
+      'user-1',
+      buildDto({ postType: PostTypeEnum.OFFER, garmentId: 'g1' }),
+    );
+
+    expect(garmentsRepositoryMock.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'g1', seller: { id: 'user-1' } },
+      }),
+    );
+    expect(managerMock.save).toHaveBeenNthCalledWith(
+      1,
+      PostEntity,
+      expect.objectContaining({ garmentId: { id: 'g1' } }),
+    );
+  });
+
+  it('throws NotFoundException when the user does not exist', async () => {
+    usersRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.create('user-1', buildDto())).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('throws ForbiddenException when a store publishes a community post (RF-23)', async () => {
+    mockUser(UserRoleEnum.STORE);
+
+    await expect(service.create('user-1', buildDto())).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+  });
+
+  it('throws ForbiddenException when a regular user publishes an event post', async () => {
+    mockUser(UserRoleEnum.USER);
+
+    await expect(
+      service.create(
+        'user-1',
+        buildDto({ postType: PostTypeEnum.EVENT, eventId: 'e1' }),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('throws BadRequestException when an offer post has no garment', async () => {
+    mockUser(UserRoleEnum.USER);
+
+    await expect(
+      service.create('user-1', buildDto({ postType: PostTypeEnum.OFFER })),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('throws BadRequestException when an event post has no event', async () => {
+    mockUser(UserRoleEnum.STORE);
+
+    await expect(
+      service.create('user-1', buildDto({ postType: PostTypeEnum.EVENT })),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('throws BadRequestException when a community post references a garment', async () => {
+    mockUser(UserRoleEnum.USER);
+
+    await expect(
+      service.create('user-1', buildDto({ garmentId: 'g1' })),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('throws NotFoundException when the garment is not in the closet of the user', async () => {
+    mockUser(UserRoleEnum.USER);
+    garmentsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.create(
+        'user-1',
+        buildDto({ postType: PostTypeEnum.OFFER, garmentId: 'g1' }),
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+  });
+
+  it('lets a store publish an event post for its own event', async () => {
+    mockUser(UserRoleEnum.STORE);
+    mockSavedPost();
+    eventsRepositoryMock.findOne.mockResolvedValue({
+      id: 'e1',
+      store: { userId: 'user-1' },
+    } as EventEntity);
+
+    await service.create(
+      'user-1',
+      buildDto({ postType: PostTypeEnum.EVENT, eventId: 'e1' }),
+    );
+
+    expect(managerMock.save).toHaveBeenNthCalledWith(
+      1,
+      PostEntity,
+      expect.objectContaining({
+        eventId: expect.objectContaining({ id: 'e1' }),
+      }),
+    );
+  });
+
+  it('throws ForbiddenException when a store links a post to an event of another store', async () => {
+    mockUser(UserRoleEnum.STORE);
+    eventsRepositoryMock.findOne.mockResolvedValue({
+      id: 'e1',
+      store: { userId: 'other-store' },
+    } as EventEntity);
+
+    await expect(
+      service.create(
+        'user-1',
+        buildDto({ postType: PostTypeEnum.EVENT, eventId: 'e1' }),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('lets an active participant publish a show off post about the event (RF-17)', async () => {
+    mockUser(UserRoleEnum.USER);
+    mockSavedPost();
+    eventsRepositoryMock.findOne.mockResolvedValue({
+      id: 'e1',
+      store: { userId: 'store-1' },
+    } as EventEntity);
+    eventParticipantsRepositoryMock.exists.mockResolvedValue(true);
+
+    await service.create(
+      'user-1',
+      buildDto({ postType: PostTypeEnum.SHOWOFF, eventId: 'e1' }),
+    );
+
+    expect(eventParticipantsRepositoryMock.exists).toHaveBeenCalledWith({
+      where: { eventId: 'e1', userId: 'user-1', status: 'active' },
+    });
+    expect(dataSourceMock.transaction).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws ForbiddenException when the user does not participate in the event', async () => {
+    mockUser(UserRoleEnum.USER);
+    eventsRepositoryMock.findOne.mockResolvedValue({
+      id: 'e1',
+      store: { userId: 'store-1' },
+    } as EventEntity);
+    eventParticipantsRepositoryMock.exists.mockResolvedValue(false);
+
+    await expect(
+      service.create(
+        'user-1',
+        buildDto({ postType: PostTypeEnum.SHOWOFF, eventId: 'e1' }),
+      ),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+  });
+
+  it('throws NotFoundException when the event does not exist', async () => {
+    mockUser(UserRoleEnum.USER);
+    eventsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.create(
+        'user-1',
+        buildDto({ postType: PostTypeEnum.SHOWOFF, eventId: 'e1' }),
+      ),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  const ownedPost = buildPost('p1', {
+    userId: { id: 'user-1' },
+    images: [{ id: 7, url: 'old.jpg', isCover: true }],
+  });
+
+  it('updates the caption of an own post', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(ownedPost);
+    jest.spyOn(service, 'findOne').mockResolvedValue(detailMock);
+
+    const result = await service.update('user-1', 'p1', { caption: 'nuevo' });
+
+    expect(result).toEqual(detailMock);
+    expect(managerMock.update).toHaveBeenCalledWith(
+      PostEntity,
+      { id: 'p1' },
+      { caption: 'nuevo' },
+    );
+    expect(managerMock.remove).not.toHaveBeenCalled();
+  });
+
+  it('replaces the images of an own post', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(ownedPost);
+    jest.spyOn(service, 'findOne').mockResolvedValue(detailMock);
+
+    await service.update('user-1', 'p1', { images: ['new.jpg'] });
+
+    expect(managerMock.remove).toHaveBeenCalledWith(
+      PostImageEntity,
+      ownedPost.images,
+    );
+    expect(managerMock.save).toHaveBeenCalledWith(PostImageEntity, [
+      { url: 'new.jpg', isCover: true, post: { id: 'p1' } },
+    ]);
+    expect(managerMock.update).not.toHaveBeenCalled();
+  });
+
+  it('throws NotFoundException when updating a post that does not exist', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.update('user-1', 'p1', { caption: 'x' }),
+    ).rejects.toBeInstanceOf(NotFoundException);
+    expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+  });
+
+  it('throws ForbiddenException when updating a post of another user', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(
+      buildPost('p1', { userId: { id: 'someone-else' } }),
+    );
+
+    await expect(
+      service.update('user-1', 'p1', { caption: 'x' }),
+    ).rejects.toBeInstanceOf(ForbiddenException);
+    expect(dataSourceMock.transaction).not.toHaveBeenCalled();
+  });
+
+  it('deletes an own post together with its likes and images', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(ownedPost);
+
+    const result = await service.remove('user-1', 'p1');
+
+    expect(result).toEqual({ message: 'Post deleted successfully' });
+    expect(managerMock.delete).toHaveBeenCalledWith(UserLikesEntity, {
+      postId: 'p1',
+    });
+    expect(managerMock.remove).toHaveBeenCalledWith(
+      PostImageEntity,
+      ownedPost.images,
+    );
+    expect(managerMock.delete).toHaveBeenCalledWith(PostEntity, { id: 'p1' });
+  });
+
+  it('throws NotFoundException when deleting a post that does not exist', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(null);
+
+    await expect(service.remove('user-1', 'p1')).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+
+  it('throws ForbiddenException when deleting a post of another user', async () => {
+    postsRepositoryMock.findOne.mockResolvedValue(
+      buildPost('p1', { userId: { id: 'someone-else' } }),
+    );
+
+    await expect(service.remove('user-1', 'p1')).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(dataSourceMock.transaction).not.toHaveBeenCalled();
   });
 });
