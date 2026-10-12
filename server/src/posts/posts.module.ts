@@ -6,6 +6,10 @@ import { PostEntity } from './entities/post.entity';
 import { PostImageEntity } from './entities/post-image.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { FollowEntity } from '../users/entities/follow.entity';
+import { UserEntity } from '../users/entities/user.entity';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { EventEntity } from '../events/entities/event.entity';
+import { EventParticipantEntity } from '../events/entities/event-participant.entity';
 
 @Module({
   imports: [
@@ -14,6 +18,10 @@ import { FollowEntity } from '../users/entities/follow.entity';
       PostImageEntity,
       UserLikesEntity,
       FollowEntity,
+      UserEntity,
+      GarmentEntity,
+      EventEntity,
+      EventParticipantEntity,
     ]),
   ],
   controllers: [PostsController],
