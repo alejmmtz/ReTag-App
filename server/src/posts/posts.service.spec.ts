@@ -10,7 +10,7 @@ import { UNDERGROUND_MAX_FOLLOWERS } from './posts.constants';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 import { ConflictException, NotFoundException } from '@nestjs/common';
-
+import { FollowEntity } from '../users/entities/follow.entity';
 type AnyFn = (...args: any[]) => any;
 
 const createQueryBuilderMock = (rows: unknown[] = [], count = 0) => {
@@ -107,6 +107,10 @@ void describe('PostsServiceTest', () => {
         {
           provide: getRepositoryToken(UserLikesEntity),
           useValue: likesRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(FollowEntity),
+          useValue: followsRepositoryMock,
         },
       ],
     }).compile();
