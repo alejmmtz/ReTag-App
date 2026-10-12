@@ -21,6 +21,18 @@ import { PostTypeEnum } from '../common/types/enums';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 import { FollowEntity } from '../users/entities/follow.entity';
+import { EventParticipantEntity } from '../events/entities/event-participant.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { UpdatePostDto } from './dto/update-post.dto';
+import {
+  EventParticipantStatusEnum,
+  UserRoleEnum,
+} from '../common/types/enums';
+import { UserEntity } from '../users/entities/user.entity';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { EventEntity } from '../events/entities/event.entity';
+import { DataSource } from 'typeorm/browser';
+import { PostImageEntity } from './entities/post-image.entity';
 
 @Injectable()
 export class PostsService {
@@ -33,6 +45,20 @@ export class PostsService {
 
     @InjectRepository(FollowEntity)
     private readonly followsRepository: Repository<FollowEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
+
+    @InjectRepository(GarmentEntity)
+    private readonly garmentsRepository: Repository<GarmentEntity>,
+
+    @InjectRepository(EventEntity)
+    private readonly eventsRepository: Repository<EventEntity>,
+
+    @InjectRepository(EventParticipantEntity)
+    private readonly eventParticipantsRepository: Repository<EventParticipantEntity>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll(viewerId: string, query: FilterPostsQueryDto) {
@@ -164,6 +190,88 @@ export class PostsService {
       liked: false,
       likesCount: await this.likesRepository.count({ where: { postId } }),
     };
+  }
+
+  async create(userId: string, dto: CreatePostDto) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      select: { id: true, role: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    this.validatePostRules(user.role, dto);
+
+    const garment = dto.garmentId
+      ? await this.findOwnGarment(userId, dto.garmentId)
+      : undefined;
+
+    const event = dto.eventId
+      ? await this.findLinkableEvent(user, dto.eventId)
+      : undefined;
+
+    const saved = await this.dataSource.transaction(async (manager) => {
+      const post = await manager.save(PostEntity, {
+        caption: dto.caption,
+        postType: dto.postType,
+        userId: { id: user.id },
+        garmentId: garment,
+        eventId: event,
+      });
+
+      if (dto.images?.length) {
+        await manager.save(
+          PostImageEntity,
+          dto.images.map((url, index) => ({
+            url,
+            isCover: index === 0,
+            post: { id: post.id },
+          })),
+        );
+      }
+
+      return post;
+    });
+
+    return this.findOne(userId, saved.id);
+  }
+
+  async update(userId: string, id: string, dto: UpdatePostDto) {
+    const post = await this.findOwnedPost(userId, id);
+
+    await this.dataSource.transaction(async (manager) => {
+      if (dto.caption !== undefined) {
+        await manager.update(PostEntity, { id }, { caption: dto.caption });
+      }
+
+      if (dto.images !== undefined) {
+        await manager.remove(PostImageEntity, post.images);
+        await manager.save(
+          PostImageEntity,
+          dto.images.map((url, index) => ({
+            url,
+            isCover: index === 0,
+            post: { id },
+          })),
+        );
+      }
+    });
+
+    return this.findOne(userId, id);
+  }
+
+  async remove(userId: string, id: string) {
+    const post = await this.findOwnedPost(userId, id);
+
+    await this.dataSource.transaction(async (manager) => {
+      await manager.delete(UserLikesEntity, { postId: id });
+      await manager.remove(PostImageEntity, post.images);
+      await manager.delete(PostEntity, { id });
+    });
+
+    return { message: 'Post deleted successfully' };
   }
 
   private applyFilters(
