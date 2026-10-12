@@ -89,4 +89,12 @@ export class NotificationsService {
       limit,
     );
   }
+
+  private toActor(user: UserEntity) {
+    return {
+      id: user.id,
+      username: user.username,
+      profilePicture: user.profilePicture,
+    };
+  }
 }
