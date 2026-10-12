@@ -11,6 +11,15 @@ import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { FollowEntity } from '../users/entities/follow.entity';
+import { DataSource } from 'typeorm';
+import { PostImageEntity } from './entities/post-image.entity';
+import { UserEntity } from '../users/entities/user.entity';
+import { GarmentEntity } from '../garments/entities/garment.entity';
+import { EventEntity } from '../events/entities/event.entity';
+import { EventParticipantEntity } from '../events/entities/event-participant.entity';
+import { CreatePostDto } from './dto/create-post.dto';
+import { PostDetailResponse } from '../common/types/post-response.type';
+
 type AnyFn = (...args: any[]) => any;
 
 const createQueryBuilderMock = (rows: unknown[] = [], count = 0) => {
@@ -79,6 +88,32 @@ void describe('PostsServiceTest', () => {
   const followsRepositoryMock = {
     exists: jest.fn<(options: any) => Promise<boolean>>(),
   };
+  const usersRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<UserEntity | null>>(),
+  };
+
+  const garmentsRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<GarmentEntity | null>>(),
+  };
+
+  const eventsRepositoryMock = {
+    findOne: jest.fn<(options: any) => Promise<EventEntity | null>>(),
+  };
+
+  const eventParticipantsRepositoryMock = {
+    exists: jest.fn<(options: any) => Promise<boolean>>(),
+  };
+
+  const managerMock = {
+    save: jest.fn<AnyFn>(),
+    update: jest.fn<AnyFn>(),
+    remove: jest.fn<AnyFn>(),
+    delete: jest.fn<AnyFn>(),
+  };
+
+  const dataSourceMock = {
+    transaction: jest.fn<AnyFn>(),
+  };
 
   const mockLikes = (
     counts: { postId: string; count: string }[],
@@ -111,6 +146,26 @@ void describe('PostsServiceTest', () => {
         {
           provide: getRepositoryToken(FollowEntity),
           useValue: followsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(UserEntity),
+          useValue: usersRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(GarmentEntity),
+          useValue: garmentsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(EventEntity),
+          useValue: eventsRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(EventParticipantEntity),
+          useValue: eventParticipantsRepositoryMock,
+        },
+        {
+          provide: DataSource,
+          useValue: dataSourceMock,
         },
       ],
     }).compile();
