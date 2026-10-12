@@ -26,3 +26,7 @@ export interface PostResponse {
   likesCount: number;
   likedByMe: boolean;
 }
+
+export interface PostDetailResponse extends PostResponse {
+  isFollowingAuthor: boolean;
+}

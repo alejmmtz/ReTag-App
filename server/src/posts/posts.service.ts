@@ -1,19 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, SelectQueryBuilder } from 'typeorm';
+import { In, Repository, SelectQueryBuilder } from 'typeorm';
 import { paginate } from '../common/utils/paginate';
 import {
   POST_RELATIONS,
   POST_SELECT,
   UNDERGROUND_MAX_FOLLOWERS,
 } from './posts.constants';
-import { In } from 'typeorm/browser';
-import { PostResponse } from '../common/types/post-response.type';
+import {
+  PostDetailResponse,
+  PostResponse,
+} from '../common/types/post-response.type';
 import { PostTypeEnum } from '../common/types/enums';
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { FeedFilterEnum } from '../common/types/feed-filter.enum';
+import { FollowEntity } from '../users/entities/follow.entity';
 
 @Injectable()
 export class PostsService {
@@ -23,6 +30,9 @@ export class PostsService {
 
     @InjectRepository(UserLikesEntity)
     private readonly likesRepository: Repository<UserLikesEntity>,
+
+    @InjectRepository(FollowEntity)
+    private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
   async findAll(viewerId: string, query: FilterPostsQueryDto) {
@@ -36,7 +46,6 @@ export class PostsService {
     ).select('post.id', 'id');
 
     if (feed === FeedFilterEnum.FOR_YOU) {
-      // Puntaje estilo "hot": más likes y más reciente = más arriba
       idsQuery
         .leftJoin('post.likes', 'postLike')
         .addSelect(
@@ -77,7 +86,7 @@ export class PostsService {
       order: { images: { isCover: 'DESC', id: 'ASC' } },
     });
 
-    // find() no respeta el orden de los ids, se restaura el del ranking
+    // findse restaura el del ranking
     const postsById = new Map(posts.map((post) => [post.id, post]));
     const orderedPosts = ids
       .map((id) => postsById.get(id))
@@ -86,6 +95,75 @@ export class PostsService {
     const data = await this.toPostResponses(orderedPosts, viewerId);
 
     return paginate(data, total, page, limit);
+  }
+
+  async findOne(viewerId: string, id: string): Promise<PostDetailResponse> {
+    const post = await this.postsRepository.findOne({
+      where: { id },
+      select: POST_SELECT,
+      relations: POST_RELATIONS,
+      order: { images: { isCover: 'DESC', id: 'ASC' } },
+    });
+
+    if (!post) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+
+    const [responses, isFollowingAuthor] = await Promise.all([
+      this.toPostResponses([post], viewerId),
+      this.followsRepository.exists({
+        where: { followerId: viewerId, followedId: post.userId.id },
+      }),
+    ]);
+
+    return { ...responses[0], isFollowingAuthor };
+  }
+
+  private async ensurePostExists(id: string) {
+    const exists = await this.postsRepository.exists({ where: { id } });
+
+    if (!exists) {
+      throw new NotFoundException(`Post with id ${id} not found`);
+    }
+  }
+  async like(userId: string, postId: string) {
+    await this.ensurePostExists(postId);
+
+    const existingLike = await this.likesRepository.findOne({
+      where: { userId, postId },
+    });
+
+    if (existingLike) {
+      throw new ConflictException('You already liked this post');
+    }
+
+    await this.likesRepository.save(
+      this.likesRepository.create({ userId, postId }),
+    );
+
+    return {
+      postId,
+      liked: true,
+      likesCount: await this.likesRepository.count({ where: { postId } }),
+    };
+  }
+
+  async unlike(userId: string, postId: string) {
+    const like = await this.likesRepository.findOne({
+      where: { userId, postId },
+    });
+
+    if (!like) {
+      throw new NotFoundException('Like not found');
+    }
+
+    await this.likesRepository.remove(like);
+
+    return {
+      postId,
+      liked: false,
+      likesCount: await this.likesRepository.count({ where: { postId } }),
+    };
   }
 
   private applyFilters(
