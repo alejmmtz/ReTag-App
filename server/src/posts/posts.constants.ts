@@ -18,3 +18,5 @@ export const POST_SELECT: FindOptionsSelect<PostEntity> = {
   eventId: { id: true, title: true, startsAt: true },
   images: { id: true, url: true, isCover: true },
 };
+
+export const UNDERGROUND_MAX_FOLLOWERS = 50;
