@@ -5,8 +5,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { PostsService } from './posts.service';
 import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
-import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { PostTypeEnum, UserRoleEnum } from '../common/types/enums';
+import { UNDERGROUND_MAX_FOLLOWERS } from './posts.constants';
+import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
+import { FeedFilterEnum } from '../common/types/feed-filter.enum';
 
 type AnyFn = (...args: any[]) => any;
 
@@ -111,60 +113,110 @@ void describe('PostsServiceTest', () => {
     expect(service).toBeDefined();
   });
 
-  it('returns the paginated feed with likes info and public author data', async () => {
-    postsRepositoryMock.findAndCount.mockResolvedValue([[buildPost('p1')], 1]);
-    mockLikes([{ postId: 'p1', count: '3' }], ['p1']);
+  const feedQuery = (overrides: Partial<FilterPostsQueryDto> = {}) =>
+    Object.assign(new FilterPostsQueryDto(), overrides);
 
-    const result = await service.findAll('viewer', new PaginationQueryDto());
+  const mockFeed = (ids: string[], total = ids.length) => {
+    const idsQb = createQueryBuilderMock(ids.map((id) => ({ id })));
+    const countQb = createQueryBuilderMock([], total);
 
-    expect(result.meta).toEqual({
-      page: 1,
-      limit: 10,
-      total: 1,
-      totalPages: 1,
+    postsRepositoryMock.createQueryBuilder
+      .mockReturnValueOnce(idsQb)
+      .mockReturnValueOnce(countQb);
+
+    return { idsQb, countQb };
+  };
+
+  it('for you (default): excludes own posts, ranks by score and keeps the ranking order', async () => {
+    const { idsQb } = mockFeed(['p2', 'p1']);
+    postsRepositoryMock.find.mockResolvedValue([
+      buildPost('p1'),
+      buildPost('p2'),
+    ]);
+    mockLikes([{ postId: 'p2', count: '4' }], ['p2']);
+
+    const result = await service.findAll('viewer', feedQuery());
+
+    expect(idsQb.andWhere).toHaveBeenCalledWith('post.user_id <> :viewerId', {
+      viewerId: 'viewer',
     });
+    expect(idsQb.leftJoin).toHaveBeenCalledWith('post.likes', 'postLike');
+    expect(idsQb.orderBy).toHaveBeenCalledWith('score', 'DESC');
+    expect(result.data.map((post) => post.id)).toEqual(['p2', 'p1']);
     expect(result.data[0]).toEqual(
-      expect.objectContaining({
-        id: 'p1',
-        likesCount: 3,
-        likedByMe: true,
-        garment: null,
-        event: null,
-      }),
+      expect.objectContaining({ likesCount: 4, likedByMe: true }),
     );
-    expect(result.data[0].author).toEqual({
-      id: 'author-1',
-      username: 'ana',
-      profilePicture: 'ana.jpg',
-      role: UserRoleEnum.USER,
-    });
-    expect(result.data[0].author).not.toHaveProperty('password');
-    expect(result.data[0].author).not.toHaveProperty('email');
+    expect(result.meta.total).toBe(2);
   });
 
-  it('uses zero likes and likedByMe false when nobody liked the post', async () => {
-    postsRepositoryMock.findAndCount.mockResolvedValue([[buildPost('p1')], 1]);
+  it('following: only posts from followed authors, newest first', async () => {
+    const { idsQb } = mockFeed(['p1']);
+    postsRepositoryMock.find.mockResolvedValue([buildPost('p1')]);
     mockLikes([], []);
 
-    const result = await service.findAll('viewer', new PaginationQueryDto());
+    await service.findAll(
+      'viewer',
+      feedQuery({ feed: FeedFilterEnum.FOLLOWING }),
+    );
 
-    expect(result.data[0].likesCount).toBe(0);
-    expect(result.data[0].likedByMe).toBe(false);
+    expect(idsQb.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining('FROM follows f WHERE f.follower_id = :viewerId'),
+      { viewerId: 'viewer' },
+    );
+    expect(idsQb.orderBy).toHaveBeenCalledWith('post.createdAt', 'DESC');
+    expect(idsQb.leftJoin).not.toHaveBeenCalled();
+  });
+
+  it('underground: posts from authors with few followers, excluding own posts', async () => {
+    const { idsQb } = mockFeed(['p1']);
+    postsRepositoryMock.find.mockResolvedValue([buildPost('p1')]);
+    mockLikes([], []);
+
+    await service.findAll(
+      'viewer',
+      feedQuery({ feed: FeedFilterEnum.UNDERGROUND }),
+    );
+
+    expect(idsQb.andWhere).toHaveBeenCalledWith('post.user_id <> :viewerId', {
+      viewerId: 'viewer',
+    });
+    expect(idsQb.andWhere).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'FROM follows f WHERE f.followed_id = post.user_id',
+      ),
+      { threshold: UNDERGROUND_MAX_FOLLOWERS },
+    );
+    expect(idsQb.orderBy).toHaveBeenCalledWith('post.createdAt', 'DESC');
+  });
+
+  it('applies the category filter to both the page and the total', async () => {
+    const { idsQb, countQb } = mockFeed(['p1']);
+    postsRepositoryMock.find.mockResolvedValue([buildPost('p1')]);
+    mockLikes([], []);
+
+    await service.findAll(
+      'viewer',
+      feedQuery({ feed: FeedFilterEnum.FOLLOWING, type: PostTypeEnum.OFFER }),
+    );
+
+    expect(idsQb.andWhere).toHaveBeenCalledWith('post.postType = :type', {
+      type: PostTypeEnum.OFFER,
+    });
+    expect(countQb.andWhere).toHaveBeenCalledWith('post.postType = :type', {
+      type: PostTypeEnum.OFFER,
+    });
   });
 
   it('applies pagination to the feed', async () => {
-    const query = Object.assign(new PaginationQueryDto(), {
-      page: 3,
-      limit: 5,
-    });
+    const { idsQb } = mockFeed([], 12);
 
-    postsRepositoryMock.findAndCount.mockResolvedValue([[], 12]);
-
-    const result = await service.findAll('viewer', query);
-
-    expect(postsRepositoryMock.findAndCount).toHaveBeenCalledWith(
-      expect.objectContaining({ skip: 10, take: 5 }),
+    const result = await service.findAll(
+      'viewer',
+      feedQuery({ page: 3, limit: 5 }),
     );
+
+    expect(idsQb.offset).toHaveBeenCalledWith(10);
+    expect(idsQb.limit).toHaveBeenCalledWith(5);
     expect(result.meta).toEqual({
       page: 3,
       limit: 5,
@@ -173,12 +225,13 @@ void describe('PostsServiceTest', () => {
     });
   });
 
-  it('returns an empty page without querying likes', async () => {
-    postsRepositoryMock.findAndCount.mockResolvedValue([[], 0]);
+  it('returns an empty page without loading posts or likes', async () => {
+    mockFeed([], 0);
 
-    const result = await service.findAll('viewer', new PaginationQueryDto());
+    const result = await service.findAll('viewer', feedQuery());
 
     expect(result.data).toEqual([]);
+    expect(postsRepositoryMock.find).not.toHaveBeenCalled();
     expect(likesRepositoryMock.createQueryBuilder).not.toHaveBeenCalled();
   });
 });
