@@ -10,6 +10,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { EventParticipantEntity } from '../events/entities/event-participant.entity';
+import { EventPostsController } from './event-posts.controller';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { EventParticipantEntity } from '../events/entities/event-participant.ent
       EventParticipantEntity,
     ]),
   ],
-  controllers: [PostsController],
+  controllers: [PostsController, EventPostsController],
   providers: [PostsService],
 })
 export class PostsModule {}

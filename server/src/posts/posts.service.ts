@@ -390,6 +390,31 @@ export class PostsService {
     return event;
   }
 
+  async findByEvent(viewerId: string, eventId: string) {
+    const event = await this.eventsRepository.findOne({
+      where: { id: eventId },
+    });
+
+    if (!event) {
+      throw new NotFoundException('Event not found');
+    }
+
+    const posts = await this.postsRepository.find({
+      where: {
+        eventId: {
+          id: eventId,
+        },
+      },
+      select: POST_SELECT,
+      relations: POST_RELATIONS,
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return this.toPostResponses(posts, viewerId);
+  }
+
   //404 si no existe, 403 si no es del usuario
   private async findOwnedPost(userId: string, id: string) {
     const post = await this.postsRepository.findOne({
