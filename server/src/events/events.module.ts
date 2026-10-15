@@ -3,9 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
+
 import { EventEntity } from './entities/event.entity';
 import { EventImageEntity } from './entities/event-image.entity';
 import { EventParticipantEntity } from './entities/event-participant.entity';
+import { StoreEntity } from '../stores/entities/store.entity';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { EventParticipantEntity } from './entities/event-participant.entity';
       EventEntity,
       EventImageEntity,
       EventParticipantEntity,
+      StoreEntity,
     ]),
   ],
   controllers: [EventsController],
