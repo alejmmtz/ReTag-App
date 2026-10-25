@@ -31,8 +31,8 @@ export class UserEntity {
   @Column({ unique: true, length: 30 })
   phone!: string;
 
-  @Column()
-  password!: string;
+  @Column({ name: 'password_hash', length: 255, select: false })
+  passwordHash!: string;
 
   @Column({ name: 'profile_picture' })
   profilePicture!: string;

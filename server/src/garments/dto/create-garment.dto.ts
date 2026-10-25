@@ -18,7 +18,7 @@ import {
   MaterialEnum,
   TransactionTypeEnum,
 } from '../../common/types/enums';
-import { CreateGarmentImageDto } from './create-image.dto';
+import { CreateImageDto } from '../../common/dto/create-image.dto';
 
 export class CreateGarmentDto {
   @IsString()
@@ -95,5 +95,5 @@ export class CreateGarmentDto {
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
-  images?: CreateGarmentImageDto[];
+  images?: CreateImageDto[];
 }

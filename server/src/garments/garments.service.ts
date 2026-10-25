@@ -4,7 +4,7 @@ import { GarmentEntity } from './entities/garment.entity';
 import { Repository } from 'typeorm';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 import { CreateGarmentDto } from './dto/create-garment.dto';
-import { GarmentStatus, TransactionTypeEnum } from '../common/types/enums';
+import { GarmentStatus } from '../common/types/enums';
 import { UserEntity } from '../users/entities/user.entity';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { GarmentRulesService } from './garment-rules.service';
