@@ -1,13 +1,11 @@
 import {
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
-  ValidateNested,
 } from 'class-validator';
-import { CreateImageDto } from '../../common/dto/create-image.dto';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -21,13 +19,18 @@ export class UpdateUserDto {
   @MaxLength(20)
   username?: string;
 
-  @IsNotEmpty()
-  @IsNumber()
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
   @Matches(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/)
-  phone!: number;
+  phone?: string;
 
   @IsOptional()
-  @IsNotEmpty()
-  @ValidateNested({ each: true })
-  profilePicture?: CreateImageDto;
+  @IsUrl()
+  profilePicture?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(300)
+  description?: string;
 }

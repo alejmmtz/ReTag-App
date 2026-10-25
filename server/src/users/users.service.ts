@@ -9,13 +9,13 @@ import { QueryFailedError, Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
-import { GarmentStatus } from '../common/types/enums';
+import { GarmentStatus, UserRoleEnum } from '../common/types/enums';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
 import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 import * as argon2 from 'argon2';
 
 @Injectable()
@@ -34,8 +34,8 @@ export class UsersService {
     private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
-  async register(dto: RegisterDto) {
-    const email = dto.email.toLowerCase();
+  async register(dto: RegisterUserDto) {
+    const email = dto.email.trim().toLowerCase();
     const passwordHash = await argon2.hash(dto.password, {
       type: argon2.argon2id,
     });
@@ -47,12 +47,26 @@ export class UsersService {
       throw new ConflictException('Username already taken');
     }
 
+    const emailExists = await this.usersRepository.exists({
+      where: { email },
+    });
+    if (emailExists) {
+      throw new ConflictException('Email already registered');
+    }
+
+    const phoneExists = await this.usersRepository.exists({
+      where: { phone: dto.phone },
+    });
+    if (phoneExists) {
+      throw new ConflictException('Phone number already registered');
+    }
+
     const user = this.usersRepository.create({
       name: dto.name,
       username: dto.username,
       phone: dto.phone,
-      profilePicture: dto.profilePicture,
-      role: dto.role,
+      profilePicture: dto.profilePicture ?? null,
+      role: UserRoleEnum.USER,
       email,
       passwordHash,
     });
@@ -65,7 +79,9 @@ export class UsersService {
         error instanceof QueryFailedError &&
         (error.driverError as { code?: string }).code === '23505'
       ) {
-        throw new ConflictException('Email already registered');
+        throw new ConflictException(
+          'Email, username, or phone number already registered',
+        );
       }
       throw error;
     }

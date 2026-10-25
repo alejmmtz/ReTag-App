@@ -13,7 +13,7 @@ export interface PostResponse {
   author: {
     id: string;
     username: string;
-    profilePicture: string;
+    profilePicture: string | null;
     role: UserRoleEnum;
   };
   garment: {

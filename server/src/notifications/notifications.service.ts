@@ -15,7 +15,7 @@ export interface NotificationItem {
   actor: {
     id: string;
     username: string;
-    profilePicture: string;
+    profilePicture: string | null;
   };
   postId?: string;
   garmentId?: string;

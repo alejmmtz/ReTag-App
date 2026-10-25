@@ -15,6 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { RegisterUserDto } from './dto/register-user.dto';
 
 interface AuthenticatedRequest {
   user: { id: string };
@@ -22,6 +23,11 @@ interface AuthenticatedRequest {
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @Post('register')
+  register(@Body(requestValidationPipe) data: RegisterUserDto) {
+    return this.usersService.register(data);
+  }
 
   @Put('me')
   update(
