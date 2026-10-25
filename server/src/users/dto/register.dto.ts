@@ -1,18 +1,16 @@
 import {
-  IsArray,
   IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUrl,
   Matches,
   MaxLength,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
 import { UserRoleEnum } from '../../common/types/enums';
-import { CreateImageDto } from '../../common/dto/create-image.dto';
 
 export class RegisterDto {
   @IsNotEmpty()
@@ -28,6 +26,10 @@ export class RegisterDto {
   @IsNotEmpty()
   @IsString()
   @MaxLength(20)
+  @Matches(/^[a-zA-Z_0-9]+$/, {
+    message:
+      'Username only can contain letters (a-z, A-Z), numbers(0-9) and underscores.',
+  })
   username!: string;
 
   @IsNotEmpty()
@@ -37,9 +39,8 @@ export class RegisterDto {
 
   @IsOptional()
   @IsNotEmpty()
-  @IsArray()
-  @ValidateNested({ each: true })
-  profilePicture?: CreateImageDto;
+  @IsUrl()
+  profilePicture?: string;
 
   @IsNotEmpty()
   @IsEnum(UserRoleEnum)

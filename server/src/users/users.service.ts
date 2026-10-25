@@ -5,7 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
@@ -15,6 +15,8 @@ import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
 import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
+import { RegisterDto } from './dto/register.dto';
+import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -32,6 +34,43 @@ export class UsersService {
     private readonly followsRepository: Repository<FollowEntity>,
   ) {}
 
+  async register(dto: RegisterDto) {
+    const email = dto.email.toLowerCase();
+    const passwordHash = await argon2.hash(dto.password, {
+      type: argon2.argon2id,
+    });
+
+    const usernameExists = await this.usersRepository.exists({
+      where: { username: dto.username },
+    });
+    if (usernameExists) {
+      throw new ConflictException('Username already taken');
+    }
+
+    const user = this.usersRepository.create({
+      name: dto.name,
+      username: dto.username,
+      phone: dto.phone,
+      profilePicture: dto.profilePicture,
+      role: dto.role,
+      email,
+      passwordHash,
+    });
+
+    try {
+      const savedUser = await this.usersRepository.save(user);
+      return { id: savedUser.id, email: savedUser.email };
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        (error.driverError as { code?: string }).code === '23505'
+      ) {
+        throw new ConflictException('Email already registered');
+      }
+      throw error;
+    }
+  }
+
   private async ensureUserExists(id: string) {
     const exists = await this.usersRepository.exists({ where: { id } });
 
@@ -39,6 +78,7 @@ export class UsersService {
       throw new NotFoundException(`User with id ${id} not found`);
     }
   }
+
   async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },
