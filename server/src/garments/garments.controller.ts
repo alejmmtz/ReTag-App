@@ -1,34 +1,57 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Query,
+  ParseUUIDPipe,
+  Put,
+} from '@nestjs/common';
 import { GarmentsService } from './garments.service';
 import { CreateGarmentDto } from './dto/create-garment.dto';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 
 @Controller('garments')
 export class GarmentsController {
   constructor(private readonly garmentsService: GarmentsService) {}
 
-  @Post()
-  create(@Body() createGarmentDto: CreateGarmentDto) {
-    return this.garmentsService.create(createGarmentDto);
+  @Get()
+  findAllGarments(@Query(requestValidationPipe) query: FilterGarmentsQueryDto) {
+    return this.garmentsService.findAllGarments(query);
   }
 
-  @Get()
-  findAll() {
-    return this.garmentsService.findAll();
+  @Post()
+  create(@Body() createGarmentDto: CreateGarmentDto) {
+    return this.garmentsService.createGarment(createGarmentDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.garmentsService.findOne(+id);
+  findOneGarment(@Param('id', ParseUUIDPipe) id: string) {
+    return this.garmentsService.findOneGarment(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGarmentDto: UpdateGarmentDto) {
-    return this.garmentsService.update(+id, updateGarmentDto);
+  @Put(':id')
+  updateGarment(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateGarmentDto: UpdateGarmentDto,
+  ) {
+    return this.garmentsService.updateGarment(id, updateGarmentDto);
+  }
+
+  @Put(':id/update-status')
+  updateGarmentStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateGarmentDto: UpdateGarmentDto,
+  ) {
+    return this.garmentsService.updateGarmentStatus(id, updateGarmentDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.garmentsService.remove(+id);
+  removeGarment(@Param('id', ParseUUIDPipe) id: string) {
+    return this.garmentsService.removeGarment(id);
   }
 }

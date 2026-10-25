@@ -84,7 +84,7 @@ export class GarmentEntity {
   condition!: GarmentConditionEnum;
 
   @Column({ type: 'decimal' })
-  price!: number;
+  price?: number;
 
   @Column({
     type: 'enum',
@@ -100,7 +100,7 @@ export class GarmentEntity {
   event?: EventEntity;
 
   @OneToMany(() => BagEntity, (bag) => bag.garment)
-  bag!: BagEntity[];
+  bag?: BagEntity[];
 
   @ManyToOne(() => UserEntity, (seller) => seller.garments, {
     nullable: false,
@@ -111,19 +111,22 @@ export class GarmentEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @OneToMany(() => GarmentImageEntity, (image) => image.garment)
+  @OneToMany(() => GarmentImageEntity, (image) => image.garment, {
+    cascade: true,
+    eager: true,
+  })
   images!: GarmentImageEntity[];
 
   @OneToMany(() => PostEntity, (post) => post.garmentId)
-  posts!: PostEntity[];
+  posts?: PostEntity[];
 
   @ManyToMany(() => ColorEntity)
   @JoinTable({ name: 'garment_colors' })
   colors!: ColorEntity[];
 
-  @ManyToMany(() => CareEntity)
-  @JoinTable({ name: 'garment_care' })
-  care!: CareEntity[];
+  @ManyToOne(() => CareEntity, (care) => care.garments, { nullable: true })
+  @JoinColumn({ name: 'care_id' })
+  care?: CareEntity;
 
   @ManyToMany(() => TagEntity)
   @JoinTable({ name: 'garment_tags' })

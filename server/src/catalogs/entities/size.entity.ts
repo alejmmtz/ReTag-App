@@ -3,8 +3,8 @@ import { GarmentEntity } from '../../garments/entities/garment.entity';
 
 @Entity('sizes')
 export class SizeEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  @PrimaryGeneratedColumn()
+  id!: number;
 
   @Column({ type: 'varchar', length: 20, default: 'unisex' })
   type!: 'womens' | 'mens' | 'girls' | 'boys' | 'unisex' | 'kids';
