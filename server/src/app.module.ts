@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TransactionsModule } from './transactions/transactions.module';
-import { CartsModule } from './carts/carts.module';
+import { CartsModule } from './bags/bags.module';
 import { EventsModule } from './events/events.module';
 import { PostsModule } from './posts/posts.module';
 import { CatalogsModule } from './catalogs/catalogs.module';
@@ -11,6 +11,8 @@ import { GarmentsModule } from './garments/garments.module';
 import { StoresModule } from './stores/stores.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { NotificationsModule } from './notifications/notifications.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -28,7 +30,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_DATABASE'),
         autoLoadEntities: true,
-        synchronize: true,
+        synchronize: configService.get<string>('DB_SYNC') === 'true',
+        ssl: configService.get<string>('NODE_ENV') === 'production',
       }),
     }),
     UsersModule,
@@ -39,6 +42,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     EventsModule,
     CartsModule,
     TransactionsModule,
+    NotificationsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

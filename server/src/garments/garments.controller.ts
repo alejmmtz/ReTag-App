@@ -1,34 +1,70 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  ParseUUIDPipe,
+  Put,
+  Delete,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { GarmentsService } from './garments.service';
 import { CreateGarmentDto } from './dto/create-garment.dto';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 
 @Controller('garments')
 export class GarmentsController {
   constructor(private readonly garmentsService: GarmentsService) {}
 
-  @Post()
-  create(@Body() createGarmentDto: CreateGarmentDto) {
-    return this.garmentsService.create(createGarmentDto);
+  @Get()
+  findAllGarments(@Query(requestValidationPipe) query: FilterGarmentsQueryDto) {
+    return this.garmentsService.findAllGarments(query);
   }
 
-  @Get()
-  findAll() {
-    return this.garmentsService.findAll();
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Body(requestValidationPipe) createGarmentDto: CreateGarmentDto,
+  ) {
+    return this.garmentsService.createGarment(
+      request.user.id,
+      createGarmentDto,
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.garmentsService.findOne(+id);
+  findOneGarment(@Param('id', ParseUUIDPipe) id: string) {
+    return this.garmentsService.findOneGarment(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGarmentDto: UpdateGarmentDto) {
-    return this.garmentsService.update(+id, updateGarmentDto);
+  @Put(':id')
+  @UseGuards(JwtAuthGuard)
+  updateGarment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(requestValidationPipe) updateGarmentDto: UpdateGarmentDto,
+  ) {
+    return this.garmentsService.updateGarment(
+      id,
+      request.user.id,
+      updateGarmentDto,
+    );
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.garmentsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  removeGarment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.garmentsService.removeGarment(id, request.user.id);
   }
 }

@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Unfollow User'
+method: DELETE
+url: '{{baseUrl}}/users/:id/follow'
+order: 6000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000002'

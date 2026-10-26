@@ -1,0 +1,10 @@
+$kind: http-request
+name: 'Get Bag by :id'
+method: GET
+url: '{{baseUrl}}/bags/:id'
+order: 2000
+auth:
+  type: noauth
+pathVariables:
+  - key: id
+    value: '1'

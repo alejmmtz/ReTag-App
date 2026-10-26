@@ -1,0 +1,10 @@
+$kind: http-request
+name: 'Get Garment by :id'
+method: GET
+url: '{{baseUrl}}/garments/:id'
+order: 3000
+auth:
+  type: noauth
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'

@@ -1,0 +1,14 @@
+$kind: http-request
+name: Create Catalog
+method: POST
+url: '{{baseUrl}}/catalogs'
+order: 3000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}

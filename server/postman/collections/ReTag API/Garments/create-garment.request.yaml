@@ -1,0 +1,30 @@
+$kind: http-request
+name: Create Garment
+method: POST
+url: '{{baseUrl}}/garments'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Vintage Denim Jacket",
+      "description": "A classic 90s denim jacket in great condition.",
+      "categoryId": 1,
+      "sizeId": 2,
+      "material": "cotton",
+      "brandId": 1,
+      "datePurchased": "2020-06-15",
+      "condition": "very good",
+      "price": 45.00,
+      "transactionType": "sale",
+      "colorIds": [1, 3],
+      "tagIds": [2, 5],
+      "careId": 1,
+      "images": [
+        { "url": "https://example.com/jacket-front.jpg" },
+        { "url": "https://example.com/jacket-back.jpg" }
+      ]
+    }

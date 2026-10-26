@@ -1,0 +1,7 @@
+$kind: http-request
+name: List Bags
+method: GET
+url: '{{baseUrl}}/bags'
+order: 1000
+auth:
+  type: noauth

@@ -1,0 +1,17 @@
+$kind: http-request
+name: "Get User's Posts"
+method: GET
+url: '{{baseUrl}}/users/:id/posts'
+order: 4000
+auth:
+  type: noauth
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'
+queryParams:
+  - key: page
+    value: '1'
+    disabled: true
+  - key: limit
+    value: '10'
+    disabled: true

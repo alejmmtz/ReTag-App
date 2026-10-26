@@ -1,34 +1,83 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Req,
+  Query,
+  Post,
+  Delete,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { PostsService } from './posts.service';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('posts')
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  @Get()
+  findAll(
+    @Req() req: AuthenticatedRequest,
+    @Query(requestValidationPipe) query: FilterPostsQueryDto,
+  ) {
+    return this.postsService.findAll(req.user.id, query);
   }
 
-  @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @Post()
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body(requestValidationPipe) dto: CreatePostDto,
+  ) {
+    return this.postsService.create(req.user.id, dto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  findOne(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.postsService.findOne(req.user.id, id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @Put(':id')
+  update(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(requestValidationPipe) dto: UpdatePostDto,
+  ) {
+    return this.postsService.update(req.user.id, id, dto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  remove(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.postsService.remove(req.user.id, id);
+  }
+
+  @Post(':id/like')
+  like(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.postsService.like(req.user.id, id);
+  }
+
+  @Delete(':id/like')
+  unlike(
+    @Req() req: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.postsService.unlike(req.user.id, id);
   }
 }

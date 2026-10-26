@@ -1,0 +1,19 @@
+$kind: http-request
+name: List Posts (Feed)
+method: GET
+url: '{{baseUrl}}/posts?feed=for_you'
+order: 1000
+queryParams:
+  - key: feed
+    value: for_you
+    description: 'for_you | following | underground'
+  - key: type
+    value: 'show off'
+    description: 'show off | community | offer | event'
+    disabled: true
+  - key: page
+    value: '1'
+    disabled: true
+  - key: limit
+    value: '10'
+    disabled: true

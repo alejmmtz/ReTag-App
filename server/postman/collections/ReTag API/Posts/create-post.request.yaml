@@ -1,0 +1,20 @@
+$kind: http-request
+name: Create Post
+method: POST
+url: '{{baseUrl}}/posts'
+order: 2000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "caption": "Check out this amazing vintage find!",
+      "postType": "show off",
+      "garmentId": "00000000-0000-0000-0000-000000000001",
+      "images": [
+        "https://example.com/post-image1.jpg",
+        "https://example.com/post-image2.jpg"
+      ]
+    }
