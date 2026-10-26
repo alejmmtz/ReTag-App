@@ -1,0 +1,51 @@
+$kind: http-request
+name: List Garments
+method: GET
+url: '{{baseUrl}}/garments?sortOrder=DESC&takeQuantity=25'
+order: 1000
+auth:
+  type: noauth
+queryParams:
+  - key: name
+    value: jacket
+    disabled: true
+  - key: sizeId
+    value: '1'
+    disabled: true
+  - key: brand
+    value: '1'
+    disabled: true
+  - key: color
+    value: '1'
+    disabled: true
+  - key: tag
+    value: '1'
+    disabled: true
+  - key: material
+    value: cotton
+    description: 'cotton | twill | voile | linen | silk | cotton silk | lyosell | viscose | hemp | mesh | poliester | velvet | elastane | canvas | panama | crêpe | georgette | gabardine | peach skin | u-circular'
+    disabled: true
+  - key: status
+    value: available
+    description: 'available | traded | purchased'
+    disabled: true
+  - key: condition
+    value: 'like new'
+    description: 'like new | very good | good | acceptable | refurbished'
+    disabled: true
+  - key: transactionType
+    value: sale
+    description: 'sale | trade | both'
+    disabled: true
+  - key: minPrice
+    value: '0'
+    disabled: true
+  - key: maxPrice
+    value: '500'
+    disabled: true
+  - key: sortOrder
+    value: DESC
+    description: 'ASC | DESC'
+  - key: takeQuantity
+    value: '25'
+    description: 'Min 25, max 500'

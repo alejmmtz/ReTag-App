@@ -1,0 +1,10 @@
+$kind: http-request
+name: 'Get Event by :id'
+method: GET
+url: '{{baseUrl}}/events/:id'
+order: 2000
+auth:
+  type: noauth
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'

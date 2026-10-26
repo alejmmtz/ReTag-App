@@ -1,0 +1,19 @@
+$kind: http-request
+name: Create Event
+method: POST
+url: '{{baseUrl}}/events'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "Vintage Swap Meet",
+      "description": "A community event to swap and trade vintage clothing. Bring your best pieces!",
+      "startsAt": "2027-03-15T10:00:00.000Z",
+      "endsAt": "2027-03-15T18:00:00.000Z",
+      "location": "Central Park, New York",
+      "capacity": 100
+    }

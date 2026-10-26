@@ -138,7 +138,63 @@ export class GarmentsService {
   }
 
   async findOneGarment(id: string): Promise<GarmentEntity> {
-    const garment = await this.garmentsRepository.findOneBy({ id });
+    const garment = await this.garmentsRepository.findOne({
+      where: { id },
+      relations: {
+        category: true,
+        size: true,
+        brand: true,
+        event: true,
+        bag: true,
+        seller: true,
+        images: true,
+        posts: true,
+        colors: true,
+        care: true,
+        tags: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        material: true,
+        datePurchased: true,
+        status: true,
+        waterSaved: true,
+        condition: true,
+        price: true,
+        transactionType: true,
+        createdAt: true,
+        category: { id: true, name: true, waterWaste: true },
+        size: { id: true, type: true, label: true },
+        brand: { id: true, name: true, logo: true, description: true },
+        event: {
+          id: true,
+          title: true,
+          description: true,
+          status: true,
+          startsAt: true,
+          endsAt: true,
+          location: true,
+          capacity: true,
+          createdAt: true,
+        },
+        bag: { userId: true, garmentId: true, createdAt: true },
+        seller: {
+          id: true,
+          name: true,
+          username: true,
+          profilePicture: true,
+          role: true,
+          description: true,
+        },
+        images: { id: true, url: true, isCover: true },
+        posts: { id: true, caption: true, postType: true, createdAt: true },
+        colors: { id: true, name: true, hexcode: true },
+        care: { id: true, name: true, icon: true, type: true },
+        tags: { id: true, name: true },
+      },
+    });
     if (!garment) {
       throw new NotFoundException(`Product with id ${id} was not found`);
     }

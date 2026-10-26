@@ -8,6 +8,7 @@ import { CategoryEntity } from './entities/category.entity';
 import { ColorEntity } from './entities/color.entity';
 import { SizeEntity } from './entities/size.entity';
 import { TagEntity } from './entities/tag.entity';
+import { CatalogsSeedService } from './catalogs-seed.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { TagEntity } from './entities/tag.entity';
     ]),
   ],
   controllers: [CatalogsController],
-  providers: [CatalogsService],
+  providers: [CatalogsService, CatalogsSeedService],
 })
 export class CatalogsModule {}

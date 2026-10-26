@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'List Posts for Event'
+method: GET
+url: '{{baseUrl}}/events/:eventId/posts'
+order: 8000
+pathVariables:
+  - key: eventId
+    value: '00000000-0000-0000-0000-000000000001'

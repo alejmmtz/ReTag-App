@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Follow User'
+method: POST
+url: '{{baseUrl}}/users/:id/follow'
+order: 5000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000002'

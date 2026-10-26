@@ -1,0 +1,8 @@
+$kind: collection
+name: Bags
+description: |-
+  Bags resource (shopping/wishlist bags).
+  Note: CreateBagDto and UpdateBagDto are empty — no body fields are currently defined in the source code.
+  No authentication guard is applied on this controller.
+auth:
+  type: noauth

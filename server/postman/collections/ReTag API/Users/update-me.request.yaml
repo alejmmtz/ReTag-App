@@ -1,0 +1,18 @@
+$kind: http-request
+name: Update Current User
+method: PUT
+url: '{{baseUrl}}/users/me'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Alejandro Updated",
+      "username": "alejandro_02",
+      "phone": "+1(555)111-2222",
+      "profilePicture": "https://example.com/new-avatar.jpg",
+      "description": "Fashion enthusiast."
+    }

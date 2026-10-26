@@ -9,11 +9,11 @@ export class BrandEntity {
   @Column({ type: 'varchar', length: 40 })
   name!: string;
 
-  @Column({ length: 150 })
-  logo?: string;
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  logo?: string | null;
 
-  @Column({ length: 150 })
-  description?: string;
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  description?: string | null;
 
   @OneToMany(() => GarmentEntity, (garment) => garment.brand)
   garments!: GarmentEntity[];

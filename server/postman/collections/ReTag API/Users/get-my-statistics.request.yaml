@@ -1,0 +1,5 @@
+$kind: http-request
+name: 'Get My Statistics'
+method: GET
+url: '{{baseUrl}}/users/me/statistics'
+order: 7000

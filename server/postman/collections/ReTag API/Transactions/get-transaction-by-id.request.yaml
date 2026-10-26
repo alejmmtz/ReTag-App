@@ -1,0 +1,8 @@
+$kind: http-request
+name: 'Get Transaction by :id'
+method: GET
+url: '{{baseUrl}}/transactions/:id'
+order: 3000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'

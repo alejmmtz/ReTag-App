@@ -1,0 +1,22 @@
+$kind: http-request
+name: 'Update Garment'
+method: PUT
+url: '{{baseUrl}}/garments/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "Updated Denim Jacket",
+      "description": "Updated description.",
+      "price": 50.00,
+      "condition": "good",
+      "colorIds": [1],
+      "tagIds": [2]
+    }

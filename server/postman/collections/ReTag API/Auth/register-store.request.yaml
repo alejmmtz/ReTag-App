@@ -1,0 +1,27 @@
+$kind: http-request
+name: Register Store
+method: POST
+url: '{{baseUrl}}/auth/register/store'
+order: 2000
+auth:
+  type: noauth
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "store@example.com",
+      "name": "Store Owner",
+      "username": "store_owner",
+      "phone": "+1(555)987-6543",
+      "password": "Secure@Pass1",
+      "storeName": "My Vintage Store",
+      "socialmedia": "my_vintage_store",
+      "location": "123 Main St, City",
+      "description": "A curated vintage clothing store.",
+      "images": [
+        { "url": "https://example.com/store-banner.jpg", "isProfile": true }
+      ]
+    }

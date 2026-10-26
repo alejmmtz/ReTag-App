@@ -1,0 +1,10 @@
+$kind: http-request
+name: List Transactions
+method: GET
+url: '{{baseUrl}}/transactions'
+order: 2000
+queryParams:
+  - key: status
+    value: pending
+    description: 'pending | in_progress | completed | canceled'
+    disabled: true

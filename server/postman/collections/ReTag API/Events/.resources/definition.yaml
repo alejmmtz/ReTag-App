@@ -1,0 +1,5 @@
+$kind: collection
+name: Events
+description: |-
+  Community events — list, create, update, delete, join, leave, and browse event posts.
+  GET /events and GET /events/:id are public (no auth). All other endpoints require JWT.
