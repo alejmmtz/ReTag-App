@@ -1,11 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GarmentEntity } from './entities/garment.entity';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 import { CreateGarmentDto } from './dto/create-garment.dto';
 import { GarmentStatus } from '../common/types/enums';
-import { UserEntity } from '../users/entities/user.entity';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
@@ -94,13 +97,18 @@ export class GarmentsService {
       .getMany();
   }
 
-  async createGarment(dto: CreateGarmentDto): Promise<GarmentEntity> {
+  async createGarment(
+    userId: string,
+    dto: CreateGarmentDto,
+  ): Promise<GarmentEntity> {
     const category = await this.categoriesRepository.findOneBy({
       id: dto.categoryId,
     });
-    const waterSaved = category?.waterWaste;
-
-    const user = new UserEntity();
+    if (!category) {
+      throw new NotFoundException(
+        `Category with id ${dto.categoryId} was not found`,
+      );
+    }
 
     const garment = this.garmentsRepository.create({
       name: dto.name,
@@ -111,12 +119,16 @@ export class GarmentsService {
       brand: { id: dto.brandId },
       datePurchased: new Date(dto.datePurchased),
       status: GarmentStatus.AVAILABLE,
-      waterSaved: waterSaved,
+      waterSaved: category.waterWaste,
       condition: dto.condition,
       price: dto.price,
       transactionType: dto.transactionType,
-      seller: { id: user.id },
-      images: dto.images,
+      seller: { id: userId },
+      event: dto.eventId ? { id: dto.eventId } : undefined,
+      images: dto.images?.map((image, index) => ({
+        url: image.url,
+        isCover: index === 0,
+      })),
       colors: dto.colorIds?.map((id) => ({ id })),
       care: dto.careId ? { id: dto.careId } : undefined,
       tags: dto.tagIds?.map((id) => ({ id })),
@@ -135,11 +147,94 @@ export class GarmentsService {
 
   async updateGarment(
     id: string,
+    userId: string,
     dto: UpdateGarmentDto,
   ): Promise<GarmentEntity> {
-    const garment = await this.findOneGarment(id);
+    const garment = await this.findOwnedGarment(id, userId);
     this.garmentsRulesService.ensureCanBeUpdated(garment);
-    this.garmentsRepository.merge(garment, dto);
+
+    let category: CategoryEntity | null | undefined;
+    if (dto.categoryId !== undefined) {
+      category = await this.categoriesRepository.findOneBy({
+        id: dto.categoryId,
+      });
+      if (!category) {
+        throw new NotFoundException(
+          `Category with id ${dto.categoryId} was not found`,
+        );
+      }
+    }
+
+    const changes = this.garmentsRepository.create({
+      name: dto.name,
+      description: dto.description,
+      category: category ? { id: category.id } : undefined,
+      size: dto.sizeId ? { id: dto.sizeId } : undefined,
+      material: dto.material,
+      brand: dto.brandId ? { id: dto.brandId } : undefined,
+      datePurchased: dto.datePurchased
+        ? new Date(dto.datePurchased)
+        : undefined,
+      waterSaved: category?.waterWaste,
+      condition: dto.condition,
+      price: dto.price,
+      event: dto.eventId ? { id: dto.eventId } : undefined,
+      colors: dto.colorIds?.map((colorId) => ({ id: colorId })),
+      care: dto.careId ? { id: dto.careId } : undefined,
+      tags: dto.tagIds?.map((tagId) => ({ id: tagId })),
+      images: dto.images?.map((image, index) => ({
+        url: image.url,
+        isCover: index === 0,
+      })),
+    });
+
+    this.garmentsRepository.merge(garment, changes);
+
+    if (dto.images !== undefined) {
+      garment.images = changes.images ?? [];
+    }
+    if (dto.colorIds !== undefined) {
+      garment.colors = changes.colors ?? [];
+    }
+    if (dto.tagIds !== undefined) {
+      garment.tags = changes.tags ?? [];
+    }
+
     return this.garmentsRepository.save(garment);
+  }
+
+  async removeGarment(id: string, userId: string) {
+    const garment = await this.findOwnedGarment(id, userId);
+    this.garmentsRulesService.ensureCanBeDeleted(garment);
+
+    try {
+      await this.garmentsRepository.remove(garment);
+      return { id: garment.id, message: 'Garment deleted permanently' };
+    } catch (error) {
+      if (
+        error instanceof QueryFailedError &&
+        (error.driverError as { code?: string }).code === '23503'
+      ) {
+        throw new ConflictException(
+          'This garment is linked to a post or transaction and cannot be deleted',
+        );
+      }
+      throw error;
+    }
+  }
+
+  private async findOwnedGarment(id: string, userId: string) {
+    const garment = await this.garmentsRepository.findOne({
+      where: { id, seller: { id: userId } },
+      relations: { seller: true },
+    });
+
+    if (!garment) {
+      throw new NotFoundException(
+        `Garment with id ${id} was not found in your closet`,
+      );
+    }
+
+    return garment;
   }
 }

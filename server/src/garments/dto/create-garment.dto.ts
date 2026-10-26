@@ -13,6 +13,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import {
   GarmentConditionEnum,
   MaterialEnum,
@@ -95,5 +96,6 @@ export class CreateGarmentDto {
   @IsNotEmpty()
   @IsArray()
   @ValidateNested({ each: true })
+  @Type(() => CreateImageDto)
   images?: CreateImageDto[];
 }
