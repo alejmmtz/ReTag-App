@@ -4,10 +4,11 @@ import { GarmentsController } from './garments.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GarmentEntity } from './entities/garment.entity';
 import { GarmentImageEntity } from './entities/garment-image.entity';
+import { GarmentRulesService } from './garment-rules.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([GarmentEntity, GarmentImageEntity])],
   controllers: [GarmentsController],
-  providers: [GarmentsService],
+  providers: [GarmentsService, GarmentRulesService],
 })
 export class GarmentsModule {}

@@ -30,7 +30,7 @@ export class UsersService {
 
     @InjectRepository(FollowEntity)
     private readonly followsRepository: Repository<FollowEntity>,
-  ) {}
+  ) { }
 
   private async ensureUserExists(id: string) {
     const exists = await this.usersRepository.exists({ where: { id } });

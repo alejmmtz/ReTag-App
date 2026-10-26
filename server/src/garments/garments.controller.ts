@@ -4,7 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
   Query,
   ParseUUIDPipe,
   Put,
@@ -40,18 +39,5 @@ export class GarmentsController {
     @Body() updateGarmentDto: UpdateGarmentDto,
   ) {
     return this.garmentsService.updateGarment(id, updateGarmentDto);
-  }
-
-  @Put(':id/update-status')
-  updateGarmentStatus(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateGarmentDto: UpdateGarmentDto,
-  ) {
-    return this.garmentsService.updateGarmentStatus(id, updateGarmentDto);
-  }
-
-  @Delete(':id')
-  removeGarment(@Param('id', ParseUUIDPipe) id: string) {
-    return this.garmentsService.removeGarment(id);
   }
 }
