@@ -83,7 +83,7 @@ export class GarmentEntity {
   @Column({ type: 'enum', enum: GarmentConditionEnum, default: 'good' })
   condition!: GarmentConditionEnum;
 
-  @Column({ type: 'decimal' })
+  @Column({ type: 'decimal', nullable: true })
   price?: number;
 
   @Column({

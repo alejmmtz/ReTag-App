@@ -7,12 +7,17 @@ import {
   Query,
   ParseUUIDPipe,
   Put,
+  Delete,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 import { GarmentsService } from './garments.service';
 import { CreateGarmentDto } from './dto/create-garment.dto';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 
 @Controller('garments')
 export class GarmentsController {
@@ -24,8 +29,15 @@ export class GarmentsController {
   }
 
   @Post()
-  create(@Body() createGarmentDto: CreateGarmentDto) {
-    return this.garmentsService.createGarment(createGarmentDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Body(requestValidationPipe) createGarmentDto: CreateGarmentDto,
+  ) {
+    return this.garmentsService.createGarment(
+      request.user.id,
+      createGarmentDto,
+    );
   }
 
   @Get(':id')
@@ -34,10 +46,25 @@ export class GarmentsController {
   }
 
   @Put(':id')
+  @UseGuards(JwtAuthGuard)
   updateGarment(
+    @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateGarmentDto: UpdateGarmentDto,
+    @Body(requestValidationPipe) updateGarmentDto: UpdateGarmentDto,
   ) {
-    return this.garmentsService.updateGarment(id, updateGarmentDto);
+    return this.garmentsService.updateGarment(
+      id,
+      request.user.id,
+      updateGarmentDto,
+    );
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  removeGarment(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.garmentsService.removeGarment(id, request.user.id);
   }
 }

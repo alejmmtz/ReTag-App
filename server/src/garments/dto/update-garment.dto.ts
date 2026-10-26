@@ -12,6 +12,7 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { GarmentConditionEnum, MaterialEnum } from '../../common/types/enums';
 import { CreateImageDto } from '../../common/dto/create-image.dto';
 
@@ -85,5 +86,6 @@ export class UpdateGarmentDto {
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
+  @Type(() => CreateImageDto)
   images?: CreateImageDto[];
 }

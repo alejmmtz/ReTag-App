@@ -6,9 +6,11 @@ import { GarmentEntity } from './entities/garment.entity';
 import { GarmentImageEntity } from './entities/garment-image.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       GarmentEntity,
       GarmentImageEntity,
