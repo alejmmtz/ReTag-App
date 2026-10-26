@@ -111,7 +111,7 @@ void describe('UsersServiceTest', () => {
       password: 'hashed',
       profilePicture: 'old.jpg',
       description: 'old',
-    } as UserEntity;
+    } as unknown as UserEntity;
 
     const data: UpdateUserDto = {
       name: 'Jorge Nuevo',

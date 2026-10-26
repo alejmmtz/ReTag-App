@@ -37,7 +37,11 @@ export class UserEntity {
   @Column({ name: 'password_hash', length: 255, select: false })
   passwordHash!: string;
 
-  @Column({ name: 'profile_picture', nullable: true })
+  @Column({
+    name: 'profile_picture',
+    type: 'varchar',
+    nullable: true,
+  })
   profilePicture!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })

@@ -5,9 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GarmentEntity } from './entities/garment.entity';
 import { GarmentImageEntity } from './entities/garment-image.entity';
 import { GarmentRulesService } from './garment-rules.service';
+import { CategoryEntity } from '../catalogs/entities/category.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GarmentEntity, GarmentImageEntity])],
+  imports: [
+    TypeOrmModule.forFeature([
+      GarmentEntity,
+      GarmentImageEntity,
+      CategoryEntity,
+    ]),
+  ],
   controllers: [GarmentsController],
   providers: [GarmentsService, GarmentRulesService],
 })
