@@ -1,0 +1,3 @@
+$kind: collection
+name: Transactions
+description: Garment sale and trade transactions. All endpoints require JWT authentication (inherited from collection).

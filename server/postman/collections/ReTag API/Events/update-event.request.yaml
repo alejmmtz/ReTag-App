@@ -1,0 +1,20 @@
+$kind: http-request
+name: Update Event
+method: PATCH
+url: '{{baseUrl}}/events/:id'
+order: 4000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "title": "Updated Vintage Swap Meet",
+      "description": "Updated description.",
+      "status": "ongoing",
+      "capacity": 150
+    }

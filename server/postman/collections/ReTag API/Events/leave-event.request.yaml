@@ -1,0 +1,8 @@
+$kind: http-request
+name: Leave Event
+method: PATCH
+url: '{{baseUrl}}/events/:id/leave'
+order: 7000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'

@@ -1,0 +1,3 @@
+$kind: collection
+name: Posts
+description: Social feed posts — CRUD, likes, and event-scoped post listing. All endpoints require JWT authentication (inherited from collection).

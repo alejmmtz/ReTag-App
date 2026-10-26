@@ -1,0 +1,8 @@
+$kind: collection
+name: Catalogs
+description: |-
+  Catalog reference data (brands, categories, sizes, colors, tags, care details).
+  Note: CreateCatalogDto and UpdateCatalogDto are empty — no body fields are currently defined in the source code.
+  No authentication guard is applied on this controller.
+auth:
+  type: noauth

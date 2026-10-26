@@ -1,0 +1,23 @@
+$kind: http-request
+name: Update Store
+method: PATCH
+url: '{{baseUrl}}/stores/:id'
+order: 3000
+pathVariables:
+  - key: id
+    value: '00000000-0000-0000-0000-000000000001'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "storeName": "My Updated Vintage Store",
+      "socialmedia": "updated_vintage",
+      "location": "456 Fashion Ave, New York",
+      "description": "Updated store description.",
+      "images": [
+        { "url": "https://example.com/new-banner.jpg", "isProfile": true }
+      ]
+    }

@@ -1,0 +1,15 @@
+$kind: http-request
+name: Create Transaction
+method: POST
+url: '{{baseUrl}}/transactions'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "garmentId": "00000000-0000-0000-0000-000000000001",
+      "transactionType": "sale"
+    }

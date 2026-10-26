@@ -1,0 +1,17 @@
+$kind: collection
+name: ReTag API
+description: |-
+  Complete HTTP API for the ReTag App server.
+  Global prefix: retag-server/api
+  Base URL: {{baseUrl}}  (e.g. http://localhost:3000/retag-server/api)
+  Authentication: Bearer JWT — set {{token}} after calling POST /auth/login.
+variables:
+  - key: baseUrl
+    value: 'http://localhost:3000/retag-server/api'
+  - key: token
+    value: ''
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'

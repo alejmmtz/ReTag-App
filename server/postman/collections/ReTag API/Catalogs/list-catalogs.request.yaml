@@ -1,0 +1,7 @@
+$kind: http-request
+name: List Catalogs
+method: GET
+url: '{{baseUrl}}/catalogs'
+order: 1000
+auth:
+  type: noauth

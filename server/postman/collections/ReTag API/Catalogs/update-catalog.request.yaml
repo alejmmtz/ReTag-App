@@ -1,0 +1,17 @@
+$kind: http-request
+name: Update Catalog
+method: PATCH
+url: '{{baseUrl}}/catalogs/:id'
+order: 4000
+auth:
+  type: noauth
+pathVariables:
+  - key: id
+    value: '1'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {}
