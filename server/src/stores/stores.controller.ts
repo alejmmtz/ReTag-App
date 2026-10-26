@@ -1,16 +1,21 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { StoresService } from './stores.service';
-import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
-
-  @Post()
-  create(@Body() createStoreDto: CreateStoreDto) {
-    return this.storesService.create(createStoreDto);
-  }
 
   @Get()
   findAll() {
@@ -18,17 +23,22 @@ export class StoresController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.storesService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.storesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStoreDto: UpdateStoreDto) {
-    return this.storesService.update(+id, updateStoreDto);
+  @UseGuards(JwtAuthGuard)
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(requestValidationPipe) updateStoreDto: UpdateStoreDto,
+  ) {
+    return this.storesService.update(id, updateStoreDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.storesService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.storesService.remove(id);
   }
 }

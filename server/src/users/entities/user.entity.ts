@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 import { PostEntity } from '../../posts/entities/post.entity';
 import { GarmentEntity } from '../../garments/entities/garment.entity';
 import { UserLikesEntity } from './user-like.entity';
@@ -13,6 +15,7 @@ import { BagEntity } from '../../bags/entities/bag.entity';
 import { TransactionEntity } from '../../transactions/entities/transaction.entity';
 import { UserRoleEnum } from '../../common/types/enums';
 import { EventParticipantEntity } from '../../events/entities/event-participant.entity';
+import { StoreEntity } from '../../stores/entities/store.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -28,14 +31,14 @@ export class UserEntity {
   @Column({ unique: true })
   email!: string;
 
-  @Column({ unique: true, length: 30 })
+  @Column({ type: 'varchar', unique: true, length: 20 })
   phone!: string;
 
   @Column({ name: 'password_hash', length: 255, select: false })
   passwordHash!: string;
 
-  @Column({ name: 'profile_picture' })
-  profilePicture!: string;
+  @Column({ name: 'profile_picture', nullable: true })
+  profilePicture!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
@@ -72,4 +75,7 @@ export class UserEntity {
 
   @OneToMany(() => EventParticipantEntity, (participant) => participant.user)
   eventParticipations!: EventParticipantEntity[];
+
+  @OneToOne(() => StoreEntity, (store) => store.user)
+  store?: Relation<StoreEntity>;
 }

@@ -1,27 +1,32 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Matches,
+  MaxLength,
+} from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
   @IsString()
-  @MaxLength(50)
+  @MaxLength(20)
   name?: string;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @MaxLength(30)
+  @MaxLength(20)
   username?: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  @MaxLength(30)
+  @MaxLength(20)
+  @Matches(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/)
   phone?: string;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
+  @IsUrl()
   profilePicture?: string;
 
   @IsOptional()

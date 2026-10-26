@@ -11,9 +11,11 @@ import { GarmentEntity } from '../garments/entities/garment.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { EventParticipantEntity } from '../events/entities/event-participant.entity';
 import { EventPostsController } from './event-posts.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       PostEntity,
       PostImageEntity,

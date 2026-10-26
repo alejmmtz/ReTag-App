@@ -39,6 +39,7 @@ export class UsersService {
       throw new NotFoundException(`User with id ${id} not found`);
     }
   }
+
   async findOne(id: string) {
     const user = await this.usersRepository.findOne({
       where: { id },

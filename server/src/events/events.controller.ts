@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import { EventsService } from './events.service';
@@ -16,6 +17,8 @@ import { FilterEventsQueryDto } from './dto/filter-events-query.dto';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 
 @Controller('events')
 export class EventsController {
@@ -32,23 +35,31 @@ export class EventsController {
   }
 
   @Post(':id/join')
-  joinEvent(@Req() request: any, @Param('id', ParseUUIDPipe) eventId: string) {
-    // TODO: Protect route with authentication guard once auth is implemented
+  @UseGuards(JwtAuthGuard)
+  joinEvent(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) eventId: string,
+  ) {
     const userId = request.user.id;
 
     return this.eventsService.joinEvent(userId, eventId);
   }
 
   @Patch(':id/leave')
-  leaveEvent(@Req() request: any, @Param('id', ParseUUIDPipe) eventId: string) {
+  @UseGuards(JwtAuthGuard)
+  leaveEvent(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) eventId: string,
+  ) {
     const userId = request.user.id;
 
     return this.eventsService.leaveEvent(userId, eventId);
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(
-    @Req() request: any,
+    @Req() request: AuthenticatedRequest,
     @Body(requestValidationPipe) dto: CreateEventDto,
   ) {
     const userId = request.user.id;
@@ -57,8 +68,9 @@ export class EventsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
-    @Req() request: any,
+    @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body(requestValidationPipe) dto: UpdateEventDto,
   ) {
@@ -68,7 +80,11 @@ export class EventsController {
   }
 
   @Delete(':id')
-  remove(@Req() request: any, @Param('id', ParseUUIDPipe) id: string) {
+  @UseGuards(JwtAuthGuard)
+  remove(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
     const userId = request.user.id;
 
     return this.eventsService.remove(userId, id);

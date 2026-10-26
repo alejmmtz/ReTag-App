@@ -1,34 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LoginDto } from './dto/login.dto';
+import { RegisterUserDto } from '../users/dto/register-user.dto';
+import { RegisterStoreDto } from '../stores/dto/register-store.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @Post('register/user')
+  registerUser(@Body(requestValidationPipe) dto: RegisterUserDto) {
+    return this.authService.registerUser(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
+  @Post('register/store')
+  registerStore(@Body(requestValidationPipe) dto: RegisterStoreDto) {
+    return this.authService.registerStore(dto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
+  @Post('login')
+  login(@Body(requestValidationPipe) dto: LoginDto) {
+    return this.authService.login(dto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  logout() {
+    return this.authService.logout();
   }
 }

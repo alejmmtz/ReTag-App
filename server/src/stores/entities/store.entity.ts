@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import type { Relation } from 'typeorm';
 
 import { UserEntity } from '../../users/entities/user.entity';
 import { StoreImage } from './store-image.entity';
@@ -16,29 +17,30 @@ export class StoreEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ name: 'user_id', unique: true })
+  @Column({ name: 'user_id', type: 'uuid', unique: true })
   userId!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 20 })
   socialmedia?: string;
 
   @Column({ name: 'store_name', length: 40 })
   storeName!: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 255 })
   location?: string;
 
   @Column({ nullable: true, length: 350 })
   description?: string;
 
-  @OneToOne(() => UserEntity)
+  @OneToOne(() => UserEntity, (user) => user.store, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  user?: UserEntity;
+  user!: Relation<UserEntity>;
 
-  // TODO: Review relation. This should probably reference EventEntity instead of StoreImage
-  @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
+  @OneToMany(() => EventEntity, (event) => event.store)
   events!: EventEntity[];
 
-  @OneToMany(() => StoreImage, (storeImage) => storeImage.store)
+  @OneToMany(() => StoreImage, (storeImage) => storeImage.store, {
+    cascade: true,
+  })
   images!: StoreImage[];
 }
