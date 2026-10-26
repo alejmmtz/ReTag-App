@@ -179,7 +179,7 @@ This modular structure allows ReTag to separate responsibilities while keeping t
 The following diagram represents the current relational database model used by ReTag and the relationships between its main entities.
 
 <p align="center">
-  <img src="./resources/Retag_database.jpg" alt="ReTag Database Model" width="600"/>
+  <img src="./resources/Retag_Database.jpg" alt="ReTag Database Model" width="600"/>
 </p>
 
 The current model connects the main entities required by the platform, including users, stores, garments, posts, events, transactions and their related information.
