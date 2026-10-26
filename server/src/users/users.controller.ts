@@ -20,6 +20,7 @@ import { RegisterUserDto } from './dto/register-user.dto';
 interface AuthenticatedRequest {
   user: { id: string };
 }
+
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
