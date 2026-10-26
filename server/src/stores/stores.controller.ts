@@ -1,26 +1,21 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
   Delete,
   ParseUUIDPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
-import { RegisterStoreDto } from './dto/register-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
-
-  @Post()
-  create(@Body(requestValidationPipe) registerStoreDto: RegisterStoreDto) {
-    return this.storesService.create(registerStoreDto);
-  }
 
   @Get()
   findAll() {
@@ -33,6 +28,7 @@ export class StoresController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(requestValidationPipe) updateStoreDto: UpdateStoreDto,
@@ -41,6 +37,7 @@ export class StoresController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.storesService.remove(id);
   }

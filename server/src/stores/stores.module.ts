@@ -4,10 +4,10 @@ import { StoresController } from './stores.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { StoreEntity } from './entities/store.entity';
 import { StoreImage } from './entities/store-image.entity';
-import { UserEntity } from '../users/entities/user.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([StoreEntity, StoreImage, UserEntity])],
+  imports: [AuthModule, TypeOrmModule.forFeature([StoreEntity, StoreImage])],
   controllers: [StoresController],
   providers: [StoresService],
 })

@@ -9,6 +9,7 @@ import {
   Param,
   ParseUUIDPipe,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { requestValidationPipe } from '../common/pipes/pipes';
@@ -16,8 +17,10 @@ import type { AuthenticatedRequest } from '../common/types/authenticated-request
 import { FilterPostsQueryDto } from './dto/filter-posts-query.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('posts')
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 

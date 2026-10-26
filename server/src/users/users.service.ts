@@ -5,18 +5,16 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
-import { GarmentStatus, UserRoleEnum } from '../common/types/enums';
+import { GarmentStatus } from '../common/types/enums';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
 import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
-import { RegisterUserDto } from './dto/register-user.dto';
-import * as argon2 from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -33,59 +31,6 @@ export class UsersService {
     @InjectRepository(FollowEntity)
     private readonly followsRepository: Repository<FollowEntity>,
   ) {}
-
-  async register(dto: RegisterUserDto) {
-    const email = dto.email.trim().toLowerCase();
-    const passwordHash = await argon2.hash(dto.password, {
-      type: argon2.argon2id,
-    });
-
-    const usernameExists = await this.usersRepository.exists({
-      where: { username: dto.username },
-    });
-    if (usernameExists) {
-      throw new ConflictException('Username already taken');
-    }
-
-    const emailExists = await this.usersRepository.exists({
-      where: { email },
-    });
-    if (emailExists) {
-      throw new ConflictException('Email already registered');
-    }
-
-    const phoneExists = await this.usersRepository.exists({
-      where: { phone: dto.phone },
-    });
-    if (phoneExists) {
-      throw new ConflictException('Phone number already registered');
-    }
-
-    const user = this.usersRepository.create({
-      name: dto.name,
-      username: dto.username,
-      phone: dto.phone,
-      profilePicture: dto.profilePicture ?? null,
-      role: UserRoleEnum.USER,
-      email,
-      passwordHash,
-    });
-
-    try {
-      const savedUser = await this.usersRepository.save(user);
-      return { id: savedUser.id, email: savedUser.email };
-    } catch (error) {
-      if (
-        error instanceof QueryFailedError &&
-        (error.driverError as { code?: string }).code === '23505'
-      ) {
-        throw new ConflictException(
-          'Email, username, or phone number already registered',
-        );
-      }
-      throw error;
-    }
-  }
 
   private async ensureUserExists(id: string) {
     const exists = await this.usersRepository.exists({ where: { id } });

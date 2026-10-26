@@ -11,9 +11,11 @@ import { BagEntity } from '../bags/entities/bag.entity';
 import { TransactionEntity } from '../transactions/entities/transaction.entity';
 import { UsersStatisticsService } from './users-statistics.service';
 import { UsersStatisticsController } from './users-statistics.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     TypeOrmModule.forFeature([
       UserEntity,
       UserLikesEntity,
