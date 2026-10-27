@@ -422,13 +422,13 @@ ReTag consists of three college students majoring in interactive media design an
 
 <p align="">
   <a href="https://github.com/Nattalic">
-    <img src="https://github.com/Nattalic.png" width="80" style="border-radius: 50%;" />
+    <img src="https://wsrv.nl/?url=github.com/Nattalic.png&w=160&h=160&fit=cover&mask=circle" width="80" />
   </a>
   <a href="https://github.com/Jorgevasco246">
-    <img src="https://github.com/Jorgevasco246.png" width="80" style="border-radius: 50%;" />
+    <img src="https://wsrv.nl/?url=github.com/Jorgevasco246.png&w=160&h=160&fit=cover&mask=circle" width="80" />
   </a>
   <a href="https://github.com/alejmmtz">
-    <img src="https://github.com/alejmmtz.png" width="80" style="border-radius: 50%;" />
+    <img src="https://wsrv.nl/?url=github.com/alejmmtz.png&w=160&h=160&fit=cover&mask=circle" width="80" />
   </a>
 </p>
 
