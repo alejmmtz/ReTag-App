@@ -420,9 +420,17 @@ Password: STORE_DEMO_PASSWORD
 
 ReTag consists of three college students majoring in interactive media design and systems engineering at [ICESI University](https://www.icesi.edu.co/).
 
-<a href="https://github.com/othneildrew/Best-README-Template/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=alejmmtz/ReTag-App" alt="contrib.rocks image" />
-</a>
+<p align="">
+  <a href="https://github.com/Nattalic">
+    <img src="https://github.com/Nattalic.png" width="80" style="border-radius: 50%;" />
+  </a>
+  <a href="https://github.com/Jorgevasco246">
+    <img src="https://github.com/Jorgevasco246.png" width="80" style="border-radius: 50%;" />
+  </a>
+  <a href="https://github.com/alejmmtz">
+    <img src="https://github.com/alejmmtz.png" width="80" style="border-radius: 50%;" />
+  </a>
+</p>
 
 </br>
 
