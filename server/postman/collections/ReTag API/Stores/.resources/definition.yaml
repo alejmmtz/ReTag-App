@@ -1,3 +1,0 @@
-$kind: collection
-name: Stores
-description: Store profiles — list, view, update, and delete. GET endpoints are public; PATCH and DELETE require JWT.

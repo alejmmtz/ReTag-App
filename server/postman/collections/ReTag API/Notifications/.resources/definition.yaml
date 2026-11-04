@@ -1,3 +1,0 @@
-$kind: collection
-name: Notifications
-description: User notifications feed. Requires JWT authentication (inherited from collection).

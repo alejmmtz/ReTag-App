@@ -2,6 +2,12 @@ $kind: http-request
 name: Login
 method: POST
 url: "{{baseUrl}}/auth/login"
+scripts:
+  - type: afterResponse
+    code: "var jsonData = pm.response.json();\r
+
+      pm.collectionVariables.set(\"token\", jsonData.access_token);"
+    language: text/javascript
 order: 3000
 auth:
   type: noauth
@@ -11,6 +17,6 @@ body:
   type: json
   content: |-
     {
-      "email": "store@example.com",
+      "email": "alejandro@example.com",
       "password": "Secure@Pass1"
     }

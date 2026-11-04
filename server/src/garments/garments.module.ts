@@ -7,6 +7,7 @@ import { GarmentImageEntity } from './entities/garment-image.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { AuthModule } from '../auth/auth.module';
+import { CatalogsService } from '../catalogs/catalogs.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { AuthModule } from '../auth/auth.module';
     ]),
   ],
   controllers: [GarmentsController],
-  providers: [GarmentsService, GarmentRulesService],
+  providers: [GarmentsService, GarmentRulesService, CatalogsService],
 })
 export class GarmentsModule {}

@@ -12,6 +12,9 @@ import { GarmentStatus } from '../common/types/enums';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
+import { CatalogsService } from '../catalogs/catalogs.service';
+import { ColorEntity } from '../catalogs/entities/color.entity';
+import { TagEntity } from '../catalogs/entities/tag.entity';
 
 @Injectable()
 export class GarmentsService {
@@ -23,6 +26,8 @@ export class GarmentsService {
     private readonly categoriesRepository: Repository<CategoryEntity>,
 
     private readonly garmentsRulesService: GarmentRulesService,
+
+    private readonly catalogService: CatalogsService,
   ) {}
 
   async findAllGarments(
@@ -101,22 +106,24 @@ export class GarmentsService {
     userId: string,
     dto: CreateGarmentDto,
   ): Promise<GarmentEntity> {
-    const category = await this.categoriesRepository.findOneBy({
-      id: dto.categoryId,
-    });
-    if (!category) {
-      throw new NotFoundException(
-        `Category with id ${dto.categoryId} was not found`,
-      );
-    }
+    const [category, brand, size, care, colors, tags] = await Promise.all([
+      this.catalogService.findCatalogCategory(dto.categoryId),
+      this.catalogService.findCatalogBrand(dto.brandId),
+      this.catalogService.findCatalogSize(dto.sizeId),
+      dto.careId
+        ? this.catalogService.findCatalogCare(dto.careId)
+        : Promise.resolve(null),
+      dto.colorIds ? this.catalogService.findCatalogColors(dto.colorIds) : [],
+      dto.tagIds ? this.catalogService.findCatalogTags(dto.tagIds) : [],
+    ]);
 
     const garment = this.garmentsRepository.create({
       name: dto.name,
       description: dto.description,
-      category: { id: dto.categoryId },
-      size: { id: dto.sizeId },
+      category: { id: category.id },
+      size: { id: size.id },
       material: dto.material,
-      brand: { id: dto.brandId },
+      brand: { id: brand.id },
       datePurchased: new Date(dto.datePurchased),
       status: GarmentStatus.AVAILABLE,
       waterSaved: category.waterWaste,
@@ -129,9 +136,9 @@ export class GarmentsService {
         url: image.url,
         isCover: index === 0,
       })),
-      colors: dto.colorIds?.map((id) => ({ id })),
-      care: dto.careId ? { id: dto.careId } : undefined,
-      tags: dto.tagIds?.map((id) => ({ id })),
+      colors: colors.map((color: ColorEntity) => ({ id: color.id })),
+      tags: tags.map((tag: TagEntity) => ({ id: tag.id })),
+      care: care?.id ? { id: care.id } : undefined,
     });
 
     return this.garmentsRepository.save(garment);
