@@ -5,20 +5,18 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { GarmentEntity } from './entities/garment.entity';
 import { GarmentImageEntity } from './entities/garment-image.entity';
 import { GarmentRulesService } from './garment-rules.service';
-import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { AuthModule } from '../auth/auth.module';
-import { CatalogsService } from '../catalogs/catalogs.service';
+import { CatalogsModule } from '../catalogs/catalogs.module';
+import { EventEntity } from '../events/entities/event.entity';
+import { GarmentImagesService } from './garment-images.service';
 
 @Module({
   imports: [
     AuthModule,
-    TypeOrmModule.forFeature([
-      GarmentEntity,
-      GarmentImageEntity,
-      CategoryEntity,
-    ]),
+    CatalogsModule,
+    TypeOrmModule.forFeature([GarmentEntity, GarmentImageEntity, EventEntity]),
   ],
   controllers: [GarmentsController],
-  providers: [GarmentsService, GarmentRulesService, CatalogsService],
+  providers: [GarmentsService, GarmentRulesService, GarmentImagesService],
 })
 export class GarmentsModule {}

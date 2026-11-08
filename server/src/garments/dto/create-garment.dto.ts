@@ -1,8 +1,10 @@
 import {
   ArrayUnique,
+  ArrayMaxSize,
   IsArray,
   IsDateString,
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -32,12 +34,12 @@ export class CreateGarmentDto {
   @MaxLength(350)
   description!: string;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   @Min(1)
   categoryId!: number;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   @Min(1)
   sizeId!: number;
@@ -46,7 +48,7 @@ export class CreateGarmentDto {
   @IsEnum(MaterialEnum)
   material!: MaterialEnum;
 
-  @IsNumber()
+  @IsInt()
   @IsNotEmpty()
   @Min(1)
   brandId!: number;
@@ -76,25 +78,26 @@ export class CreateGarmentDto {
   @IsArray()
   @ArrayUnique()
   @IsNotEmpty()
-  @IsNumber({}, { each: true })
+  @IsInt({ each: true })
   @Min(1, { each: true })
   colorIds!: number[];
 
   @IsArray()
   @IsNotEmpty()
   @ArrayUnique()
-  @IsNumber({}, { each: true })
+  @IsInt({ each: true })
   @Min(1, { each: true })
   tagIds!: number[];
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   careId?: number;
 
   @IsOptional()
   @IsNotEmpty()
   @IsArray()
+  @ArrayMaxSize(10)
   @ValidateNested({ each: true })
   @Type(() => CreateImageDto)
   images?: CreateImageDto[];

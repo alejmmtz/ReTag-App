@@ -97,7 +97,7 @@ export class GarmentEntity {
     nullable: true,
   })
   @JoinColumn({ name: 'event_id' })
-  event?: EventEntity;
+  event?: EventEntity | null;
 
   @OneToMany(() => BagEntity, (bag) => bag.garment)
   bag?: BagEntity[];
@@ -111,10 +111,7 @@ export class GarmentEntity {
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
 
-  @OneToMany(() => GarmentImageEntity, (image) => image.garment, {
-    cascade: true,
-    eager: true,
-  })
+  @OneToMany(() => GarmentImageEntity, (image) => image.garment)
   images!: GarmentImageEntity[];
 
   @OneToMany(() => PostEntity, (post) => post.garmentId)
@@ -126,7 +123,7 @@ export class GarmentEntity {
 
   @ManyToOne(() => CareEntity, (care) => care.garments, { nullable: true })
   @JoinColumn({ name: 'care_id' })
-  care?: CareEntity;
+  care?: CareEntity | null;
 
   @ManyToMany(() => TagEntity)
   @JoinTable({ name: 'garment_tags' })

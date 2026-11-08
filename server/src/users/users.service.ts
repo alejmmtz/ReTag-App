@@ -117,7 +117,10 @@ export class UsersService {
         brand: true,
         size: true,
       },
-      order: { createdAt: 'DESC' },
+      order: {
+        createdAt: 'DESC',
+        images: { isCover: 'DESC', id: 'ASC' },
+      },
       skip: (page - 1) * limit,
       take: limit,
     });
