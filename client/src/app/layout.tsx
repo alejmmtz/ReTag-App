@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const generalSans = localFont({
-  src: "../public/fonts/GeneralSans-Variable.woff2",
+  src: '../../public/fonts/GeneralSans-Variable.woff2',
   variable: "--font-general-sans",
 });
 
