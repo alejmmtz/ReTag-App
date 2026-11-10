@@ -7,18 +7,23 @@ import { GarmentImageEntity } from './entities/garment-image.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { AuthModule } from '../auth/auth.module';
-import { CatalogsService } from '../catalogs/catalogs.service';
+import { CatalogsModule } from '../catalogs/catalogs.module';
 
 @Module({
   imports: [
     AuthModule,
+
+    CatalogsModule,
+
     TypeOrmModule.forFeature([
       GarmentEntity,
       GarmentImageEntity,
       CategoryEntity,
     ]),
   ],
+
   controllers: [GarmentsController],
-  providers: [GarmentsService, GarmentRulesService, CatalogsService],
+
+  providers: [GarmentsService, GarmentRulesService],
 })
 export class GarmentsModule {}

@@ -1,44 +1,26 @@
-import {
-  Controller,
-  Get,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  ParseUUIDPipe,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+
 import { StoresService } from './stores.service';
-import { UpdateStoreDto } from './dto/update-store.dto';
-import { requestValidationPipe } from '../common/pipes/pipes';
+import { CreateStoreDto } from './dto/create-store.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 
 @Controller('stores')
+@UseGuards(JwtAuthGuard)
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
-  @Get()
-  findAll() {
-    return this.storesService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.storesService.findOne(id);
-  }
-
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body(requestValidationPipe) updateStoreDto: UpdateStoreDto,
+  @Post()
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body(requestValidationPipe) dto: CreateStoreDto,
   ) {
-    return this.storesService.update(id, updateStoreDto);
+    return this.storesService.create(req.user.id, dto);
   }
 
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.storesService.remove(id);
+  @Get('me')
+  findMine(@Req() req: AuthenticatedRequest) {
+    return this.storesService.findMine(req.user.id);
   }
 }

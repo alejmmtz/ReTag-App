@@ -23,5 +23,6 @@ import { CatalogsSeedService } from './catalogs-seed.service';
   ],
   controllers: [CatalogsController],
   providers: [CatalogsService, CatalogsSeedService],
+  exports: [CatalogsService],
 })
 export class CatalogsModule {}

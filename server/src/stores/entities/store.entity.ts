@@ -26,6 +26,9 @@ export class StoreEntity {
   @Column({ name: 'store_name', length: 40 })
   storeName!: string;
 
+  @Column({ nullable: true, length: 100 })
+  schedule?: string;
+
   @Column({ nullable: true, length: 255 })
   location?: string;
 
