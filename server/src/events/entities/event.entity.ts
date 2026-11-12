@@ -56,7 +56,9 @@ export class EventEntity {
   })
   createdAt!: Date;
 
-  @OneToMany(() => EventImageEntity, (image) => image.event)
+  @OneToMany(() => EventImageEntity, (image) => image.event, {
+    cascade: true,
+  })
   images!: EventImageEntity[];
 
   @OneToMany(() => PostEntity, (post) => post.eventId)
