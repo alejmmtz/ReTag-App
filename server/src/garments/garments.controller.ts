@@ -40,6 +40,15 @@ export class GarmentsController {
     );
   }
 
+  @Post('store')
+  @UseGuards(JwtAuthGuard)
+  createStoreGarment(
+    @Req() request: AuthenticatedRequest,
+    @Body(requestValidationPipe) dto: CreateGarmentDto,
+  ) {
+    return this.garmentsService.createStoreGarment(request.user.id, dto);
+  }
+
   @Get('mine')
   @UseGuards(JwtAuthGuard)
   findMyGarments(@Req() request: AuthenticatedRequest) {

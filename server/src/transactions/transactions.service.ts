@@ -106,13 +106,17 @@ export class TransactionsService {
   async findOne(id: string, userId: string) {
     const transaction = await this.transactionsRepository.findOne({
       where: { id },
+
       relations: {
         buyer: true,
+
         garment: {
           seller: true,
           images: true,
           size: true,
+          store: true,
         },
+
         tradeGarment: {
           seller: true,
           images: true,
