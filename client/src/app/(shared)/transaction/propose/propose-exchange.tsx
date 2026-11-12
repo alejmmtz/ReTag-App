@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '../../../../lib/api';
+import TransactionGarmentCard from '@/src/components/transactions/transaction-garment-card';
 
 type GarmentImage = {
   id: number;
@@ -139,108 +140,73 @@ export default function ProposeExchange({ garmentId }: Props) {
           </h1>
         </header>
 
-        <section className="px-6 pb-32 pt-8 md:px-10">
-          <p className="mb-7 text-[14px] md:text-lg">
-            Which Garment of your closet are you going to offer?
-          </p>
+      <section className="px-6 pb-32 pt-8 md:px-10">
 
-          {/* Selected garment */}
-          {selectedGarment && (
-            <div className="relative overflow-hidden rounded-2xl border-4 border-[#C8F66F]">
-              
-              {/* Green label */}
-              <div
-                className="
-                  absolute left-0 top-0 z-10
-                  flex max-w-[85%] items-center gap-4
-                  rounded-br-[28px]
-                  bg-[#C8F66F]
-                  px-3 py-2
-                  text-[#1A1A1A]
-                "
-              >
-                <p className="truncate text-[14px] font-medium md:text-[16px]">
-                  {selectedGarment.name}
-                </p>
+    {/* Instructions */}
+    <p className="mb-7 text-[14px] md:text-lg">
+      Which Garment of your closet are you going to offer?
+    </p>
 
-                <span
-                  className="
-                    flex h-7 w-7 shrink-0
-                    items-center justify-center
-                    rounded-full
-                    bg-[#1A1A1A]
-                    text-[12px]
-                    font-bold
-                    text-[#C8F66F]
-                  "
-                >
-                  ✓
-                </span>
-              </div>
+    {/* Selected garment */}
+    {selectedGarment && (
+      <TransactionGarmentCard
+        garment={selectedGarment}
+        label={selectedGarment.name}
+        variant="green"
+        showCheck
+      />
+    )}
 
-              {/* Garment image */}
-              {getGarmentImage(selectedGarment) ? (
+    {/* Closet */}
+    <h2 className="mb-5 mt-10 text-[14px] font-medium md:text-[20px]">
+      Your Closet
+    </h2>
+
+    {/* Closet garments */}
+    {closet.length === 0 ? (
+      <div className="rounded-xl border border-white/15 p-6 text-center text-white/50">
+        You don&apos;t have garments in your closet yet.
+      </div>
+    ) : (
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+        {closet.map((garment) => {
+          const selected =
+            selectedGarment?.id === garment.id;
+
+          return (
+            <button
+              key={garment.id}
+              type="button"
+              onClick={() => setSelectedGarment(garment)}
+              className={`
+                overflow-hidden rounded-xl border-4
+                transition-all duration-150
+                active:scale-[0.98]
+                ${
+                  selected
+                    ? 'border-[#C8F66F]'
+                    : 'border-[#F5F5F5]'
+                }
+              `}
+            >
+              {getGarmentImage(garment) ? (
                 <img
-                  src={getGarmentImage(selectedGarment)}
-                  alt={selectedGarment.name}
+                  src={getGarmentImage(garment)}
+                  alt={garment.name}
                   className="aspect-square w-full object-cover"
                 />
               ) : (
-                <div className="flex aspect-square items-center justify-center bg-[#242424] text-white/50">
+                <div className="flex aspect-square items-center justify-center bg-[#242424] text-sm text-white/50">
                   No image
                 </div>
               )}
-            </div>
-          )}
+            </button>
+          );
+        })}
+      </div>
+    )}
 
-          {/* Closet */}
-          <h2 className="mb-5 mt-10 text-[14px] md:text-[20px] font-medium">
-            Your Closet
-          </h2>
-
-          {closet.length === 0 ? (
-            <div className="rounded-xl border border-white/15 p-6 text-center text-white/50">
-              You don&apos;t have garments in your closet yet.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
-              {closet.map((garment) => {
-                const selected =
-                  selectedGarment?.id === garment.id;
-
-                return (
-                  <button
-                    key={garment.id}
-                    type="button"
-                    onClick={() => setSelectedGarment(garment)}
-                    className={`overflow-hidden rounded-xl border-4 transition-all duration-200
-                    hover:scale-[1.03]
-                    hover:brightness-110
-                    active:scale-[0.98]
-                    ${
-                        selected
-                        ? 'border-[#C8F66F]'
-                        : 'border-[#F5F5F5] hover:border-[#C8F66F]'
-                    }
-                    `}
-                  >
-                    {getGarmentImage(garment) ? (
-                      <img
-                        src={getGarmentImage(garment)}
-                        alt={garment.name}
-                        className="aspect-square w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex aspect-square items-center justify-center bg-[#242424] text-sm text-white/50">
-                        No image
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </section>
+  </section>
 
         {/* Continue */}
         <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-[#1A1A1A]/95 px-6 py-5 backdrop-blur md:static md:border-t-0 md:px-10">

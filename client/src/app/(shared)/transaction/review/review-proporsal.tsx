@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '../../../../lib/api';
+import TransactionGarmentCard from './../../../../components/transactions/transaction-garment-card'
 
 type GarmentImage = {
   id: number;
@@ -183,55 +184,26 @@ export default function ReviewProposal({
           }`}
         >
 
-          {/* You offer */}
-          <div className="relative overflow-hidden rounded-2xl border-4 border-[#C8F66F]">
-            <div className="absolute left-0 top-0 z-10 max-w-[85%] rounded-br-[24px] bg-[#C8F66F] px-3 py-2 text-[#1A1A1A]">
-              <p className="truncate text-[14px] font-medium md:text-[17px]">
-                You Offer a {offerGarment.name}
-              </p>
-            </div>
+        {/* Garment offered */}
+        <TransactionGarmentCard
+        garment={offerGarment}
+        label={`You Offer a ${offerGarment.name}`}
+        variant="green"
+        />
 
-            {getGarmentImage(offerGarment) ? (
-              <img
-                src={getGarmentImage(offerGarment)}
-                alt={offerGarment.name}
-                className="aspect-square w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-square items-center justify-center bg-[#242424] text-white/50">
-                No image
-              </div>
-            )}
-          </div>
+        <div className="flex items-center justify-center py-6 text-[42px] leading-none">
+        <span className="text-[#C8F66F]">↓</span>
+        <span className="text-[#F5F5F5]">↑</span>
+        </div>
 
-          {/* Exchange arrows */}
-          <div className="flex items-center justify-center py-6 text-[42px] leading-none">
-            <span className="text-[#C8F66F]">↓</span>
-            <span className="text-[#F5F5F5]">↑</span>
-          </div>
+        {/* Garment received */}
+        <TransactionGarmentCard
+        garment={receiveGarment}
+        label={`You Receive a ${receiveGarment.name}`}
+        variant="white"
+        />
 
-          {/* You receive */}
-          <div className="relative overflow-hidden rounded-2xl border-4 border-[#F5F5F5]">
-            <div className="absolute left-0 top-0 z-10 max-w-[85%] rounded-br-[24px] bg-[#F5F5F5] px-3 py-2 text-[#1A1A1A]">
-              <p className="truncate text-[14px] font-medium md:text-[17px]">
-                You Receive a {receiveGarment.name}
-              </p>
-            </div>
-
-            {getGarmentImage(receiveGarment) ? (
-              <img
-                src={getGarmentImage(receiveGarment)}
-                alt={receiveGarment.name}
-                className="aspect-square w-full object-cover"
-              />
-            ) : (
-              <div className="flex aspect-square items-center justify-center bg-[#242424] text-white/50">
-                No image
-              </div>
-            )}
-          </div>
-
-          {/* Send proporsal */}
+        {/* Send proporsal */}
           <div className="mt-8 rounded-[20px] border border-[#F5F5F5] px-5 py-5">
             <p className="mb-3 text-[14px] text-[#F5F5F5]">
               Your proposal will be send to:
