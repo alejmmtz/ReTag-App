@@ -40,6 +40,12 @@ export class GarmentsController {
     );
   }
 
+  @Get('mine')
+  @UseGuards(JwtAuthGuard)
+  findMyGarments(@Req() request: AuthenticatedRequest) {
+    return this.garmentsService.findMyGarments(request.user.id);
+  }
+
   @Get(':id')
   findOneGarment(@Param('id', ParseUUIDPipe) id: string) {
     return this.garmentsService.findOneGarment(id);

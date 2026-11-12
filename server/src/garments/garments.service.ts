@@ -144,6 +144,25 @@ export class GarmentsService {
     return this.garmentsRepository.save(garment);
   }
 
+  async findMyGarments(userId: string): Promise<GarmentEntity[]> {
+    return this.garmentsRepository.find({
+      where: {
+        seller: {
+          id: userId,
+        },
+      },
+      relations: {
+        images: true,
+        category: true,
+        size: true,
+        brand: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
+
   async findOneGarment(id: string): Promise<GarmentEntity> {
     const garment = await this.garmentsRepository.findOne({
       where: { id },
