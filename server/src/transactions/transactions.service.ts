@@ -111,10 +111,12 @@ export class TransactionsService {
         garment: {
           seller: true,
           images: true,
+          size: true,
         },
         tradeGarment: {
           seller: true,
           images: true,
+          size: true,
         },
       },
     });
@@ -124,7 +126,6 @@ export class TransactionsService {
     }
 
     const isBuyer = transaction.buyerId === userId;
-
     const isSeller = transaction.garment.seller.id === userId;
 
     if (!isBuyer && !isSeller) {

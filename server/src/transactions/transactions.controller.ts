@@ -45,23 +45,21 @@ export class TransactionsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   findOne(
-    @Req() request: AuthenticatedRequest,
+    @Req() req: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
   ) {
-    const buyerId = request.user.id;
-
-    return this.transactionsService.findOne(buyerId, id);
+    return this.transactionsService.findOne(id, req.user.id);
   }
 
   @Patch(':id/status')
+  @UseGuards(JwtAuthGuard)
   updateStatus(
-    @Req() request: AuthenticatedRequest,
+    @Req() req: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
     @Body(requestValidationPipe) dto: UpdateTransactionStatusDto,
   ) {
-    const buyerId = request.user.id;
-
-    return this.transactionsService.updateStatus(buyerId, id, dto);
+    return this.transactionsService.updateStatus(id, req.user.id, dto);
   }
 }
