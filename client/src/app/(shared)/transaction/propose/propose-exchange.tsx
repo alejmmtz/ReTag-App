@@ -124,39 +124,61 @@ export default function ProposeExchange({ garmentId }: Props) {
     <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
       <div className="mx-auto w-full max-w-3xl">
         {/* Header */}
-        <header className="flex items-center gap-5 border-b border-white/30 px-6 py-8 md:px-10">
+        <header className="flex items-center gap-5 border-b border-[#2E2E2E] px-6 pb-5 pt-15 md:px-10">
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-4xl leading-none"
+            className="flex items-center justify-center text-[30px] md:text-[40px]"
             aria-label="Go back"
           >
             ‹
           </button>
 
-          <h1 className="text-2xl font-medium md:text-3xl">
+          <h1 className="text-[20px] font-medium md:text-[25px]">
             Propose an exchange
           </h1>
         </header>
 
         <section className="px-6 pb-32 pt-8 md:px-10">
-          <p className="mb-7 text-base md:text-lg">
+          <p className="mb-7 text-[14px] md:text-lg">
             Which Garment of your closet are you going to offer?
           </p>
 
-          {/* Select garment */}
+          {/* Selected garment */}
           {selectedGarment && (
-            <div className="overflow-hidden rounded-2xl border-4 border-[#C8F66F]">
-              <div className="flex items-center gap-2 bg-[#C8F66F] px-3 py-2 text-[#1A1A1A]">
-                <p className="font-medium">
+            <div className="relative overflow-hidden rounded-2xl border-4 border-[#C8F66F]">
+              
+              {/* Green label */}
+              <div
+                className="
+                  absolute left-0 top-0 z-10
+                  flex max-w-[85%] items-center gap-4
+                  rounded-br-[28px]
+                  bg-[#C8F66F]
+                  px-3 py-2
+                  text-[#1A1A1A]
+                "
+              >
+                <p className="truncate text-[14px] font-medium md:text-[16px]">
                   {selectedGarment.name}
                 </p>
 
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#1A1A1A] text-xs text-[#C8F66F]">
+                <span
+                  className="
+                    flex h-7 w-7 shrink-0
+                    items-center justify-center
+                    rounded-full
+                    bg-[#1A1A1A]
+                    text-[12px]
+                    font-bold
+                    text-[#C8F66F]
+                  "
+                >
                   ✓
                 </span>
               </div>
 
+              {/* Garment image */}
               {getGarmentImage(selectedGarment) ? (
                 <img
                   src={getGarmentImage(selectedGarment)}
@@ -172,7 +194,7 @@ export default function ProposeExchange({ garmentId }: Props) {
           )}
 
           {/* Closet */}
-          <h2 className="mb-5 mt-10 text-lg font-medium">
+          <h2 className="mb-5 mt-10 text-[14px] md:text-[20px] font-medium">
             Your Closet
           </h2>
 
@@ -191,11 +213,16 @@ export default function ProposeExchange({ garmentId }: Props) {
                     key={garment.id}
                     type="button"
                     onClick={() => setSelectedGarment(garment)}
-                    className={`overflow-hidden rounded-xl border-4 transition ${
-                      selected
+                    className={`overflow-hidden rounded-xl border-4 transition-all duration-200
+                    hover:scale-[1.03]
+                    hover:brightness-110
+                    active:scale-[0.98]
+                    ${
+                        selected
                         ? 'border-[#C8F66F]'
-                        : 'border-[#F5F5F5]'
-                    }`}
+                        : 'border-[#F5F5F5] hover:border-[#C8F66F]'
+                    }
+                    `}
                   >
                     {getGarmentImage(garment) ? (
                       <img
@@ -221,7 +248,19 @@ export default function ProposeExchange({ garmentId }: Props) {
             type="button"
             disabled={!selectedGarment}
             onClick={handleContinue}
-            className="mx-auto block w-full max-w-3xl rounded-full bg-[#C8F66F] py-4 text-lg font-medium text-[#1A1A1A] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-40"
+            className="
+            mx-auto block w-full max-w-3xl
+            rounded-full
+            bg-[#C8F66F]
+            py-4
+            text-[15px] md:text-[17px]
+            font-medium
+            text-[#1A1A1A]
+            transition-all duration-150
+            active:scale-[0.98]
+            disabled:cursor-not-allowed
+            disabled:opacity-40
+            "
           >
             Continue
           </button>

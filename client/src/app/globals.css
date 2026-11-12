@@ -5,6 +5,8 @@
   --foreground: #F5F5F5;
   --green: #C8F66F;
   --blue: #1D5CEB;
+  --grey: #898989;
+  --orange: #FB3F0F;
 }
 
 * {
@@ -18,6 +20,7 @@ body {
   min-height: 100%;
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-general-sans), sans-serif;
 }
 
 body {
