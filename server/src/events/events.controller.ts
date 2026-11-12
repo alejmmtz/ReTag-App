@@ -29,6 +29,21 @@ export class EventsController {
     return this.eventsService.findAll(query);
   }
 
+  @Get('mine')
+  @UseGuards(JwtAuthGuard)
+  findMine(@Req() request: AuthenticatedRequest) {
+    return this.eventsService.findMine(request.user.id);
+  }
+
+  @Get(':id/participation')
+  @UseGuards(JwtAuthGuard)
+  getParticipation(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) eventId: string,
+  ) {
+    return this.eventsService.getParticipation(request.user.id, eventId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);
