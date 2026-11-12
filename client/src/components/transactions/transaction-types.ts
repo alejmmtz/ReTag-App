@@ -4,11 +4,21 @@ export type User = {
   profilePicture?: string | null;
   phone?: string;
 };
-
 export type GarmentImage = {
   id: number;
   url: string;
   isCover: boolean;
+};
+
+export type Size = {
+  id: number;
+  type: string;
+  label: string;
+};
+
+export type Store = {
+  id: string;
+  storeName: string;
 };
 
 export type Garment = {
@@ -18,6 +28,8 @@ export type Garment = {
   seller?: User;
   price?: string;
   condition?: string;
+  size?: Size;
+  store?: Store | null;
 };
 
 export type Transaction = {

@@ -7,6 +7,7 @@ import TradeDetail from '../../../../components/transactions/trade-detail';
 import SaleDetail from '../../../../components/transactions/sale-detail';
 import TransactionDone from '../../../../components/transactions/transaction-done';
 import TradeAccepted from '../../../../components/transactions/trade-accepted';
+import SaleAccepted from '../../../../components/transactions/sale-accepted';
 
 import type {
   Transaction,
@@ -180,8 +181,11 @@ export default function TransactionDetail({
     ? transaction.garment.seller
     : transaction.buyer;
 
-//seller accepted the proposal.
-//now waits for the buyer to contact them
+    const isStoreSale =
+    Boolean(transaction.garment.store);
+
+    //seller accepted the proposal.
+    //now waits for the buyer to contact them
 
 if (
   transaction.transactionType === 'trade' &&
@@ -195,8 +199,8 @@ if (
   );
 }
 
-//buyer sees that their proposal was accepted
-//and can contact the seller
+    //buyer sees that their proposal was accepted
+    //and can contact the seller
 
     if (
     transaction.transactionType === 'trade' &&
@@ -212,6 +216,37 @@ if (
     }
 
     //sale
+    //seller accepted the purchase
+
+    if (
+    transaction.transactionType === 'sale' &&
+    transaction.status === 'in_progress' &&
+    !isBuyer
+    ) {
+    return (
+        <SaleAccepted
+        transaction={transaction}
+        otherUser={otherUser}
+        isStoreSale={isStoreSale}
+        />
+    );
+    }
+
+    //accepted sale buyer
+
+    if (
+    transaction.transactionType === 'sale' &&
+    transaction.status === 'in_progress' &&
+    isBuyer
+    ) {
+    return (
+        <TransactionDone
+        otherUser={otherUser}
+        />
+    );
+    }
+
+    //pending sale
 
     if (transaction.transactionType === 'sale') {
     return (
@@ -221,6 +256,7 @@ if (
         otherUser={otherUser}
         updating={updating}
         error={error}
+        isStoreSale={isStoreSale}
         onUpdateStatus={updateStatus}
         />
     );
