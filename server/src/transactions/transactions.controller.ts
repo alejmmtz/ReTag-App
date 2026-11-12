@@ -18,6 +18,8 @@ import { UpdateTransactionStatusDto } from './dto/update-transaction-status.dto'
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRoleEnum } from '../common/types/enums';
 
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
@@ -25,6 +27,8 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   create(
     @Req() request: AuthenticatedRequest,
     @Body(requestValidationPipe) dto: CreateTransactionDto,
@@ -35,6 +39,8 @@ export class TransactionsController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findAll(
     @Req() request: AuthenticatedRequest,
     @Query(requestValidationPipe) query: FilterTransactionsQueryDto,
@@ -45,6 +51,8 @@ export class TransactionsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findOne(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
@@ -55,6 +63,8 @@ export class TransactionsController {
   }
 
   @Patch(':id/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   updateStatus(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,

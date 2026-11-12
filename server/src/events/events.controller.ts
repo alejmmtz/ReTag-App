@@ -19,6 +19,8 @@ import { UpdateEventDto } from './dto/update-event.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRoleEnum } from '../common/types/enums';
 
 @Controller('events')
 export class EventsController {
@@ -30,13 +32,15 @@ export class EventsController {
   }
 
   @Get('mine')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
   findMine(@Req() request: AuthenticatedRequest) {
     return this.eventsService.findMine(request.user.id);
   }
 
   @Get(':id/participation')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER)
   getParticipation(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) eventId: string,
@@ -45,11 +49,15 @@ export class EventsController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.eventsService.findOne(id);
   }
 
   @Post(':id/join')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER)
   @UseGuards(JwtAuthGuard)
   joinEvent(
     @Req() request: AuthenticatedRequest,
@@ -61,7 +69,8 @@ export class EventsController {
   }
 
   @Patch(':id/leave')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER)
   leaveEvent(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) eventId: string,
@@ -72,7 +81,8 @@ export class EventsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
   create(
     @Req() request: AuthenticatedRequest,
     @Body(requestValidationPipe) dto: CreateEventDto,
@@ -83,7 +93,8 @@ export class EventsController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
   update(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
@@ -95,7 +106,8 @@ export class EventsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
   remove(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,

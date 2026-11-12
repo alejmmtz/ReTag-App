@@ -18,6 +18,8 @@ import { requestValidationPipe } from '../common/pipes/pipes';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRoleEnum } from '../common/types/enums';
 
 @Controller('garments')
 export class GarmentsController {
@@ -29,7 +31,8 @@ export class GarmentsController {
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   create(
     @Req() request: AuthenticatedRequest,
     @Body(requestValidationPipe) createGarmentDto: CreateGarmentDto,
@@ -46,7 +49,8 @@ export class GarmentsController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   updateGarment(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
@@ -60,7 +64,8 @@ export class GarmentsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   removeGarment(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
