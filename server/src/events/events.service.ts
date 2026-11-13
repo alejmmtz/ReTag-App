@@ -47,7 +47,12 @@ export class EventsService {
     }
 
     const event = this.eventsRepository.create({
-      ...dto,
+      title: dto.title,
+      description: dto.description,
+      startsAt: dto.startsAt,
+      endsAt: dto.endsAt,
+      location: dto.location,
+      capacity: dto.capacity,
       store,
       status: EventStatusEnum.UPCOMING,
     });
@@ -107,18 +112,37 @@ export class EventsService {
   }
 
   async findAll(query: FilterEventsQueryDto) {
-    return this.eventsRepository.find({
+    const events = await this.eventsRepository.find({
       where: {
-        ...(query.status && { status: query.status }),
+        ...(query.status && {
+          status: query.status,
+        }),
       },
       relations: {
-        images: true,
-        store: true,
+        store: {
+          images: true,
+        },
       },
       order: {
         startsAt: 'ASC',
       },
     });
+
+    return Promise.all(
+      events.map(async (event) => {
+        const participantsCount = await this.eventParticipantsRepository.count({
+          where: {
+            eventId: event.id,
+            status: EventParticipantStatusEnum.ACTIVE,
+          },
+        });
+
+        return {
+          ...event,
+          participantsCount,
+        };
+      }),
+    );
   }
 
   async findOne(id: string) {
@@ -127,8 +151,9 @@ export class EventsService {
         id,
       },
       relations: {
-        images: true,
-        store: true,
+        store: {
+          images: true,
+        },
       },
     });
 
@@ -136,11 +161,38 @@ export class EventsService {
       throw new NotFoundException('Event not found');
     }
 
-    return event;
+    const participantsCount = await this.eventParticipantsRepository.count({
+      where: {
+        eventId: id,
+        status: EventParticipantStatusEnum.ACTIVE,
+      },
+    });
+
+    return {
+      ...event,
+      participantsCount,
+    };
   }
 
   async joinEvent(userId: string, eventId: string) {
-    await this.findOne(eventId);
+    const event = await this.findOne(eventId);
+
+    if (event.store?.userId === userId) {
+      throw new BadRequestException('You cannot participate in your own event');
+    }
+
+    if (event.capacity) {
+      const participantsCount = await this.eventParticipantsRepository.count({
+        where: {
+          eventId,
+          status: EventParticipantStatusEnum.ACTIVE,
+        },
+      });
+
+      if (participantsCount >= event.capacity) {
+        throw new BadRequestException('Event capacity has been reached');
+      }
+    }
 
     const existingParticipant = await this.eventParticipantsRepository.findOne({
       where: {
@@ -197,5 +249,84 @@ export class EventsService {
     }
 
     return participant;
+  }
+
+  async getParticipation(userId: string, eventId: string) {
+    const participant = await this.eventParticipantsRepository.findOne({
+      where: {
+        userId,
+        eventId,
+      },
+    });
+
+    return {
+      joined: participant?.status === EventParticipantStatusEnum.ACTIVE,
+    };
+  }
+
+  async findJoined(userId: string) {
+    const participations = await this.eventParticipantsRepository.find({
+      where: {
+        userId,
+        status: EventParticipantStatusEnum.ACTIVE,
+      },
+      relations: {
+        event: {
+          store: true,
+        },
+      },
+    });
+
+    return Promise.all(
+      participations.map(async (participation) => {
+        const event = participation.event;
+
+        const participantsCount = await this.eventParticipantsRepository.count({
+          where: {
+            eventId: event.id,
+            status: EventParticipantStatusEnum.ACTIVE,
+          },
+        });
+
+        return {
+          ...event,
+          participantsCount,
+        };
+      }),
+    );
+  }
+
+  async findMine(userId: string) {
+    const events = await this.eventsRepository.find({
+      where: {
+        store: {
+          userId,
+        },
+      },
+      relations: {
+        store: {
+          images: true,
+        },
+      },
+      order: {
+        startsAt: 'ASC',
+      },
+    });
+
+    return Promise.all(
+      events.map(async (event) => {
+        const participantsCount = await this.eventParticipantsRepository.count({
+          where: {
+            eventId: event.id,
+            status: EventParticipantStatusEnum.ACTIVE,
+          },
+        });
+
+        return {
+          ...event,
+          participantsCount,
+        };
+      }),
+    );
   }
 }

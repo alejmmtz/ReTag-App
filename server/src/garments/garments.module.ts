@@ -8,6 +8,7 @@ import { GarmentRulesService } from './garment-rules.service';
 import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { AuthModule } from '../auth/auth.module';
 import { CatalogsModule } from '../catalogs/catalogs.module';
+import { StoreEntity } from '../stores/entities/store.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CatalogsModule } from '../catalogs/catalogs.module';
       GarmentEntity,
       GarmentImageEntity,
       CategoryEntity,
+      StoreEntity,
     ]),
   ],
 

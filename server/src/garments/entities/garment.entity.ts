@@ -19,6 +19,7 @@ import { TagEntity } from '../../catalogs/entities/tag.entity';
 import { EventEntity } from '../../events/entities/event.entity';
 import { UserEntity } from '../../users/entities/user.entity';
 import { PostEntity } from '../../posts/entities/post.entity';
+import { StoreEntity } from '../../stores/entities/store.entity';
 import {
   GarmentConditionEnum,
   GarmentStatus,
@@ -107,6 +108,10 @@ export class GarmentEntity {
   })
   @JoinColumn({ name: 'seller_id' })
   seller!: UserEntity;
+
+  @ManyToOne(() => StoreEntity, { nullable: true })
+  @JoinColumn({ name: 'store_id' })
+  store?: StoreEntity;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt!: Date;
