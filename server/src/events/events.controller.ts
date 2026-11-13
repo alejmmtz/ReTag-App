@@ -29,6 +29,12 @@ export class EventsController {
     return this.eventsService.findAll(query);
   }
 
+  @Get('joined')
+  @UseGuards(JwtAuthGuard)
+  findJoined(@Req() request: AuthenticatedRequest) {
+    return this.eventsService.findJoined(request.user.id);
+  }
+
   @Get('mine')
   @UseGuards(JwtAuthGuard)
   findMine(@Req() request: AuthenticatedRequest) {

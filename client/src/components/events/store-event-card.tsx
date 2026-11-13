@@ -6,7 +6,6 @@ import Link from 'next/link';
 type EventItem = {
   id: string;
   title: string;
-  location?: string;
   startsAt: string;
   endsAt: string;
   participantsCount?: number;
@@ -19,6 +18,7 @@ type EventItem = {
 
 type Props = {
   event: EventItem;
+  mode: 'user' | 'store';
 };
 
 function formatEventDate(dateString: string) {
@@ -41,73 +41,80 @@ function formatEventTime(dateString: string) {
   });
 }
 
-export default function StoreEventCard({ event }: Props) {
+export default function StoreEventCard({
+  event,
+  mode,
+}: Props) {
   return (
     <Link
-      href={`/event/${event.id}`}
-      className="block rounded-[22px] border border-[#6C6C6C] bg-transparent p-4"
+      href={`/event/${event.id}?mode=${mode}`}
+      className="block w-full rounded-[18px] border border-[#6C6C6C] bg-transparent p-4"
     >
       <div className="flex items-center gap-4">
-        <div className="flex h-[78px] w-[78px] items-center justify-center rounded-[18px] bg-[#2864E8]">
+        {/* Illustration */}
+        <div className="flex h-[78px] w-[78px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[#2864E8]">
           <Image
             src="/illustrations/star.png"
             alt=""
             width={70}
             height={70}
-            />
+            className="h-[70px] w-[70px] object-contain"
+          />
         </div>
 
+        {/* Event info */}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-[20px] font-semibold text-white">
+          {/* Title */}
+          <h2 className="truncate text-[20px] font-semibold leading-tight text-white">
             {event.title}
           </h2>
 
-          {/* Store name */}
-            <div className="mt-1 flex items-center gap-1.5">
-            <span className="text-[13px] font-regular text-[#D0D0D0]">
-                {event.store?.storeName ?? 'ReTag Store'}
+          {/* Store */}
+          <div className="mt-1 flex items-center gap-1.5">
+            <span className="truncate text-[14px] text-[#D0D0D0]">
+              {event.store?.storeName ?? 'ReTag Store'}
             </span>
 
-            <span className="flex h-[14px] w-[14px] items-center justify-center rounded-full bg-[#2864E8] text-[9px] font-bold text-white">
-                ✓
+            <span className="flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full bg-[#2864E8] text-[9px] font-bold text-white">
+              ✓
             </span>
-            </div>
+          </div>
 
           {/* Date + participants */}
-        <div className="mt-2 flex items-center gap-4 text-[12px] font-regular text-[#CFCFCF]">
-        {/* Date */}
-        <div className="flex min-w-0 items-center gap-1.5">
-            <Image
-            src="/icons/calendar.svg"
-            alt=""
-            width={15}
-            height={15}
-            className="shrink-0"
-            />
+          <div className="mt-2 flex items-center gap-3 text-[12px] text-[#CFCFCF]">
+            {/* Date */}
+            <div className="flex min-w-0 items-center gap-1.5">
+              <Image
+                src="/icons/calendar.svg"
+                alt=""
+                width={15}
+                height={15}
+                className="shrink-0"
+              />
 
-            <span className="truncate">
-            {formatEventDate(event.startsAt)}
-            {' · '}
-            {formatEventTime(event.startsAt)}
-            {' – '}
-            {formatEventTime(event.endsAt)}
-            </span>
-        </div>
+              <span className="truncate whitespace-nowrap">
+                {formatEventDate(event.startsAt)}
+                {' · '}
+                {formatEventTime(event.startsAt)}
+                {' – '}
+                {formatEventTime(event.endsAt)}
+              </span>
+            </div>
 
-        {/* Participants */}
-        <div className="flex shrink-0 items-center gap-1.5">
-            <Image
-            src="/icons/participants.svg"
-            alt=""
-            width={15}
-            height={15}
-            />
+            {/* Participants */}
+            <div className="flex shrink-0 items-center gap-1">
+              <Image
+                src="/icons/participants.svg"
+                alt=""
+                width={15}
+                height={15}
+              />
 
-            <span>
-            {event.participantsCount ?? 0}
-            </span>
-        </div>
-        </div>
+              <span>
+                {event.participantsCount ?? 0}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </Link>

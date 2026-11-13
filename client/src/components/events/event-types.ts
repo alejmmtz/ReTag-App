@@ -20,7 +20,7 @@ export type Event = {
   startsAt: string;
   endsAt: string;
   location?: string;
-  capacity?: number;
+  capacity?: number | null;
   participantsCount: number;
   store?: EventStore;
 };

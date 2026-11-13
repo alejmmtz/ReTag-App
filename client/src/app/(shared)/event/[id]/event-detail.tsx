@@ -14,13 +14,15 @@ import { useRouter } from 'next/navigation';
 import { API_URL } from '../../../../lib/api';
 import Image from 'next/image';
 
-
 type Props = {
   eventId: string;
+  mode: 'user' | 'store';
 };
+
 
 export default function EventDetail({
   eventId,
+  mode,
 }: Props) {
   const router = useRouter();
 
@@ -29,6 +31,12 @@ export default function EventDetail({
 
   const [isOwner, setIsOwner] =
     useState(false);
+
+    const [joined, setJoined] =
+    useState(false);
+
+const [updatingParticipation, setUpdatingParticipation] =
+  useState(false);
 
   const [loading, setLoading] =
     useState(true);
@@ -85,10 +93,35 @@ export default function EventDetail({
         const currentUser: CurrentUser =
           await userResponse.json();
 
-        setIsOwner(
-          eventData.store?.userId ===
-            currentUser.id,
-        );
+        const owner =
+        eventData.store?.userId ===
+        currentUser.id;
+
+        setIsOwner(owner);
+
+        //in user mode, check whether this user already participates in the event
+        if (mode === 'user' && !owner) {
+        const participationResponse =
+            await fetch(
+            `${API_URL}/events/${eventId}/participation`,
+            {
+                headers: {
+                Authorization:
+                    `Bearer ${token}`,
+                },
+                cache: 'no-store',
+            },
+            );
+
+        if (participationResponse.ok) {
+            const participation =
+            await participationResponse.json();
+
+            setJoined(
+            participation.joined === true,
+            );
+        }
+        }
       } catch {
         setError(
           'The server could not be reached.',
@@ -99,7 +132,88 @@ export default function EventDetail({
     }
 
     loadEvent();
-  }, [eventId]);
+  }, [eventId, mode]);
+
+  //participation
+
+    async function handleParticipation() {
+    if (!event || isOwner) return;
+
+    const token =
+        localStorage.getItem(
+        'access_token',
+        );
+
+    if (!token) {
+        setError(
+        'No active session was found.',
+        );
+        return;
+    }
+
+    try {
+        setUpdatingParticipation(true);
+        setError('');
+
+        const response = await fetch(
+        `${API_URL}/events/${event.id}/${
+            joined ? 'leave' : 'join'
+        }`,
+        {
+            method: joined
+            ? 'PATCH'
+            : 'POST',
+
+            headers: {
+            Authorization:
+                `Bearer ${token}`,
+            },
+        },
+        );
+
+        const data = await response
+        .json()
+        .catch(() => null);
+
+        if (!response.ok) {
+        setError(
+            data?.message ??
+            'The participation could not be updated.',
+        );
+
+        return;
+        }
+
+        // Update UI immediately
+        setJoined(!joined);
+
+        setEvent((currentEvent) => {
+        if (!currentEvent) {
+            return currentEvent;
+        }
+
+        return {
+            ...currentEvent,
+
+            participantsCount:
+            joined
+                ? Math.max(
+                    currentEvent.participantsCount -
+                    1,
+                    0,
+                )
+                : currentEvent.participantsCount +
+                1,
+        };
+        });
+    } catch {
+        setError(
+        'The server could not be reached.',
+        );
+    } finally {
+        setUpdatingParticipation(false);
+    }
+    }
 
   //delete
   async function handleDelete() {
@@ -224,14 +338,17 @@ export default function EventDetail({
     (image) => image.isProfile,
   );
 
-  const spotsRemaining =
-    event.capacity !== undefined
-      ? Math.max(
-          event.capacity -
+    const hasCapacity =
+    typeof event.capacity === 'number';
+
+    const spotsRemaining =
+    hasCapacity
+        ? Math.max(
+            event.capacity! -
             event.participantsCount,
-          0,
+            0,
         )
-      : null;
+        : null;
 
   return (
     <main className="flex h-screen flex-col overflow-hidden bg-[#191919] text-white">
@@ -366,8 +483,7 @@ export default function EventDetail({
                   : 'participants'}
               </p>
 
-              {event.capacity !==
-                undefined && (
+              {hasCapacity && (
                 <p className="mt-1 text-[13px] text-[#858585]">
                   Capacity{' '}
                   {event.capacity}
@@ -399,36 +515,61 @@ export default function EventDetail({
       </div>
 
       {/* Store owner actions */}
-      {isOwner && (
-        <div className="shrink-0 border-t border-[#303030] bg-[#191919] px-7 py-5">
-          <div className="grid grid-cols-2 gap-3">
-            {/* Edit */}
-            <button
-              type="button"
-              onClick={() =>
-                router.push(
-                  `/event/${event.id}/edit`,
-                )
-              }
-              className="h-[47px] rounded-full bg-[#2864E8] text-[15px] font-medium text-white"
-            >
-              Edit event
-            </button>
+    {/* Bottom actions */}
 
-            {/* Delete */}
+{/* Store mode - owner */}
+{mode === 'store' && isOwner && (
+  <div className="shrink-0 border-t border-[#303030] bg-[#191919] px-7 py-5">
+    <div className="grid grid-cols-2 gap-3">
+      {/* Edit */}
+      <button
+        type="button"
+        onClick={() =>
+          router.push(
+            `/event/${event.id}/edit`,
+          )
+        }
+        className="h-[47px] rounded-full bg-[#2864E8] text-[15px] font-medium text-white"
+      >
+        Edit event
+      </button>
+
+      {/* Delete */}
+      <button
+        type="button"
+        onClick={handleDelete}
+        disabled={deleting}
+        className="h-[47px] rounded-full border border-white bg-transparent text-[15px] font-medium text-white disabled:opacity-50"
+      >
+        {deleting
+          ? 'Deleting...'
+          : 'Delete event'}
+      </button>
+    </div>
+  </div>
+)}
+
+        {/* user mode and other stores event */}
+        {mode === 'user' && !isOwner && (
+        <div className="shrink-0 border-t border-[#303030] bg-[#191919] px-7 py-5">
             <button
-              type="button"
-              onClick={handleDelete}
-              disabled={deleting}
-              className="h-[47px] rounded-full border border-white bg-transparent text-[15px] font-medium text-white disabled:opacity-50"
+            type="button"
+            onClick={handleParticipation}
+            disabled={updatingParticipation}
+            className={`h-[47px] w-full rounded-full text-[15px] font-medium transition ${
+                joined
+                ? 'bg-[#c9f66f68] text-black'
+                : 'bg-[#C8F66F] text-black'
+            } disabled:cursor-not-allowed disabled:opacity-50`}
             >
-              {deleting
-                ? 'Deleting...'
-                : 'Delete event'}
+            {updatingParticipation
+                ? 'Updating...'
+                : joined
+                ? 'Participated'
+                : 'Participate'}
             </button>
-          </div>
         </div>
-      )}
+        )}
     </main>
   );
 }

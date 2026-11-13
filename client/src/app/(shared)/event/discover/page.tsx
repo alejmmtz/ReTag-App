@@ -79,8 +79,9 @@ export default function StoreEventsPage() {
             {events.length > 0 ? (
               events.map((event) => (
                 <StoreEventCard
-                  key={event.id}
-                  event={event}
+                key={event.id}
+                event={event}
+                mode="store"
                 />
               ))
             ) : (

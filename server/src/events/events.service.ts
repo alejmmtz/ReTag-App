@@ -177,6 +177,10 @@ export class EventsService {
   async joinEvent(userId: string, eventId: string) {
     const event = await this.findOne(eventId);
 
+    if (event.store?.userId === userId) {
+      throw new BadRequestException('You cannot participate in your own event');
+    }
+
     if (event.capacity) {
       const participantsCount = await this.eventParticipantsRepository.count({
         where: {
@@ -258,6 +262,38 @@ export class EventsService {
     return {
       joined: participant?.status === EventParticipantStatusEnum.ACTIVE,
     };
+  }
+
+  async findJoined(userId: string) {
+    const participations = await this.eventParticipantsRepository.find({
+      where: {
+        userId,
+        status: EventParticipantStatusEnum.ACTIVE,
+      },
+      relations: {
+        event: {
+          store: true,
+        },
+      },
+    });
+
+    return Promise.all(
+      participations.map(async (participation) => {
+        const event = participation.event;
+
+        const participantsCount = await this.eventParticipantsRepository.count({
+          where: {
+            eventId: event.id,
+            status: EventParticipantStatusEnum.ACTIVE,
+          },
+        });
+
+        return {
+          ...event,
+          participantsCount,
+        };
+      }),
+    );
   }
 
   async findMine(userId: string) {
