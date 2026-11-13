@@ -1,7 +1,17 @@
-export default function EventDetailPage() {
-  return (
-    <main className="min-h-screen bg-[#191919] text-white">
-      Event detail
-    </main>
-  );
+export const instant = false;
+
+import EventDetail from './event-detail';
+
+type Props = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export default async function EventDetailPage({
+  params,
+}: Props) {
+  const { id } = await params;
+
+  return <EventDetail eventId={id} />;
 }

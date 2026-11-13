@@ -119,7 +119,9 @@ export class EventsService {
         }),
       },
       relations: {
-        store: true,
+        store: {
+          images: true,
+        },
       },
       order: {
         startsAt: 'ASC',
@@ -149,7 +151,9 @@ export class EventsService {
         id,
       },
       relations: {
-        store: true,
+        store: {
+          images: true,
+        },
       },
     });
 
@@ -264,7 +268,9 @@ export class EventsService {
         },
       },
       relations: {
-        store: true,
+        store: {
+          images: true,
+        },
       },
       order: {
         startsAt: 'ASC',
