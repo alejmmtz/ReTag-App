@@ -14,7 +14,7 @@ export default function StoreCreateSheet({
 }: Props) {
   return (
     <div
-      className={`fixed inset-0 z-[60] transition-all duration-500 ${
+      className={`fixed inset-0 z-[60] transition-all duration-600 ${
         open
           ? 'pointer-events-auto bg-black/55 backdrop-blur-[1px] opacity-100'
           : 'pointer-events-none bg-black/0 opacity-0'

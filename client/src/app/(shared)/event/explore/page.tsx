@@ -5,7 +5,8 @@ import {
   useState,
 } from 'react';
 
-import UserBottomNav from '../../../../components/navigation/store-bottom-nav';
+import UserBottomNav from '../../../../components/navigation/user-bottom-nav';
+import UserCreateSheet from '../../../../components/events/user-create-sheet';
 
 import { API_URL } from '../../../../lib/api';
 
@@ -30,6 +31,9 @@ export default function UserEventsPage() {
 
   const [error, setError] =
     useState('');
+
+    const [sheetOpen, setSheetOpen] =
+  useState(false);
 
   useEffect(() => {
     async function loadEvents() {
@@ -188,6 +192,22 @@ export default function UserEventsPage() {
             )}
         </div>
       </div>
+
+    {/* Floating button */}
+        <button
+        type="button"
+        onClick={() => setSheetOpen(true)}
+        className="fixed bottom-[120px] left-[210px] z-40 ml-[120px] flex h-[60px] w-[60px] -translate-x-1/2 items-center justify-center rounded-full bg-[#C8F66F] text-[30px] font-light text-black shadow-[0_0_24px_rgba(200,246,111,0.35)]"
+        >
+        +
+        </button>
+
+        <UserCreateSheet
+        open={sheetOpen}
+        onClose={() =>
+            setSheetOpen(false)
+        }
+        />
 
       <UserBottomNav />
     </main>

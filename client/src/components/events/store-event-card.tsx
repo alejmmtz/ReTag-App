@@ -65,7 +65,7 @@ export default function StoreEventCard({
         {/* Event info */}
         <div className="min-w-0 flex-1">
           {/* Title */}
-          <h2 className="truncate text-[20px] font-semibold leading-tight text-white">
+          <h2 className="truncate text-[18px] font-semibold leading-tight text-white">
             {event.title}
           </h2>
 
