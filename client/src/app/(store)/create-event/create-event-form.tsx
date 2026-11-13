@@ -150,9 +150,7 @@ export default function CreateEventForm() {
       }
 
       //Open the event that was just created
-      router.push(
-        `/event/${data.id}`,
-      );
+      router.push('/create-event/sent');
     } catch {
       setError(
         'The server could not be reached.',
