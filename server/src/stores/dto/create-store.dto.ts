@@ -8,10 +8,9 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { RegisterUserDto } from '../../users/dto/register-user.dto';
 import { CreateStoreImageDto } from './create-store-image.dto';
 
-export class RegisterStoreDto extends RegisterUserDto {
+export class CreateStoreDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
@@ -25,6 +24,11 @@ export class RegisterStoreDto extends RegisterUserDto {
   @IsString()
   @MaxLength(40)
   storeName!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  schedule?: string;
 
   @IsOptional()
   @IsString()

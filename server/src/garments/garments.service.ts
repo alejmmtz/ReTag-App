@@ -8,7 +8,8 @@ import { GarmentEntity } from './entities/garment.entity';
 import { Repository } from 'typeorm';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 import { CreateGarmentDto } from './dto/create-garment.dto';
-import { GarmentStatus } from '../common/types/enums';
+import { GarmentStatus, TransactionTypeEnum } from '../common/types/enums';
+import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
 import { CatalogsService } from '../catalogs/catalogs.service';
@@ -19,6 +20,7 @@ import { EventEntity } from '../events/entities/event.entity';
 import { GarmentImagesService } from './garment-images.service';
 import { FilterSellerGarmentsQueryDto } from './dto/filter-seller-garments-query.dto';
 import { paginate } from '../common/utils/paginate';
+import { StoreEntity } from '../stores/entities/store.entity';
 
 @Injectable()
 export class GarmentsService {
@@ -31,6 +33,9 @@ export class GarmentsService {
 
     @InjectRepository(EventEntity)
     private readonly eventsRepository: Repository<EventEntity>,
+
+    @InjectRepository(StoreEntity)
+    private readonly storesRepository: Repository<StoreEntity>,
 
     private readonly garmentsRulesService: GarmentRulesService,
 
@@ -181,6 +186,122 @@ export class GarmentsService {
     }
 
     return this.findOneGarment(savedGarment.id);
+  }
+
+  async createStoreGarment(
+    userId: string,
+    dto: CreateGarmentDto,
+  ): Promise<GarmentEntity> {
+    const store = await this.storesRepository.findOne({
+      where: {
+        userId,
+      },
+    });
+
+    if (!store) {
+      throw new NotFoundException('Store not found');
+    }
+
+    const [category, brand, size, care, colors, tags] = await Promise.all([
+      this.catalogService.findCatalogCategory(dto.categoryId),
+
+      this.catalogService.findCatalogBrand(dto.brandId),
+
+      this.catalogService.findCatalogSize(dto.sizeId),
+
+      dto.careId
+        ? this.catalogService.findCatalogCare(dto.careId)
+        : Promise.resolve(null),
+
+      dto.colorIds ? this.catalogService.findCatalogColors(dto.colorIds) : [],
+
+      dto.tagIds ? this.catalogService.findCatalogTags(dto.tagIds) : [],
+    ]);
+
+    const garment = this.garmentsRepository.create({
+      name: dto.name,
+      description: dto.description,
+
+      category: {
+        id: category.id,
+      },
+
+      size: {
+        id: size.id,
+      },
+
+      material: dto.material,
+
+      brand: {
+        id: brand.id,
+      },
+
+      datePurchased: new Date(dto.datePurchased),
+
+      status: GarmentStatus.AVAILABLE,
+
+      waterSaved: category.waterWaste,
+
+      condition: dto.condition,
+
+      price: dto.price,
+
+      transactionType: TransactionTypeEnum.SALE,
+
+      seller: {
+        id: userId,
+      },
+
+      store: {
+        id: store.id,
+      },
+
+      event: dto.eventId
+        ? {
+            id: dto.eventId,
+          }
+        : undefined,
+
+      images: dto.images?.map((image, index) => ({
+        url: image.url,
+        isCover: index === 0,
+      })),
+
+      colors: colors.map((color: ColorEntity) => ({
+        id: color.id,
+      })),
+
+      tags: tags.map((tag: TagEntity) => ({
+        id: tag.id,
+      })),
+
+      care: care?.id
+        ? {
+            id: care.id,
+          }
+        : undefined,
+    });
+
+    return this.garmentsRepository.save(garment);
+  }
+
+  async findMyGarments(userId: string): Promise<GarmentEntity[]> {
+    return this.garmentsRepository.find({
+      where: {
+        seller: {
+          id: userId,
+        },
+      },
+      relations: {
+        images: true,
+        category: true,
+        size: true,
+        brand: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   async findOneGarment(id: string): Promise<GarmentEntity> {

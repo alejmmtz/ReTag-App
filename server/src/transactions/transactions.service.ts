@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -102,15 +103,25 @@ export class TransactionsService {
     });
   }
 
-  async findOne(buyerId: string, id: string) {
+  async findOne(id: string, userId: string) {
     const transaction = await this.transactionsRepository.findOne({
-      where: {
-        id,
-        buyerId,
-      },
+      where: { id },
+
       relations: {
-        garment: true,
-        tradeGarment: true,
+        buyer: true,
+
+        garment: {
+          seller: true,
+          images: true,
+          size: true,
+          store: true,
+        },
+
+        tradeGarment: {
+          seller: true,
+          images: true,
+          size: true,
+        },
       },
     });
 
@@ -118,15 +129,34 @@ export class TransactionsService {
       throw new NotFoundException('Transaction not found');
     }
 
+    const isBuyer = transaction.buyerId === userId;
+    const isSeller = transaction.garment.seller.id === userId;
+
+    if (!isBuyer && !isSeller) {
+      throw new ForbiddenException('You cannot access this transaction');
+    }
+
     return transaction;
   }
 
   async updateStatus(
-    buyerId: string,
     id: string,
+    userId: string,
     dto: UpdateTransactionStatusDto,
   ) {
-    const transaction = await this.findOne(buyerId, id);
+    const transaction = await this.findOne(id, userId);
+
+    const isSeller = transaction.garment.seller.id === userId;
+
+    if (
+      (dto.status === TransactionStatusEnum.IN_PROGRESS ||
+        dto.status === TransactionStatusEnum.CANCELLED) &&
+      !isSeller
+    ) {
+      throw new ForbiddenException(
+        'Only the garment owner can accept or reject the proposal',
+      );
+    }
 
     transaction.status = dto.status;
 

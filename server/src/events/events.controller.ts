@@ -31,9 +31,14 @@ export class EventsController {
     return this.eventsService.findAll(query);
   }
 
+  @Get('joined')
+  @UseGuards(JwtAuthGuard)
+  findJoined(@Req() request: AuthenticatedRequest) {
+    return this.eventsService.findJoined(request.user.id);
+  }
+
   @Get('mine')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.STORE)
+  @UseGuards(JwtAuthGuard)
   findMine(@Req() request: AuthenticatedRequest) {
     return this.eventsService.findMine(request.user.id);
   }

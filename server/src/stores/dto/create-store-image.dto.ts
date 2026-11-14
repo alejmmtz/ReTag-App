@@ -5,4 +5,8 @@ export class CreateStoreImageDto extends CreateImageDto {
   @IsOptional()
   @IsBoolean()
   isProfile?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isCover?: boolean;
 }

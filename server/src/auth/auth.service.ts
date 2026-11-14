@@ -7,8 +7,6 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as argon2 from 'argon2';
 import { QueryFailedError, Repository } from 'typeorm';
-import { RegisterStoreDto } from '../stores/dto/register-store.dto';
-import { StoreEntity } from '../stores/entities/store.entity';
 import { RegisterUserDto } from '../users/dto/register-user.dto';
 import { UserEntity } from '../users/entities/user.entity';
 import { UserRoleEnum } from '../common/types/enums';
@@ -20,8 +18,6 @@ export class AuthService {
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
 
-    @InjectRepository(StoreEntity)
-    private readonly storesRepository: Repository<StoreEntity>,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -43,53 +39,6 @@ export class AuthService {
     try {
       const savedUser = await this.usersRepository.save(user);
       return { id: savedUser.id, email: savedUser.email };
-    } catch (error) {
-      this.throwIfDuplicateEmail(error);
-      throw error;
-    }
-  }
-
-  async registerStore(dto: RegisterStoreDto) {
-    const email = dto.email.toLowerCase();
-    const passwordHash = await argon2.hash(dto.password, {
-      type: argon2.argon2id,
-    });
-
-    try {
-      const user = this.usersRepository.create({
-        name: dto.name,
-        username: dto.username,
-        phone: dto.phone,
-        profilePicture: dto.profilePicture ?? null,
-        email,
-        passwordHash,
-        role: UserRoleEnum.STORE,
-      });
-
-      const savedUser = await this.usersRepository.save(user);
-      const store = this.storesRepository.create({
-        userId: savedUser.id,
-        user: savedUser,
-        socialmedia: dto.socialmedia,
-        storeName: dto.storeName,
-        location: dto.location,
-        description: dto.description,
-        images: dto.images?.map((image, index) => ({
-          url: image.url,
-          isCover: index === 0,
-          isProfile: image.isProfile ?? false,
-        })),
-      });
-      const savedStore = await this.storesRepository.save(store);
-
-      return {
-        user: { id: savedUser.id, email: savedUser.email },
-        store: {
-          id: savedStore.id,
-          storeName: savedStore.storeName,
-          images: savedStore.images,
-        },
-      };
     } catch (error) {
       this.throwIfDuplicateEmail(error);
       throw error;

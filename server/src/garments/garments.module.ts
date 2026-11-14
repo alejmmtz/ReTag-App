@@ -9,6 +9,7 @@ import { AuthModule } from '../auth/auth.module';
 import { CatalogsModule } from '../catalogs/catalogs.module';
 import { EventEntity } from '../events/entities/event.entity';
 import { GarmentImagesService } from './garment-images.service';
+import { StoreEntity } from '../stores/entities/store.entity';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { GarmentImagesService } from './garment-images.service';
     CatalogsModule,
     TypeOrmModule.forFeature([GarmentEntity, GarmentImageEntity, EventEntity]),
   ],
+
   controllers: [GarmentsController],
   providers: [GarmentsService, GarmentRulesService, GarmentImagesService],
   exports: [GarmentsService],
