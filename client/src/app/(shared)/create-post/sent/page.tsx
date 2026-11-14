@@ -11,6 +11,7 @@ export default function PostSentPage() {
   const router = useRouter();
   const [role, setRole] = useState<'user' | 'store'>('user');
 
+  // El botón lleva al inicio de cada rol: /feed (user) o /home (store).
   useEffect(() => {
     authFetch<MeResponse>('/auth/me')
       .then((me) => setRole(me.role))

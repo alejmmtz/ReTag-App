@@ -42,7 +42,7 @@ export async function authFetch<T>(
     Authorization: `Bearer ${token}`,
   };
 
-  if (init.body) {
+  if (typeof init.body === 'string') {
     headers['Content-Type'] = 'application/json';
   }
 

@@ -3,19 +3,22 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-import ImagePickerMock, {
+import ImagePicker, {
   type PickedImage,
-} from '../../../components/posts/image-picker-mock';
+} from '../../../components/posts/image-picker';
 import type { MeResponse, PostType } from '../../../components/posts/post-types';
 import { ApiError, authFetch, clearSession } from '../../../lib/http';
+import { uploadImages } from '../../../lib/uploads';
 
 const MAX_CAPTION = 350;
 
+// Colores por rol: verde para user, azul para store.
 const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
 
 type Garment = { id: string; name: string; status: string };
 type EventItem = { id: string; title: string };
 
+// Qué tipos de post puede crear cada rol (lo mismo que valida el backend).
 const TYPES_BY_ROLE: Record<
   'user' | 'store',
   { value: PostType; label: string }[]
@@ -134,6 +137,8 @@ export default function CreatePostPage() {
     setError(null);
 
     try {
+      const imageUrls = await uploadImages(images.map((image) => image.file));
+
       await authFetch('/posts', {
         method: 'POST',
         body: JSON.stringify({
@@ -141,15 +146,7 @@ export default function CreatePostPage() {
           postType,
           ...(showsGarment && garmentId ? { garmentId } : {}),
           ...(needsEvent ? { eventId } : {}),
-          // MOCKUP: no hay subida de archivos, se mandan URLs de ejemplo.
-          ...(images.length > 0
-            ? {
-                images: images.map(
-                  (_, index) =>
-                    `https://picsum.photos/seed/retag-${Date.now()}-${index}/800/1000`,
-                ),
-              }
-            : {}),
+          ...(imageUrls.length > 0 ? { images: imageUrls } : {}),
         }),
       });
 
@@ -218,11 +215,7 @@ export default function CreatePostPage() {
         {/* Fotos */}
         <section className="mt-8">
           <p className="mb-3 text-[14px] text-[#8A8A8A]">Photos</p>
-          <ImagePickerMock
-            images={images}
-            onChange={setImages}
-            accent={accent}
-          />
+          <ImagePicker images={images} onChange={setImages} accent={accent} />
         </section>
 
         {/* Prenda enlazada */}
