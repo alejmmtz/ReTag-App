@@ -29,5 +29,6 @@ import { AuthModule } from '../auth/auth.module';
   ],
   controllers: [PostsController, EventPostsController],
   providers: [PostsService],
+  exports: [PostsService],
 })
 export class PostsModule {}

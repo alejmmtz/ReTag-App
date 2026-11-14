@@ -17,6 +17,8 @@ import { TagEntity } from '../catalogs/entities/tag.entity';
 import { GarmentImageEntity } from './entities/garment-image.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { GarmentImagesService } from './garment-images.service';
+import { FilterSellerGarmentsQueryDto } from './dto/filter-seller-garments-query.dto';
+import { paginate } from '../common/utils/paginate';
 
 @Injectable()
 export class GarmentsService {
@@ -119,6 +121,22 @@ export class GarmentsService {
       .skip(query.skipQuantity)
       .take(query.takeQuantity)
       .getMany();
+  }
+
+  async findBySeller(sellerId: string, query: FilterSellerGarmentsQueryDto) {
+    const { page, limit, status = GarmentStatus.AVAILABLE } = query;
+    const [garments, total] = await this.garmentsRepository.findAndCount({
+      where: { seller: { id: sellerId }, status },
+      relations: { images: true, brand: true, size: true },
+      order: {
+        createdAt: 'DESC',
+        images: { isCover: 'DESC', id: 'ASC' },
+      },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return paginate(garments, total, page, limit);
   }
 
   async createGarment(

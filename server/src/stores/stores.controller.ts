@@ -6,6 +6,7 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -16,14 +17,15 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/guards/roles.guard';
 import { UserRoleEnum } from '../common/types/enums';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Controller('stores')
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
   @Get()
-  findAll() {
-    return this.storesService.findAll();
+  findAll(@Query(requestValidationPipe) query: PaginationQueryDto) {
+    return this.storesService.findAll(query);
   }
 
   @Get(':id')

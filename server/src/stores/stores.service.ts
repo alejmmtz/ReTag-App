@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { StoreEntity } from './entities/store.entity';
 import { StoreImage } from './entities/store-image.entity';
 import { UpdateStoreDto } from './dto/update-store.dto';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { paginate } from '../common/utils/paginate';
 
 @Injectable()
 export class StoresService {
@@ -18,8 +20,9 @@ export class StoresService {
     private readonly storeImagesRepository: Repository<StoreImage>,
   ) {}
 
-  async findAll() {
-    return this.storesRepository.find({
+  async findAll(query: PaginationQueryDto) {
+    const { page, limit } = query;
+    const [stores, total] = await this.storesRepository.findAndCount({
       relations: { user: true, images: true },
       select: {
         id: true,
@@ -35,7 +38,11 @@ export class StoresService {
         images: { id: true, url: true, isCover: true, isProfile: true },
       },
       order: { storeName: 'ASC', images: { isCover: 'DESC', id: 'ASC' } },
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return paginate(stores, total, page, limit);
   }
 
   async findOne(id: string) {

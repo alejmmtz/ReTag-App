@@ -9,12 +9,10 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
-import { GarmentStatus } from '../common/types/enums';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
-import { GarmentEntity } from '../garments/entities/garment.entity';
-import { PostEntity } from '../posts/entities/post.entity';
-import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
+import { GarmentsService } from '../garments/garments.service';
+import { PostsService } from '../posts/posts.service';
 
 @Injectable()
 export class UsersService {
@@ -22,14 +20,11 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
 
-    @InjectRepository(GarmentEntity)
-    private readonly garmentsRepository: Repository<GarmentEntity>,
-
-    @InjectRepository(PostEntity)
-    private readonly postsRepository: Repository<PostEntity>,
-
     @InjectRepository(FollowEntity)
     private readonly followsRepository: Repository<FollowEntity>,
+
+    private readonly garmentsService: GarmentsService,
+    private readonly postsService: PostsService,
   ) {}
 
   private async ensureUserExists(id: string) {
@@ -104,48 +99,12 @@ export class UsersService {
 
   async findGarments(userId: string, query: FilterUserGarmentsQueryDto) {
     await this.ensureUserExists(userId);
-
-    const { page, limit, status = GarmentStatus.AVAILABLE } = query;
-
-    const [garments, total] = await this.garmentsRepository.findAndCount({
-      where: {
-        seller: { id: userId },
-        status,
-      },
-      relations: {
-        images: true,
-        brand: true,
-        size: true,
-      },
-      order: {
-        createdAt: 'DESC',
-        images: { isCover: 'DESC', id: 'ASC' },
-      },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return paginate(garments, total, page, limit);
+    return this.garmentsService.findBySeller(userId, query);
   }
 
   async findPosts(userId: string, query: PaginationQueryDto) {
     await this.ensureUserExists(userId);
-
-    const { page, limit } = query;
-
-    const [posts, total] = await this.postsRepository.findAndCount({
-      where: {
-        userId: { id: userId },
-      },
-      relations: {
-        images: true,
-      },
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return paginate(posts, total, page, limit);
+    return this.postsService.findByUser(userId, query);
   }
 
   async follow(followerId: string, followedId: string) {

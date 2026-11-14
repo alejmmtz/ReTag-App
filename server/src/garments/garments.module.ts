@@ -18,5 +18,6 @@ import { GarmentImagesService } from './garment-images.service';
   ],
   controllers: [GarmentsController],
   providers: [GarmentsService, GarmentRulesService, GarmentImagesService],
+  exports: [GarmentsService],
 })
 export class GarmentsModule {}
