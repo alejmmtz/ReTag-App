@@ -7,6 +7,7 @@ import { ImageContent } from '../../common/entities/image-content.entity';
 export class GarmentImageEntity extends ImageContent {
   @ManyToOne(() => GarmentEntity, (garment) => garment.images, {
     nullable: false,
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'garment_id' })
   garment!: GarmentEntity;

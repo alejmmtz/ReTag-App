@@ -1,10 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { IsEnum, IsOptional } from 'class-validator';
-import { PaginationQueryDto } from './pagination-query.dto';
-import { GarmentStatus } from '../../common/types/enums';
+import { FilterSellerGarmentsQueryDto } from '../../garments/dto/filter-seller-garments-query.dto';
 
-export class FilterUserGarmentsQueryDto extends PaginationQueryDto {
-  @IsOptional()
-  @IsEnum(GarmentStatus)
-  status?: GarmentStatus;
-}
+export class FilterUserGarmentsQueryDto extends FilterSellerGarmentsQueryDto {}

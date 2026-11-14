@@ -1,26 +1,58 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
-
+import {
+  Controller,
+  Get,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { StoresService } from './stores.service';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { requestValidationPipe } from '../common/pipes/pipes';
+import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRoleEnum } from '../common/types/enums';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Controller('stores')
 @UseGuards(JwtAuthGuard)
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
 
-  @Post()
-  create(
-    @Req() req: AuthenticatedRequest,
-    @Body(requestValidationPipe) dto: CreateStoreDto,
-  ) {
-    return this.storesService.create(req.user.id, dto);
+  @Get()
+  findAll(@Query(requestValidationPipe) query: PaginationQueryDto) {
+    return this.storesService.findAll(query);
   }
 
-  @Get('me')
-  findMine(@Req() req: AuthenticatedRequest) {
-    return this.storesService.findMine(req.user.id);
+  @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.storesService.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
+  update(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body(requestValidationPipe) updateStoreDto: UpdateStoreDto,
+  ) {
+    return this.storesService.update(request.user.id, id, updateStoreDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
+  remove(
+    @Req() request: AuthenticatedRequest,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.storesService.remove(request.user.id, id);
   }
 }

@@ -34,6 +34,7 @@ import { UserEntity } from '../users/entities/user.entity';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { PostImageEntity } from './entities/post-image.entity';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @Injectable()
 export class PostsService {
@@ -122,6 +123,19 @@ export class PostsService {
     const data = await this.toPostResponses(orderedPosts, viewerId);
 
     return paginate(data, total, page, limit);
+  }
+
+  async findByUser(userId: string, query: PaginationQueryDto) {
+    const { page, limit } = query;
+    const [posts, total] = await this.postsRepository.findAndCount({
+      where: { userId: { id: userId } },
+      relations: { images: true },
+      order: { createdAt: 'DESC' },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return paginate(posts, total, page, limit);
   }
 
   async findOne(viewerId: string, id: string): Promise<PostDetailResponse> {

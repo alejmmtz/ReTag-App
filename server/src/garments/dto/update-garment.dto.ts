@@ -1,8 +1,11 @@
 import {
   ArrayUnique,
+  ArrayMaxSize,
   IsArray,
   IsDateString,
   IsEnum,
+  IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -13,27 +16,33 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { GarmentConditionEnum, MaterialEnum } from '../../common/types/enums';
+import {
+  GarmentConditionEnum,
+  MaterialEnum,
+  TransactionTypeEnum,
+} from '../../common/types/enums';
 import { CreateImageDto } from '../../common/dto/create-image.dto';
 
 export class UpdateGarmentDto {
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(120)
   name?: string;
 
   @IsOptional()
   @IsString()
+  @IsNotEmpty()
   @MaxLength(350)
   description?: string;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   categoryId?: number;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   sizeId?: number;
 
@@ -42,7 +51,7 @@ export class UpdateGarmentDto {
   material?: MaterialEnum;
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   brandId?: number;
 
@@ -62,30 +71,35 @@ export class UpdateGarmentDto {
 
   @IsOptional()
   @IsUUID()
-  eventId?: string;
+  eventId?: string | null;
+
+  @IsOptional()
+  @IsEnum(TransactionTypeEnum)
+  transactionType?: TransactionTypeEnum;
 
   @IsOptional()
   @IsArray()
   @ArrayUnique()
-  @IsNumber({}, { each: true })
+  @IsInt({ each: true })
   @Min(1, { each: true })
   colorIds?: number[];
 
   @IsOptional()
   @IsArray()
   @ArrayUnique()
-  @IsNumber({}, { each: true })
+  @IsInt({ each: true })
   @Min(1, { each: true })
   tagIds?: number[];
 
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
-  careId?: number;
+  careId?: number | null;
 
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(10)
   @ValidateNested({ each: true })
   @Type(() => CreateImageDto)
-  images?: CreateImageDto[];
+  images?: CreateImageDto[] | null;
 }
