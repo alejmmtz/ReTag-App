@@ -37,7 +37,7 @@ export class RegisterUserDto {
 
   @IsOptional()
   @IsNotEmpty()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   profilePicture?: string;
 
   @IsString()

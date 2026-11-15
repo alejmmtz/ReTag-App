@@ -72,6 +72,35 @@ export class StoresService {
     return store;
   }
 
+  // Tienda de un usuario (para el perfil propio y para ver la tienda de otro)
+  async findByUser(userId: string) {
+    const store = await this.storesRepository.findOne({
+      where: { userId },
+      relations: { user: true, images: true },
+      select: {
+        id: true,
+        socialmedia: true,
+        storeName: true,
+        schedule: true,
+        location: true,
+        description: true,
+        user: {
+          id: true,
+          username: true,
+          profilePicture: true,
+        },
+        images: { id: true, url: true, isCover: true, isProfile: true },
+      },
+      order: { images: { isCover: 'DESC', id: 'ASC' } },
+    });
+
+    if (!store) {
+      throw new NotFoundException(`Store for user ${userId} not found`);
+    }
+
+    return store;
+  }
+
   async update(userId: string, id: string, updateStoreDto: UpdateStoreDto) {
     const store = await this.storesRepository.findOne({
       where: { id, userId },

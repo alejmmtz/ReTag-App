@@ -15,7 +15,12 @@ import { StoreEntity } from '../stores/entities/store.entity';
   imports: [
     AuthModule,
     CatalogsModule,
-    TypeOrmModule.forFeature([GarmentEntity, GarmentImageEntity, EventEntity]),
+    TypeOrmModule.forFeature([
+      GarmentEntity,
+      GarmentImageEntity,
+      EventEntity,
+      StoreEntity,
+    ]),
   ],
 
   controllers: [GarmentsController],

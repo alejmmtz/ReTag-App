@@ -16,6 +16,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 import { Roles, RolesGuard } from '../auth/guards/roles.guard';
@@ -34,6 +35,14 @@ export class UsersController {
     @Body(requestValidationPipe) data: UpdateUserDto,
   ) {
     return this.usersService.update(req.user.id, data);
+  }
+
+  // Buscador del feed: usuarios y tiendas por username, nombre o nombre de tienda.
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  search(@Query(requestValidationPipe) query: SearchUsersQueryDto) {
+    return this.usersService.search(query);
   }
 
   @Get(':id')
@@ -73,7 +82,6 @@ export class UsersController {
     return this.usersService.follow(req.user.id, id);
   }
 
-  // RF-22
   @Delete(':id/follow')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)

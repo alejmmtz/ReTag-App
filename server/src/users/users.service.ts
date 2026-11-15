@@ -10,6 +10,8 @@ import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SearchUsersQueryDto } from './dto/search-users-query.dto';
+import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
 import { GarmentsService } from '../garments/garments.service';
 import { PostsService } from '../posts/posts.service';
@@ -95,6 +97,45 @@ export class UsersService {
       role: saved.role,
       createdAt: saved.createdAt,
     };
+  }
+
+  async search(query: SearchUsersQueryDto) {
+    const { page, limit, q } = query;
+    // Escapa % y _ para que el texto del usuario no actúe como comodín.
+    const term = `%${q.trim().replace(/[\\%_]/g, '\\$&')}%`;
+
+    const [users, total] = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.store', 'store')
+      .select([
+        'user.id',
+        'user.name',
+        'user.username',
+        'user.profilePicture',
+        'user.role',
+        'store.storeName',
+      ])
+      .where(
+        '(user.username ILIKE :term OR user.name ILIKE :term OR store.storeName ILIKE :term)',
+        { term },
+      )
+      .orderBy('user.username', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return paginate(
+      users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        name: user.store?.storeName ?? user.name,
+        profilePicture: user.profilePicture,
+        role: user.role,
+      })),
+      total,
+      page,
+      limit,
+    );
   }
 
   async findGarments(userId: string, query: FilterUserGarmentsQueryDto) {

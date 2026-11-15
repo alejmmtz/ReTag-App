@@ -11,7 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
-import { CreateStoreDto } from './dto/create-store.dto';
+import { UpdateStoreDto } from './dto/update-store.dto';
+import { requestValidationPipe } from '../common/pipes/pipes';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { Roles, RolesGuard } from '../auth/guards/roles.guard';
 import { UserRoleEnum } from '../common/types/enums';
@@ -26,6 +27,21 @@ export class StoresController {
   @Get()
   findAll(@Query(requestValidationPipe) query: PaginationQueryDto) {
     return this.storesService.findAll(query);
+  }
+
+  // OJO: estas rutas van ANTES de @Get(':id'), si no 'me' se toma como id.
+  @Get('me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.STORE)
+  findMine(@Req() request: AuthenticatedRequest) {
+    return this.storesService.findByUser(request.user.id);
+  }
+
+  @Get('user/:userId')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  findByUser(@Param('userId', ParseUUIDPipe) userId: string) {
+    return this.storesService.findByUser(userId);
   }
 
   @Get(':id')
