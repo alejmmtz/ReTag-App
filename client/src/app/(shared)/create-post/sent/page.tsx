@@ -11,7 +11,6 @@ export default function PostSentPage() {
   const router = useRouter();
   const [role, setRole] = useState<'user' | 'store'>('user');
 
-  // El botón lleva al inicio de cada rol: /feed (user) o /home (store).
   useEffect(() => {
     authFetch<MeResponse>('/auth/me')
       .then((me) => setRole(me.role))
@@ -24,20 +23,20 @@ export default function PostSentPage() {
     <main className="flex h-screen flex-col items-center justify-center bg-[#191919] px-8 text-white">
       <div className="flex w-full max-w-[560px] flex-col items-center text-center">
         <Image
-          src="/illustrations/star.png"
+          src="/illustrations/wow.png"
           alt="Post published"
-          width={300}
-          height={200}
-          className="mb-8 h-auto w-[200px]"
+          width={297}
+          height={157}
+          className="mb-8 h-auto w-[260px]"
           priority
         />
 
         <h1 className="text-[20px] font-medium">
-          Wow! Your post was published!
+          Your post was published!
         </h1>
 
         <p className="mt-2 text-[15px] text-[#8A8A8A]">
-          Check it on your feed
+          Check it on home
         </p>
 
         <button

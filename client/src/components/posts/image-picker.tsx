@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export type PickedImage = {
   id: string;
@@ -13,19 +13,24 @@ type Props = {
   onChange: (images: PickedImage[]) => void;
   max?: number;
   accent: string;
+  label?: string;
 };
+
 export default function ImagePicker({
   images,
   onChange,
   max = 10,
   accent,
+  label = 'Add images',
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef(images);
+  const [selected, setSelected] = useState(0);
 
   useEffect(() => {
     imagesRef.current = images;
   }, [images]);
+
   useEffect(() => {
     return () => {
       imagesRef.current.forEach((image) =>
@@ -62,8 +67,11 @@ export default function ImagePicker({
       URL.revokeObjectURL(removed.previewUrl);
     }
 
+    setSelected(0);
     onChange(images.filter((image) => image.id !== id));
   }
+
+  const current = images[selected] ?? images[0];
 
   return (
     <div>
@@ -76,52 +84,83 @@ export default function ImagePicker({
         onChange={(event) => handleFiles(event.target.files)}
       />
 
-      <div className="flex gap-3 overflow-x-auto pb-1">
-        {images.length < max && (
+      {/* Foto grande */}
+      {current ? (
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[22px] bg-[#262626]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={current.previewUrl}
+            alt="Selected photo"
+            className="h-full w-full object-cover"
+          />
+
+          {images[0]?.id === current.id && (
+            <span className="absolute bottom-3 left-3 rounded-full bg-black/70 px-3 py-1 text-[11px]">
+              Cover
+            </span>
+          )}
+
           <button
             type="button"
-            onClick={() => inputRef.current?.click()}
-            className="flex h-[132px] w-[110px] shrink-0 flex-col items-center justify-center gap-2 rounded-[18px] border border-dashed text-[13px]"
-            style={{ borderColor: accent, color: accent }}
+            aria-label="Remove photo"
+            onClick={() => handleRemove(current.id)}
+            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-[18px] text-white"
           >
-            <span className="text-[28px] leading-none">+</span>
-            Add photo
+            ×
           </button>
-        )}
-
-        {images.map((image, index) => (
-          <div
-            key={image.id}
-            className="relative h-[132px] w-[110px] shrink-0 overflow-hidden rounded-[18px] bg-[#262626]"
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-[22px] bg-[#262626] text-[15px] text-[#D6D6D6]"
+        >
+          <span
+            className="flex h-[56px] w-[56px] items-center justify-center rounded-full"
+            style={{ backgroundColor: accent, color: accent === '#C8F66F' ? '#1A1A1A' : '#FFFFFF' }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={image.previewUrl}
-              alt={`Selected photo ${index + 1}`}
-              className="h-full w-full object-cover"
-            />
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+          </span>
+          {label}
+        </button>
+      )}
 
-            {index === 0 && (
-              <span className="absolute bottom-2 left-2 rounded-full bg-black/70 px-2 py-[2px] text-[10px] text-white">
-                Cover
-              </span>
-            )}
+      {/* Miniaturas */}
+      {images.length > 0 && (
+        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+          {images.map((image, index) => (
+            <button
+              key={image.id}
+              type="button"
+              onClick={() => setSelected(index)}
+              className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[12px] border-2"
+              style={{ borderColor: index === selected ? accent : 'transparent' }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image.previewUrl}
+                alt={`Photo ${index + 1}`}
+                className="h-full w-full object-cover"
+              />
+            </button>
+          ))}
 
+          {images.length < max && (
             <button
               type="button"
-              aria-label="Remove photo"
-              onClick={() => handleRemove(image.id)}
-              className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[14px] text-white"
+              onClick={() => inputRef.current?.click()}
+              aria-label="Add more photos"
+              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[12px] border border-dashed text-[24px]"
+              style={{ borderColor: accent, color: accent }}
             >
-              ×
+              +
             </button>
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-2 text-[12px] text-[#8A8A8A]">
-        {images.length}/{max} photos
-      </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
