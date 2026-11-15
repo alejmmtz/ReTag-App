@@ -1,56 +1,59 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { BagsService } from './bags.service';
 import { CreateBagDto } from './dto/create-bag.dto';
-import { UpdateBagDto } from './dto/update-bag.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UserRoleEnum } from '../common/types/enums';
 import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { requestValidationPipe } from '../common/pipes/pipes';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import type { AuthenticatedRequest } from '../common/types/authenticated-request';
 
 @Controller('bags')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRoleEnum.USER)
 export class BagsController {
   constructor(private readonly bagsService: BagsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER)
-  create(@Body() createBagDto: CreateBagDto) {
-    return this.bagsService.create(createBagDto);
+  create(
+    @Req() req: AuthenticatedRequest,
+    @Body(requestValidationPipe) dto: CreateBagDto,
+  ) {
+    return this.bagsService.create(req.user.id, dto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER)
-  findAll() {
-    return this.bagsService.findAll();
+  findAll(
+    @Req() req: AuthenticatedRequest,
+    @Query(requestValidationPipe) query: PaginationQueryDto,
+  ) {
+    return this.bagsService.findAll(req.user.id, query);
   }
 
-  @Get(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER)
-  findOne(@Param('id') id: string) {
-    return this.bagsService.findOne(+id);
+  @Get(':garmentId')
+  findOne(
+    @Req() req: AuthenticatedRequest,
+    @Param('garmentId', ParseUUIDPipe) garmentId: string,
+  ) {
+    return this.bagsService.findOne(req.user.id, garmentId);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER)
-  update(@Param('id') id: string, @Body() updateBagDto: UpdateBagDto) {
-    return this.bagsService.update(+id, updateBagDto);
-  }
-
-  @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER)
-  remove(@Param('id') id: string) {
-    return this.bagsService.remove(+id);
+  @Delete(':garmentId')
+  remove(
+    @Req() req: AuthenticatedRequest,
+    @Param('garmentId', ParseUUIDPipe) garmentId: string,
+  ) {
+    return this.bagsService.remove(req.user.id, garmentId);
   }
 }
