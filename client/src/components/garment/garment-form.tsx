@@ -11,7 +11,6 @@ import type { GarmentDetail } from './garment-detail-types';
 import {
   CONDITIONS,
   MATERIALS,
-  TRANSACTION_TYPES,
   type CatalogsResponse,
   type TransactionType,
 } from './garment-types';
@@ -20,13 +19,6 @@ const MAX_DESCRIPTION = 350;
 const MAX_PHOTOS = 10;
 
 const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
-
-const FIELD =
-  'h-[48px] w-full rounded-full border border-[#6C6C6C] bg-[#191919] px-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]';
-
-function Label({ children }: { children: React.ReactNode }) {
-  return <p className="mb-3 text-[14px] text-[#8A8A8A]">{children}</p>;
-}
 
 type Props = {
   garment?: GarmentDetail;
@@ -76,6 +68,8 @@ export default function GarmentForm({ garment }: Props) {
     garment?.price != null ? String(Number(garment.price)) : '',
   );
 
+  const [materialsOpen, setMaterialsOpen] = useState(false);
+  const [careOpen, setCareOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -229,57 +223,67 @@ export default function GarmentForm({ garment }: Props) {
       : { borderColor: '#6C6C6C', color: '#F5F5F5' };
   }
 
+  const showAllMaterials = materialsOpen;
+  const visibleMaterials = showAllMaterials ? MATERIALS : MATERIALS.slice(0, 4);
+  const visibleCare = careOpen
+    ? catalogs.careDetails
+    : catalogs.careDetails.slice(0, 4);
+
+  const UNDERLINE =
+    'w-full border-b border-[#4A4A4A] bg-transparent pb-2 text-[16px] text-white outline-none placeholder:text-[#8A8A8A] focus:border-white';
+  const PILL_SELECT =
+    'h-[44px] w-full rounded-full px-4 text-[14px] font-medium outline-none';
+
   return (
-    <main className="min-h-screen bg-[#191919] pb-[120px] text-white">
+    <main className="min-h-screen bg-[#191919] pb-[170px] text-white">
       <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#303030] text-[20px]"
+            className="flex h-[40px] w-[40px] items-center justify-center text-[28px]"
           >
             ‹
           </button>
 
-          <h1 className="text-[22px] font-medium">
-            {isEdit ? 'Edit garment' : 'List a garment'}
+          <h1 className="text-[20px] font-medium">
+            {isEdit ? 'Edit Garment' : 'New Garment'}
           </h1>
         </header>
 
-        {/* Fotos */}
-        <section className="mt-8">
-          <Label>Photos (the first one is the cover)</Label>
+        {/* Fotos actuales (solo al editar) */}
+        {keptUrls.length > 0 && (
+          <div className="mt-5 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+            {keptUrls.map((url, index) => (
+              <div
+                key={url}
+                className="relative h-[96px] w-[80px] shrink-0 overflow-hidden rounded-[14px] bg-[#262626]"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={url}
+                  alt={`Current photo ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
 
-          {keptUrls.length > 0 && (
-            <div className="mb-3 flex gap-3 overflow-x-auto pb-1">
-              {keptUrls.map((url, index) => (
-                <div
-                  key={url}
-                  className="relative h-[132px] w-[110px] shrink-0 overflow-hidden rounded-[18px] bg-[#262626]"
+                <button
+                  type="button"
+                  aria-label="Remove photo"
+                  onClick={() =>
+                    setKeptUrls(keptUrls.filter((item) => item !== url))
+                  }
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[14px] text-white"
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={url}
-                    alt={`Current photo ${index + 1}`}
-                    className="h-full w-full object-cover"
-                  />
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
-                  <button
-                    type="button"
-                    aria-label="Remove photo"
-                    onClick={() =>
-                      setKeptUrls(keptUrls.filter((item) => item !== url))
-                    }
-                    className="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[14px] text-white"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
+        {/* Fotos (área grande arriba) */}
+        <section className="mt-5">
           <ImagePicker
             images={images}
             onChange={setImages}
@@ -289,40 +293,97 @@ export default function GarmentForm({ garment }: Props) {
         </section>
 
         {/* Nombre */}
-        <section className="mt-8">
-          <Label>Name</Label>
+        <section className="mt-6">
+          <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-name">
+            Name
+          </label>
           <input
+            id="garment-name"
             value={name}
             onChange={(event) => setName(event.target.value.slice(0, 120))}
             placeholder="e.g. True Religion Jeans"
-            className={FIELD}
+            className={`mt-1 ${UNDERLINE}`}
           />
         </section>
 
-        {/* Descripción */}
-        <section className="mt-8">
-          <Label>Description</Label>
-          <textarea
-            value={description}
-            onChange={(event) =>
-              setDescription(event.target.value.slice(0, MAX_DESCRIPTION))
-            }
-            rows={4}
-            placeholder="Tell us about this garment..."
-            className="w-full resize-none rounded-[18px] border border-[#6C6C6C] bg-transparent p-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]"
-          />
-          <p className="mt-1 text-right text-[12px] text-[#8A8A8A]">
-            {description.length}/{MAX_DESCRIPTION}
-          </p>
+        {/* Modo de transacción: solo user y solo al crear */}
+        {!isStore && !isEdit && (
+          <section className="mt-6">
+            <p className="mb-2 text-[13px] text-[#9A9A9A]">Transaction mode</p>
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  { value: 'sale', label: 'Purchase' },
+                  { value: 'trade', label: 'Exchange' },
+                  { value: 'both', label: 'Both' },
+                ] as { value: TransactionType; label: string }[]
+              ).map((type) => {
+                const active = transactionType === type.value;
+
+                return (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => setTransactionType(type.value)}
+                    className="h-[38px] rounded-full border px-5 text-[14px] font-medium"
+                    style={
+                      active
+                        ? { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF', color: '#1A1A1A' }
+                        : { borderColor: '#6C6C6C', color: '#F5F5F5' }
+                    }
+                  >
+                    {type.label}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Precio y fecha de adquisición, lado a lado */}
+        <section className="mt-6 grid grid-cols-2 gap-5">
+          <div>
+            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-price">
+              Price (USD)
+            </label>
+            <input
+              id="garment-price"
+              type="number"
+              inputMode="decimal"
+              min={1}
+              max={10000}
+              value={needsPrice ? price : ''}
+              disabled={!needsPrice}
+              onChange={(event) => setPrice(event.target.value)}
+              placeholder={needsPrice ? '0' : 'Exchange'}
+              className={`mt-1 ${UNDERLINE} disabled:opacity-40`}
+            />
+          </div>
+
+          <div>
+            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-date">
+              Date of Acquisition
+            </label>
+            <input
+              id="garment-date"
+              type="date"
+              value={datePurchased}
+              max={today}
+              onChange={(event) => setDatePurchased(event.target.value)}
+              className={`mt-1 ${UNDERLINE} [color-scheme:dark]`}
+            />
+          </div>
         </section>
 
-        {/* Categoría y marca */}
-        <section className="mt-8">
-          <Label>Category</Label>
+        {/* Categoría */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">Category</p>
           <select
             value={categoryId}
             onChange={(event) => setCategoryId(event.target.value)}
-            className={FIELD}
+            aria-label="Category"
+            className={PILL_SELECT}
+            style={{ backgroundColor: accent, color: accentText }}
           >
             <option value="">Select a category</option>
             {catalogs.categories.map((item) => (
@@ -333,85 +394,9 @@ export default function GarmentForm({ garment }: Props) {
           </select>
         </section>
 
-        <section className="mt-8">
-          <Label>Brand</Label>
-          <select
-            value={brandId}
-            onChange={(event) => setBrandId(event.target.value)}
-            className={FIELD}
-          >
-            <option value="">Select a brand</option>
-            {catalogs.brands.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </section>
-
-        {/* Talla y material */}
-        <section className="mt-8">
-          <Label>Size</Label>
-          <select
-            value={sizeId}
-            onChange={(event) => setSizeId(event.target.value)}
-            className={FIELD}
-          >
-            <option value="">Select a size</option>
-            {catalogs.sizes.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.type} · {item.label}
-              </option>
-            ))}
-          </select>
-        </section>
-
-        <section className="mt-8">
-          <Label>Material</Label>
-          <select
-            value={material}
-            onChange={(event) => setMaterial(event.target.value)}
-            className={FIELD}
-          >
-            <option value="">Select a material</option>
-            {MATERIALS.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </section>
-
-        {/* Colores */}
-        <section className="mt-8">
-          <Label>Colors (pick at least one)</Label>
-          <div className="flex flex-wrap gap-2">
-            {catalogs.colors.map((color) => {
-              const active = colorIds.includes(color.id);
-
-              return (
-                <button
-                  key={color.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => toggle(colorIds, color.id, setColorIds)}
-                  className="flex h-[36px] items-center gap-2 rounded-full border px-3 text-[13px]"
-                  style={chipStyle(active)}
-                >
-                  <span
-                    className="h-[14px] w-[14px] rounded-full border border-white/40"
-                    style={{ backgroundColor: color.hexcode }}
-                  />
-                  {color.name}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Etiquetas */}
-        <section className="mt-8">
-          <Label>Tags (pick at least one)</Label>
+        {/* ReTags */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">ReTags</p>
           <div className="flex flex-wrap gap-2">
             {catalogs.tags.map((tag) => {
               const active = tagIds.includes(tag.id);
@@ -422,35 +407,95 @@ export default function GarmentForm({ garment }: Props) {
                   type="button"
                   aria-pressed={active}
                   onClick={() => toggle(tagIds, tag.id, setTagIds)}
-                  className="h-[36px] rounded-full border px-4 text-[13px]"
+                  className="h-[34px] rounded-full border px-4 text-[13px] font-medium"
                   style={chipStyle(active)}
                 >
-                  {tag.name}
+                  #{tag.name}
+                  {active && <span className="ml-2">×</span>}
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Fecha de compra */}
-        <section className="mt-8">
-          <Label>Date purchased</Label>
-          <input
-            type="date"
-            value={datePurchased}
-            max={today}
-            onChange={(event) => setDatePurchased(event.target.value)}
-            className={FIELD}
-          />
+        {/* Marca y talla, lado a lado */}
+        <section className="mt-6 grid grid-cols-2 gap-5">
+          <div>
+            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-brand">
+              Brand
+            </label>
+            <select
+              id="garment-brand"
+              value={brandId}
+              onChange={(event) => setBrandId(event.target.value)}
+              className={`mt-1 ${UNDERLINE} [color-scheme:dark]`}
+            >
+              <option value="">Select</option>
+              {catalogs.brands.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-size">
+              Size
+            </label>
+            <select
+              id="garment-size"
+              value={sizeId}
+              onChange={(event) => setSizeId(event.target.value)}
+              className={`mt-1 ${UNDERLINE} [color-scheme:dark]`}
+            >
+              <option value="">Select</option>
+              {catalogs.sizes.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.type} · {item.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </section>
 
-        {/* Condición (opcional) */}
-        <section className="mt-8">
-          <Label>Condition (optional)</Label>
+        {/* Materiales */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">Materials</p>
+          <div className="flex flex-wrap gap-2">
+            {visibleMaterials.map((item) => (
+              <button
+                key={item}
+                type="button"
+                aria-pressed={material === item}
+                onClick={() => setMaterial(material === item ? '' : item)}
+                className="h-[34px] rounded-full border px-4 text-[13px] capitalize"
+                style={chipStyle(material === item)}
+              >
+                {item}
+              </button>
+            ))}
+            {!showAllMaterials && MATERIALS.length > 4 && (
+              <button
+                type="button"
+                onClick={() => setMaterialsOpen(true)}
+                className="h-[34px] rounded-full border border-[#6C6C6C] px-4 text-[13px]"
+              >
+                More +
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* Condición */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">Condition</p>
           <select
             value={condition}
             onChange={(event) => setCondition(event.target.value)}
-            className={FIELD}
+            aria-label="Condition"
+            className={`${PILL_SELECT} capitalize`}
+            style={{ backgroundColor: accent, color: accentText }}
           >
             <option value="">Select a condition</option>
             {CONDITIONS.map((item) => (
@@ -461,81 +506,110 @@ export default function GarmentForm({ garment }: Props) {
           </select>
         </section>
 
-        {/* Cuidado (opcional) */}
-        <section className="mt-8">
-          <Label>Care instructions (optional)</Label>
-          <select
-            value={careId}
-            onChange={(event) => setCareId(event.target.value)}
-            className={FIELD}
-          >
-            <option value="">Select care instructions</option>
-            {catalogs.careDetails.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+        {/* Cuidado y detalles */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">Care &amp; details</p>
+          <div className="grid grid-cols-2 gap-3">
+            {visibleCare.map((item) => {
+              const active = careId === String(item.id);
+
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => setCareId(active ? '' : String(item.id))}
+                  className="flex min-h-[64px] items-center gap-3 rounded-[16px] border px-3 text-left text-[13px] leading-tight"
+                  style={chipStyle(active)}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                    <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" />
+                  </svg>
+                  {item.name}
+                </button>
+              );
+            })}
+          </div>
+          {!careOpen && catalogs.careDetails.length > 4 && (
+            <button
+              type="button"
+              onClick={() => setCareOpen(true)}
+              className="mt-3 h-[34px] rounded-full border border-[#6C6C6C] px-4 text-[13px]"
+            >
+              More +
+            </button>
+          )}
         </section>
 
-        {/* Tipo de transacción: solo user y solo al crear */}
-        {!isStore && !isEdit && (
-          <section className="mt-8">
-            <Label>I want to</Label>
-            <div className="flex flex-wrap gap-2">
-              {TRANSACTION_TYPES.map((type) => (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={() => setTransactionType(type.value)}
-                  className="h-[40px] rounded-full border px-5 text-[14px] font-medium"
-                  style={chipStyle(transactionType === type.value)}
-                >
-                  {type.label}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
+        {/* Colores */}
+        <section className="mt-6">
+          <p className="mb-2 text-[13px] text-[#9A9A9A]">Colors</p>
+          <div className="flex flex-wrap gap-3">
+            {catalogs.colors.map((color) => {
+              const active = colorIds.includes(color.id);
 
-        {/* Precio */}
-        {needsPrice && (
-          <section className="mt-8">
-            <Label>Price (USD, 1 - 10000)</Label>
-            <input
-              type="number"
-              inputMode="decimal"
-              min={1}
-              max={10000}
-              value={price}
-              onChange={(event) => setPrice(event.target.value)}
-              placeholder="0"
-              className={FIELD}
-            />
-          </section>
-        )}
+              return (
+                <button
+                  key={color.id}
+                  type="button"
+                  aria-label={color.name}
+                  aria-pressed={active}
+                  title={color.name}
+                  onClick={() => toggle(colorIds, color.id, setColorIds)}
+                  className="h-[34px] w-[34px] rounded-full border-2"
+                  style={{
+                    backgroundColor: color.hexcode,
+                    borderColor: active ? accent : 'rgba(255,255,255,0.25)',
+                    boxShadow: active ? `0 0 0 2px ${accent}55` : undefined,
+                  }}
+                />
+              );
+            })}
+          </div>
+        </section>
+
+        {/* Descripción */}
+        <section className="mt-6">
+          <textarea
+            value={description}
+            onChange={(event) =>
+              setDescription(event.target.value.slice(0, MAX_DESCRIPTION))
+            }
+            rows={4}
+            placeholder="Description: tell us about this garment..."
+            className="w-full resize-none rounded-[22px] bg-[#262626] p-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]"
+          />
+          <p className="mt-1 text-right text-[12px] text-[#8A8A8A]">
+            {description.length}/{MAX_DESCRIPTION}
+          </p>
+        </section>
 
         {error && (
-          <p className="mt-4 text-[13px] text-[#FB3F0F]" role="alert">
+          <p className="mt-2 text-[13px] text-[#FB3F0F]" role="alert">
             {error}
           </p>
         )}
+      </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className="mt-8 h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
-          style={{ backgroundColor: accent, color: accentText }}
-        >
-          {submitting
-            ? isEdit
-              ? 'Saving...'
-              : 'Adding...'
-            : isEdit
-              ? 'Save changes'
-              : 'Add garment'}
-        </button>
+      {/* Botón fijo abajo */}
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#191919] via-[#191919] to-transparent pb-8 pt-6">
+        <div className="mx-auto w-full max-w-[560px] px-6">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
+            style={{ backgroundColor: accent, color: accentText }}
+          >
+            {submitting
+              ? isEdit
+                ? 'Saving...'
+                : 'Adding...'
+              : isEdit
+                ? 'Save changes'
+                : 'Add to closet'}
+          </button>
+        </div>
       </div>
     </main>
   );

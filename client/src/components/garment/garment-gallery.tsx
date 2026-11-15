@@ -7,13 +7,13 @@ type Props = {
   alt: string;
 };
 
-// Carrusel horizontal con deslizamiento (snap) y contador 1/N.
+// Carrusel horizontal con deslizamiento y contador 
 export default function GarmentGallery({ images, alt }: Props) {
   const [index, setIndex] = useState(0);
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[4/5] w-full items-center justify-center rounded-[22px] bg-[#262626] text-[13px] text-[#6C6C6C]">
+      <div className="flex aspect-[4/5] w-full items-center justify-center bg-[#262626] text-[13px] text-[#6C6C6C]">
         No photo
       </div>
     );
@@ -25,7 +25,7 @@ export default function GarmentGallery({ images, alt }: Props) {
   return (
     <div className="relative">
       <div
-        className="flex snap-x snap-mandatory overflow-x-auto rounded-[22px] [scrollbar-width:none]"
+        className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]"
         onScroll={(event) => {
           const el = event.currentTarget;
           setIndex(Math.round(el.scrollLeft / el.clientWidth));
@@ -34,7 +34,7 @@ export default function GarmentGallery({ images, alt }: Props) {
         {ordered.map((image, position) => (
           <div
             key={image.id}
-            className="aspect-[4/5] w-full shrink-0 snap-center bg-[#262626]"
+            className="aspect-[4/5] max-h-[560px] w-full shrink-0 snap-center bg-[#262626]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -47,7 +47,7 @@ export default function GarmentGallery({ images, alt }: Props) {
       </div>
 
       {ordered.length > 1 && (
-        <span className="absolute bottom-3 right-3 rounded-full bg-black/70 px-3 py-1 text-[12px]">
+        <span className="absolute bottom-12 right-4 rounded-full bg-black/70 px-3 py-1 text-[12px]">
           {index + 1}/{ordered.length}
         </span>
       )}

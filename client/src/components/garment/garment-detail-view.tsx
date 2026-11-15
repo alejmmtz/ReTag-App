@@ -21,12 +21,43 @@ function priceLabel(garment: GarmentDetail) {
   return `$${Number(garment.price)}`;
 }
 
-const TYPE_LABEL = { sale: 'For sale', trade: 'For trade', both: 'Sale or trade' };
+function Highlighted({
+  text,
+  words,
+  color,
+}: {
+  text: string;
+  words: string[];
+  color: string;
+}) {
+  const clean = words.filter((word) => word && word.length > 2);
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+  if (clean.length === 0) {
+    return <>{text}</>;
+  }
+
+  const escaped = clean.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const parts = text.split(new RegExp(`(${escaped.join('|')})`, 'gi'));
+
   return (
-    <div className="flex justify-between gap-4 border-b border-[#2A2A2A] py-3 text-[14px]">
-      <span className="text-[#8A8A8A]">{label}</span>
+    <>
+      {parts.map((part, index) =>
+        clean.some((word) => word.toLowerCase() === part.toLowerCase()) ? (
+          <span key={index} style={{ color }} className="font-medium">
+            {part}
+          </span>
+        ) : (
+          <span key={index}>{part}</span>
+        ),
+      )}
+    </>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="flex justify-between gap-4 border-b border-[#2A2A2A] py-3 text-[14px] last:border-b-0">
+      <span className="text-[#9A9A9A]">{label}</span>
       <span className="text-right capitalize">{value}</span>
     </div>
   );
@@ -93,7 +124,6 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
 
     try {
       await authFetch(`/garments/${garment.id}`, { method: 'DELETE' });
-      // Vuelve al perfil: la prenda ya no está en el clóset.
       router.replace('/profile');
     } catch (err) {
       setDeleteError(
@@ -138,166 +168,189 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
   const sellerName = garment.seller.name || garment.seller.username;
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[140px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
-        <button
-          type="button"
-          aria-label="Go back"
-          onClick={() => router.back()}
-          className="mb-4 flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#303030] text-[20px]"
-        >
-          ‹
-        </button>
+    <main className="min-h-screen bg-[#191919] pb-[170px] text-white">
+      <div className="mx-auto w-full max-w-[560px]">
+        {/* Foto principal a todo el ancho, con degradado hacia el fondo */}
+        <div className="relative">
+          <GarmentGallery images={garment.images} alt={garment.name} />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-gradient-to-t from-[#191919] to-transparent" />
 
-        <GarmentGallery images={garment.images} alt={garment.name} />
+          <button
+            type="button"
+            aria-label="Go back"
+            onClick={() => router.back()}
+            className="absolute left-5 top-5 flex h-[40px] w-[40px] items-center justify-center rounded-full bg-black/50 text-[22px] backdrop-blur"
+          >
+            ‹
+          </button>
 
-        {/* Título y precio */}
-        <div className="mt-5 flex items-start justify-between gap-4">
-          <h1 className="text-[22px] font-medium leading-tight">
-            {garment.name}
-          </h1>
-          <p className="text-[20px] font-medium">{priceLabel(garment)}</p>
+          {garment.brand && (
+            <span className="absolute right-5 top-5 max-w-[45%] truncate rounded-full bg-black/50 px-4 py-2 text-[13px] font-semibold uppercase tracking-wide backdrop-blur">
+              {garment.brand.name}
+            </span>
+          )}
         </div>
 
-        <div className="mt-3 flex flex-wrap gap-2 text-[12px]">
-          {garment.transactionType && (
-            <span className="rounded-full border border-[#6C6C6C] px-3 py-1">
-              {TYPE_LABEL[garment.transactionType]}
+        <div className="-mt-10 px-6">
+          {/* Vendedor y talla */}
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              href={`/profile/${garment.seller.id}`}
+              className="flex min-w-0 items-center gap-2 text-[14px]"
+            >
+              <span
+                className="flex h-[28px] w-[28px] shrink-0 items-center justify-center overflow-hidden rounded-full text-[12px] font-medium"
+                style={{
+                  backgroundColor: ACCENT[garment.seller.role],
+                  color: garment.seller.role === 'store' ? '#FFFFFF' : '#1A1A1A',
+                }}
+              >
+                {garment.seller.profilePicture ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={garment.seller.profilePicture}
+                    alt={sellerName}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  sellerName.charAt(0).toUpperCase()
+                )}
+              </span>
+              <span className="truncate">
+                by <span className="font-medium">@{garment.seller.username}</span>
+              </span>
+            </Link>
+
+            {garment.size && (
+              <span className="shrink-0 text-[13px] text-[#D6D6D6]">
+                Size: <span className="font-medium">{garment.size.label}</span>{' '}
+                <span className="capitalize text-[#9A9A9A]">({garment.size.type})</span>
+              </span>
+            )}
+          </div>
+
+          {garment.category && (
+            <span
+              className="mt-4 inline-block rounded-full px-4 py-[6px] text-[13px] font-medium"
+              style={{ backgroundColor: ACCENT[garment.seller.role], color: garment.seller.role === 'store' ? '#FFFFFF' : '#1A1A1A' }}
+            >
+              {garment.category.name}
             </span>
           )}
-          {garment.condition && (
-            <span className="rounded-full border border-[#6C6C6C] px-3 py-1 capitalize">
-              {garment.condition}
-            </span>
-          )}
+
+          <div className="mt-3 flex items-start justify-between gap-4">
+            <h1 className="text-[28px] font-semibold leading-tight">{garment.name}</h1>
+            <p className="pt-1 text-[20px] font-medium" style={{ color: accent }}>
+              {priceLabel(garment)}
+            </p>
+          </div>
+
           {!available && (
-            <span className="rounded-full bg-[#FB3F0F] px-3 py-1 capitalize">
+            <span className="mt-2 inline-block rounded-full bg-[#FB3F0F] px-3 py-1 text-[12px] capitalize">
               {garment.status}
             </span>
           )}
-        </div>
 
-        {/* Vendedor */}
-        <Link
-          href={`/profile/${garment.seller.id}`}
-          className="mt-5 flex items-center gap-3"
-        >
-          <span
-            className="flex h-[40px] w-[40px] items-center justify-center overflow-hidden rounded-full text-[16px] font-medium"
-            style={{
-              backgroundColor: ACCENT[garment.seller.role],
-              color: garment.seller.role === 'store' ? '#FFFFFF' : '#1A1A1A',
-            }}
-          >
-            {garment.seller.profilePicture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={garment.seller.profilePicture}
-                alt={sellerName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              sellerName.charAt(0).toUpperCase()
-            )}
-          </span>
-          <span>
-            <span className="block text-[14px] font-medium">{sellerName}</span>
-            <span className="block text-[12px] text-[#8A8A8A]">
-              @{garment.seller.username}
-            </span>
-          </span>
-        </Link>
-
-        <p className="mt-5 text-[14px] leading-relaxed text-[#D6D6D6]">
-          {garment.description}
-        </p>
-
-        {/* Detalles */}
-        <div className="mt-6">
-          <Row label="Brand" value={garment.brand?.name ?? '-'} />
-          <Row label="Category" value={garment.category?.name ?? '-'} />
-          <Row
-            label="Size"
-            value={
-              garment.size ? `${garment.size.type} · ${garment.size.label}` : '-'
-            }
-          />
-          <Row label="Material" value={garment.material} />
-          <Row label="Purchased" value={garment.datePurchased} />
-          {garment.care && <Row label="Care" value={garment.care.name} />}
-          {garment.waterSaved != null && (
-            <Row
-              label="Water saved"
-              value={`${Number(garment.waterSaved).toLocaleString()} L`}
+          {/* About */}
+          <h2 className="mt-6 text-[18px] font-semibold">About this Garment</h2>
+          <p className="mt-2 text-[14px] leading-relaxed text-[#D6D6D6]">
+            <Highlighted
+              text={garment.description}
+              color={accent}
+              words={[
+                garment.brand?.name ?? '',
+                garment.material,
+                garment.condition ?? '',
+              ]}
             />
-          )}
-        </div>
+          </p>
 
-        {garment.colors.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {garment.colors.map((color) => (
-              <span
-                key={color.id}
-                className="flex items-center gap-2 rounded-full border border-[#6C6C6C] px-3 py-1 text-[12px]"
-              >
+          {/* ReTags */}
+          {garment.tags.length > 0 && (
+            <>
+              <h2 className="mt-6 text-[18px] font-semibold">ReTags</h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {garment.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="rounded-full px-4 py-[6px] text-[13px] font-medium"
+                    style={{ backgroundColor: accent, color: accentText }}
+                  >
+                    #{tag.name}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Care & Details */}
+          <h2 className="mt-6 text-[18px] font-semibold">Care &amp; Details</h2>
+          <div className="mt-2 rounded-[18px] border border-[#2A2A2A] px-4">
+            {garment.care && <DetailRow label="Care" value={garment.care.name} />}
+            <DetailRow label="Material" value={garment.material} />
+            {garment.condition && (
+              <DetailRow label="Condition" value={garment.condition} />
+            )}
+            <DetailRow label="Purchased" value={garment.datePurchased} />
+            {garment.waterSaved != null && (
+              <DetailRow
+                label="Water saved"
+                value={`${Number(garment.waterSaved).toLocaleString()} L`}
+              />
+            )}
+          </div>
+
+          {garment.colors.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-3">
+              {garment.colors.map((color) => (
                 <span
-                  className="h-[12px] w-[12px] rounded-full border border-white/40"
+                  key={color.id}
+                  title={color.name}
+                  className="h-[28px] w-[28px] rounded-full border border-white/30"
                   style={{ backgroundColor: color.hexcode }}
                 />
-                {color.name}
-              </span>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
 
-        {garment.tags.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {garment.tags.map((tag) => (
-              <span
-                key={tag.id}
-                className="rounded-full bg-[#262626] px-3 py-1 text-[12px] text-[#D6D6D6]"
+      {/* Acciones fijas abajo */}
+      {available && (
+        <div className="fixed inset-x-0 bottom-[96px] z-40 mx-auto w-full max-w-[560px] px-6">
+          {isOwner ? (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => router.push(`/garment/${garment.id}/edit`)}
+                className="h-[51px] rounded-full bg-white text-[15px] font-medium text-[#1A1A1A]"
               >
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-        )}
+                Edit
+              </button>
 
-        {/* Acciones */}
-        {isOwner && available && (
-          <div className="mt-8 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => router.push(`/garment/${garment.id}/edit`)}
-              className="h-[51px] rounded-full text-[15px] font-medium"
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteError(null);
+                  setConfirmDelete(true);
+                }}
+                className="h-[51px] rounded-full text-[15px] font-medium"
+                style={{ backgroundColor: accent, color: accentText }}
+              >
+                Delete
+              </button>
+            </div>
+          ) : (
+            <Link
+              href={`/transaction/propose?garmentId=${garment.id}`}
+              className="flex h-[51px] w-full items-center justify-center rounded-full text-[15px] font-medium"
               style={{ backgroundColor: accent, color: accentText }}
             >
-              Edit
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setDeleteError(null);
-                setConfirmDelete(true);
-              }}
-              className="h-[51px] rounded-full border border-[#FB3F0F] text-[15px] font-medium text-[#FB3F0F]"
-            >
-              Delete
-            </button>
-          </div>
-        )}
-
-        {!isOwner && available && (
-          <Link
-            href={`/transaction/propose?garmentId=${garment.id}`}
-            className="mt-8 flex h-[51px] w-full items-center justify-center rounded-full text-[15px] font-medium"
-            style={{ backgroundColor: accent, color: accentText }}
-          >
-            Make a proposal
-          </Link>
-        )}
-      </div>
+              Make a proposal
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Confirmación para borrar */}
       {confirmDelete && (
