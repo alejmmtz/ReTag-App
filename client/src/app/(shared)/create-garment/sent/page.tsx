@@ -23,18 +23,18 @@ export default function GarmentSentPage() {
     <main className="flex h-screen flex-col items-center justify-center bg-[#191919] px-8 text-white">
       <div className="flex w-full max-w-[560px] flex-col items-center text-center">
         <Image
-          src="/illustrations/star.png"
+          src="/illustrations/upa.png"
           alt="Garment added"
-          width={300}
-          height={200}
-          className="mb-8 h-auto w-[200px]"
+          width={285}
+          height={215}
+          className="mb-8 h-auto w-[230px]"
           priority
         />
 
-        <h1 className="text-[20px] font-medium">Upa! Your garment was added!</h1>
+        <h1 className="text-[20px] font-medium">Your Garment was added!</h1>
 
         <p className="mt-2 text-[15px] text-[#8A8A8A]">
-          You can find it in your {isStore ? 'store' : 'closet'}
+          Check it on profile
         </p>
 
         {/* Perfil de cada rol: /profile (user) o /store (store). */}
@@ -47,7 +47,7 @@ export default function GarmentSentPage() {
             color: isStore ? '#FFFFFF' : '#1A1A1A',
           }}
         >
-          {isStore ? 'Go to my store' : 'Go to my closet'}
+          Go to profile
         </button>
       </div>
     </main>
