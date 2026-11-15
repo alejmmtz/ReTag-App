@@ -9,7 +9,7 @@ import {
 export class CreateImageDto {
   @IsString()
   @IsNotEmpty()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   url!: string;
 
   @IsBoolean()
