@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
@@ -77,7 +78,6 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
         if (cancelled) {
           return;
         }
-
         if (storeMode && data.role !== 'store') {
           router.replace('/profile');
           return;
@@ -96,7 +96,6 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
     };
   }, [handleSessionError, router, storeMode]);
 
-  // 2) Datos del perfil, sus posts, su clóset y (si es el propio) estadísticas
   useEffect(() => {
     if (!targetId || !me) {
       return;
@@ -121,7 +120,9 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               : Promise.resolve(null),
             storeMode
               ? authFetch<StoreProfile>('/stores/me')
-              : Promise.resolve(null),
+              : authFetch<StoreProfile>(`/stores/user/${targetId}`).catch(
+                  () => null,
+                ),
             storeMode
               ? authFetch<ProfileEvent[]>('/events/mine')
               : Promise.resolve([] as ProfileEvent[]),
@@ -295,7 +296,15 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               >
                 {following ? 'Following' : 'Follow'}
               </button>
-            ) : undefined
+            ) : (
+              <Link
+                href="/profile/edit"
+                className="inline-flex h-[40px] items-center rounded-full border px-6 text-[14px] font-medium"
+                style={{ borderColor: accent, color: accent }}
+              >
+                Edit profile
+              </Link>
+            )
           }
         />
 
@@ -308,7 +317,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
             {tabs.map((item) => {
               const active = item === tab;
               const label =
-                item === 'closet' ? (storeMode ? 'Garments' : 'Closet') : item === 'posts' ? 'Posts' : 'Events';
+                item === 'closet' ? (store ? 'Garments' : 'Closet') : item === 'posts' ? 'Posts' : 'Events';
 
               return (
                 <button
@@ -359,7 +368,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 accent={accent}
                 accentText={accentText}
                 title={
-                  storeMode
+                  store
                     ? 'Our garments'
                     : isOwn
                       ? 'Welcome to my Closet!'
