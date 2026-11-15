@@ -135,7 +135,29 @@ export class PostsService {
       take: limit,
     });
 
-    return paginate(posts, total, page, limit);
+    // Likes de cada post de la página (para la cuadrícula del perfil)
+    const likeRows = posts.length
+      ? await this.likesRepository
+          .createQueryBuilder('like')
+          .select('like.postId', 'postId')
+          .addSelect('COUNT(*)', 'count')
+          .where('like.postId IN (:...ids)', { ids: posts.map((p) => p.id) })
+          .groupBy('like.postId')
+          .getRawMany<{ postId: string; count: string }>()
+      : [];
+    const likesByPost = new Map(
+      likeRows.map((row) => [row.postId, Number(row.count)]),
+    );
+
+    return paginate(
+      posts.map((post) => ({
+        ...post,
+        likesCount: likesByPost.get(post.id) ?? 0,
+      })),
+      total,
+      page,
+      limit,
+    );
   }
 
   async findOne(viewerId: string, id: string): Promise<PostDetailResponse> {

@@ -132,7 +132,7 @@ export class GarmentsService {
     const { page, limit, status = GarmentStatus.AVAILABLE } = query;
     const [garments, total] = await this.garmentsRepository.findAndCount({
       where: { seller: { id: sellerId }, status },
-      relations: { images: true, brand: true, size: true },
+      relations: { images: true, brand: true, size: true, category: true },
       order: {
         createdAt: 'DESC',
         images: { isCover: 'DESC', id: 'ASC' },
