@@ -9,8 +9,9 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateStoreImageDto } from './create-store-image.dto';
+import { UpdateUserDto } from '../../users/dto/update-user.dto';
 
-export class UpdateStoreDto {
+export class UpdateStoreDto extends UpdateUserDto {
   @IsOptional()
   @IsString()
   @MaxLength(20)
@@ -29,11 +30,6 @@ export class UpdateStoreDto {
   @IsString()
   @MaxLength(255)
   location?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(350)
-  description?: string;
 
   @IsOptional()
   @IsArray()

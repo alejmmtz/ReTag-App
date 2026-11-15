@@ -8,6 +8,7 @@ import {
   Max,
   Min,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import {
   GarmentConditionEnum,
   GarmentStatus,
@@ -21,22 +22,26 @@ export class FilterGarmentsQueryDto {
   name?: string;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   sizeId?: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   brand?: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   color?: number;
 
   @IsOptional()
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
   @Min(1)
   tag?: number;
 
@@ -57,12 +62,14 @@ export class FilterGarmentsQueryDto {
   transactionType?: TransactionTypeEnum;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(50000)
   minPrice?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   @Max(50000)
@@ -72,8 +79,16 @@ export class FilterGarmentsQueryDto {
   sortOrder: 'ASC' | 'DESC' = 'DESC';
 
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
-  @Min(25)
-  @Max(500)
+  @Min(1)
+  @Max(100)
   takeQuantity: number = 25;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(10000)
+  skipQuantity: number = 0;
 }

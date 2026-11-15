@@ -9,12 +9,12 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
-import { GarmentStatus } from '../common/types/enums';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
-import { GarmentEntity } from '../garments/entities/garment.entity';
-import { PostEntity } from '../posts/entities/post.entity';
+import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
+import { GarmentsService } from '../garments/garments.service';
+import { PostsService } from '../posts/posts.service';
 
 @Injectable()
 export class UsersService {
@@ -22,14 +22,11 @@ export class UsersService {
     @InjectRepository(UserEntity)
     private readonly usersRepository: Repository<UserEntity>,
 
-    @InjectRepository(GarmentEntity)
-    private readonly garmentsRepository: Repository<GarmentEntity>,
-
-    @InjectRepository(PostEntity)
-    private readonly postsRepository: Repository<PostEntity>,
-
     @InjectRepository(FollowEntity)
     private readonly followsRepository: Repository<FollowEntity>,
+
+    private readonly garmentsService: GarmentsService,
+    private readonly postsService: PostsService,
   ) {}
 
   private async ensureUserExists(id: string) {
@@ -102,47 +99,53 @@ export class UsersService {
     };
   }
 
+  async search(query: SearchUsersQueryDto) {
+    const { page, limit, q } = query;
+    // Escapa % y _ para que el texto del usuario no actúe como comodín.
+    const term = `%${q.trim().replace(/[\\%_]/g, '\\$&')}%`;
+
+    const [users, total] = await this.usersRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect('user.store', 'store')
+      .select([
+        'user.id',
+        'user.name',
+        'user.username',
+        'user.profilePicture',
+        'user.role',
+        'store.storeName',
+      ])
+      .where(
+        '(user.username ILIKE :term OR user.name ILIKE :term OR store.storeName ILIKE :term)',
+        { term },
+      )
+      .orderBy('user.username', 'ASC')
+      .skip((page - 1) * limit)
+      .take(limit)
+      .getManyAndCount();
+
+    return paginate(
+      users.map((user) => ({
+        id: user.id,
+        username: user.username,
+        name: user.store?.storeName ?? user.name,
+        profilePicture: user.profilePicture,
+        role: user.role,
+      })),
+      total,
+      page,
+      limit,
+    );
+  }
+
   async findGarments(userId: string, query: FilterUserGarmentsQueryDto) {
     await this.ensureUserExists(userId);
-
-    const { page, limit, status = GarmentStatus.AVAILABLE } = query;
-
-    const [garments, total] = await this.garmentsRepository.findAndCount({
-      where: {
-        seller: { id: userId },
-        status,
-      },
-      relations: {
-        images: true,
-        brand: true,
-        size: true,
-      },
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return paginate(garments, total, page, limit);
+    return this.garmentsService.findBySeller(userId, query);
   }
 
   async findPosts(userId: string, query: PaginationQueryDto) {
     await this.ensureUserExists(userId);
-
-    const { page, limit } = query;
-
-    const [posts, total] = await this.postsRepository.findAndCount({
-      where: {
-        userId: { id: userId },
-      },
-      relations: {
-        images: true,
-      },
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
-
-    return paginate(posts, total, page, limit);
+    return this.postsService.findByUser(userId, query);
   }
 
   async follow(followerId: string, followedId: string) {

@@ -16,14 +16,19 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { SearchUsersQueryDto } from './dto/search-users-query.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { Roles, RolesGuard } from '../auth/guards/roles.guard';
+import { UserRoleEnum } from '../common/types/enums';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put('me')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   @UseGuards(JwtAuthGuard)
   update(
     @Req() req: AuthenticatedRequest,
@@ -32,12 +37,24 @@ export class UsersController {
     return this.usersService.update(req.user.id, data);
   }
 
+  // Buscador del feed: usuarios y tiendas por username, nombre o nombre de tienda.
+  @Get()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  search(@Query(requestValidationPipe) query: SearchUsersQueryDto) {
+    return this.usersService.search(query);
+  }
+
   @Get(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.usersService.findOne(id);
   }
 
   @Get(':id/garments')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findGarments(
     @Param('id', ParseUUIDPipe) id: string,
     @Query(requestValidationPipe) query: FilterUserGarmentsQueryDto,
@@ -46,6 +63,8 @@ export class UsersController {
   }
 
   @Get(':id/posts')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   findPosts(
     @Param('id', ParseUUIDPipe) id: string,
     @Query(requestValidationPipe) query: PaginationQueryDto,
@@ -54,7 +73,8 @@ export class UsersController {
   }
 
   @Post(':id/follow')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   follow(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,
@@ -62,9 +82,9 @@ export class UsersController {
     return this.usersService.follow(req.user.id, id);
   }
 
-  // RF-22
   @Delete(':id/follow')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
   unfollow(
     @Req() req: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) id: string,

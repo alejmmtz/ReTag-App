@@ -26,7 +26,7 @@ export class UpdateUserDto {
   phone?: string;
 
   @IsOptional()
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   profilePicture?: string;
 
   @IsOptional()

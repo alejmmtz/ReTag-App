@@ -5,23 +5,27 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { UserLikesEntity } from './entities/user-like.entity';
 import { FollowEntity } from './entities/follow.entity';
-import { GarmentEntity } from '../garments/entities/garment.entity';
 import { PostEntity } from '../posts/entities/post.entity';
+import { GarmentEntity } from '../garments/entities/garment.entity';
 import { BagEntity } from '../bags/entities/bag.entity';
 import { TransactionEntity } from '../transactions/entities/transaction.entity';
 import { UsersStatisticsService } from './users-statistics.service';
 import { UsersStatisticsController } from './users-statistics.controller';
 import { AuthModule } from '../auth/auth.module';
+import { GarmentsModule } from '../garments/garments.module';
+import { PostsModule } from '../posts/posts.module';
 
 @Module({
   imports: [
     AuthModule,
+    GarmentsModule,
+    PostsModule,
     TypeOrmModule.forFeature([
       UserEntity,
       UserLikesEntity,
       FollowEntity,
-      GarmentEntity,
       PostEntity,
+      GarmentEntity,
       BagEntity,
       TransactionEntity,
     ]),
