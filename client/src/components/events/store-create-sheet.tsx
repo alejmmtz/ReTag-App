@@ -80,10 +80,10 @@ export default function StoreCreateSheet({
           </Link>
 
           {/* List garment */}
-          <button
-            type="button"
-            disabled
-            className="flex w-full items-center gap-4 rounded-[20px] border border-[#2E2E2E] bg-transparent px-4 py-4 text-left opacity-80"
+          <Link
+            href="/create-garment"
+            onClick={onClose}
+            className="flex w-full items-center gap-4 rounded-[20px] border border-[#2E2E2E] bg-transparent px-4 py-4 text-left"
           >
             <div className="flex h-[70px] w-[70px] items-center justify-center rounded-[11px] bg-[#C8F66F]">
               <Image
@@ -103,7 +103,7 @@ export default function StoreCreateSheet({
                 Sell or exchange a piece.
               </p>
             </div>
-          </button>
+          </Link>
         </div>
       </div>
     </div>

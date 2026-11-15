@@ -20,9 +20,16 @@ const options: Option[] = [
 type Props = {
   value: FeedFilter;
   onChange: (value: FeedFilter) => void;
+  accent?: string;
+  accentText?: string;
 };
 
-export default function FeedFilterSelect({ value, onChange }: Props) {
+export default function FeedFilterSelect({
+  value,
+  onChange,
+  accent = '#C8F66F',
+  accentText = '#1A1A1A',
+}: Props) {
   const [open, setOpen] = useState(false);
 
   const current = options.find((option) => option.value === value);
@@ -42,7 +49,8 @@ export default function FeedFilterSelect({ value, onChange }: Props) {
         onClick={() => setOpen((previous) => !previous)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex h-[50px] w-full items-center gap-2 rounded-[12px] bg-[#C8F66F] px-4 text-[16px] font-medium text-[#1A1A1A]"
+        className="flex h-[50px] w-full items-center gap-2 rounded-[12px] px-4 text-[16px] font-medium"
+        style={{ backgroundColor: accent, color: accentText }}
       >
         {current?.label}
         <ChevronDownIcon />
@@ -62,11 +70,10 @@ export default function FeedFilterSelect({ value, onChange }: Props) {
                 role="option"
                 aria-selected={option.value === value}
                 onClick={() => select(option.value)}
-                className={`w-full px-4 py-3 text-left text-[15px] ${
-                  option.value === value
-                    ? 'text-[#C8F66F]'
-                    : 'text-white'
-                }`}
+                className="w-full px-4 py-3 text-left text-[15px]"
+                style={{
+                  color: option.value === value ? accent : '#FFFFFF',
+                }}
               >
                 {option.label}
               </button>
