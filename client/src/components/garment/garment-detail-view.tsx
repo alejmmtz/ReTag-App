@@ -74,6 +74,9 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const [inBag, setInBag] = useState(false);
+  const [bagBusy, setBagBusy] = useState(false);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -114,6 +117,56 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
     };
   }, [garmentId, router]);
 
+  // Solo los usuarios (no tiendas) tienen bolsa, y no con sus propias prendas.
+  const canUseBag =
+    !!me && !!garment && me.role === 'user' && garment.seller.id !== me.id;
+
+  useEffect(() => {
+    if (!canUseBag) {
+      return;
+    }
+
+    let cancelled = false;
+
+    authFetch(`/bags/${garmentId}`)
+      .then(() => !cancelled && setInBag(true))
+      .catch(() => !cancelled && setInBag(false));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [canUseBag, garmentId]);
+
+  async function toggleBag() {
+    if (bagBusy) {
+      return;
+    }
+
+    setBagBusy(true);
+
+    try {
+      if (inBag) {
+        await authFetch(`/bags/${garmentId}`, { method: 'DELETE' });
+        setInBag(false);
+      } else {
+        await authFetch('/bags', {
+          method: 'POST',
+          body: JSON.stringify({ garmentId }),
+        });
+        setInBag(true);
+      }
+    } catch (err) {
+      // 409: ya estaba en la bolsa. 404: ya no estaba.
+      if (err instanceof ApiError && err.status === 409) {
+        setInBag(true);
+      } else if (err instanceof ApiError && err.status === 404) {
+        setInBag(false);
+      }
+    } finally {
+      setBagBusy(false);
+    }
+  }
+
   async function handleDelete() {
     if (!garment || deleting) {
       return;
@@ -124,6 +177,7 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
 
     try {
       await authFetch(`/garments/${garment.id}`, { method: 'DELETE' });
+      // Vuelve al perfil: la prenda ya no está en el clóset.
       router.replace('/profile');
     } catch (err) {
       setDeleteError(
@@ -341,13 +395,27 @@ export default function GarmentDetailView({ garmentId }: { garmentId: string }) 
               </button>
             </div>
           ) : (
-            <Link
-              href={`/transaction/propose?garmentId=${garment.id}`}
-              className="flex h-[51px] w-full items-center justify-center rounded-full text-[15px] font-medium"
-              style={{ backgroundColor: accent, color: accentText }}
-            >
-              Make a proposal
-            </Link>
+            <div className="flex gap-3">
+              {canUseBag && (
+                <button
+                  type="button"
+                  onClick={toggleBag}
+                  disabled={bagBusy}
+                  aria-pressed={inBag}
+                  className="h-[51px] shrink-0 rounded-full bg-white px-5 text-[15px] font-medium text-[#1A1A1A] disabled:opacity-50"
+                >
+                  {inBag ? 'In your bag ✓' : 'Add to bag'}
+                </button>
+              )}
+
+              <Link
+                href={`/transaction/propose?garmentId=${garment.id}`}
+                className="flex h-[51px] flex-1 items-center justify-center rounded-full text-[15px] font-medium"
+                style={{ backgroundColor: accent, color: accentText }}
+              >
+                Make a proposal
+              </Link>
+            </div>
           )}
         </div>
       )}

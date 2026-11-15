@@ -15,6 +15,7 @@ import UserBottomNav from '../navigation/user-bottom-nav';
 import { ApiError, authFetch, clearSession } from '../../lib/http';
 import FeedFilterSelect from './feed-filter-select';
 import PostCard from './post-card';
+import UserSearchResults from './user-search-results';
 import type {
   FeedFilter,
   MeResponse,
@@ -31,6 +32,7 @@ const THEME = {
 } as const;
 
 type Props = {
+  // Qué pantalla de inicio es: /feed (user) o /home (store).
   role: 'user' | 'store';
 };
 
@@ -47,6 +49,7 @@ export default function FeedScreen({ role }: Props) {
   const [error, setError] = useState('');
   const [name, setName] = useState('');
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -213,13 +216,15 @@ export default function FeedScreen({ role }: Props) {
           </h1>
 
           <div className="flex items-center gap-4">
-            <Link href="/activity" aria-label="Activity">
+            <Link href="/notifications" aria-label="Notifications">
               <HeartIcon />
             </Link>
 
-            <button type="button" aria-label="Bag">
-              <BagIcon />
-            </button>
+            {role === 'user' && (
+              <Link href="/bag" aria-label="Bag">
+                <BagIcon />
+              </Link>
+            )}
           </div>
         </header>
 
@@ -227,11 +232,21 @@ export default function FeedScreen({ role }: Props) {
           <SearchIcon />
           <input
             type="search"
+            value={searchText}
+            onChange={(event) => setSearchText(event.target.value)}
             placeholder="Search for users and stores..."
             className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-[#8A8A8A]"
           />
         </label>
 
+        {searchText.trim() ? (
+          <UserSearchResults
+            query={searchText}
+            accent={theme.accent}
+            accentText={theme.text}
+          />
+        ) : (
+          <>
         <div className="mt-5">
           <FeedFilterSelect
             value={filter}
@@ -307,6 +322,8 @@ export default function FeedScreen({ role }: Props) {
 
             <div ref={sentinelRef} className="h-1" />
           </div>
+        )}
+          </>
         )}
       </div>
 
