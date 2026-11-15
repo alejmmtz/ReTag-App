@@ -3,6 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 
+import StoreCreateSheet from '../events/store-create-sheet';
+import StoreEventCard from '../events/store-event-card';
+import UserCreateSheet from '../events/user-create-sheet';
 import StoreBottomNav from '../navigation/store-bottom-nav';
 import UserBottomNav from '../navigation/user-bottom-nav';
 import type { MeResponse } from '../posts/post-types';
@@ -12,21 +15,24 @@ import ProfileHeader from './profile-header';
 import type {
   MyStatistics,
   Paginated,
+  ProfileEvent,
   ProfileGarment,
   ProfilePost,
   ProfileUser,
+  StoreProfile,
 } from './profile-types';
 
 const PAGE_SIZE = 12;
 const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
 
-type Tab = 'posts' | 'closet';
+type Tab = 'posts' | 'closet' | 'events';
 
 type Props = {
   userId?: string;
+  storeMode?: boolean;
 };
 
-export default function ProfileView({ userId }: Props) {
+export default function ProfileView({ userId, storeMode = false }: Props) {
   const router = useRouter();
 
   const [me, setMe] = useState<MeResponse | null>(null);
@@ -40,7 +46,10 @@ export default function ProfileView({ userId }: Props) {
     null,
   );
   const [loadingMore, setLoadingMore] = useState(false);
+  const [store, setStore] = useState<StoreProfile | null>(null);
+  const [events, setEvents] = useState<ProfileEvent[]>([]);
 
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [following, setFollowing] = useState(false);
   const [followBusy, setFollowBusy] = useState(false);
 
@@ -60,12 +69,22 @@ export default function ProfileView({ userId }: Props) {
   const targetId = userId ?? me?.id;
   const isOwn = !!me && targetId === me.id;
 
-  // 1) Quién soy
   useEffect(() => {
     let cancelled = false;
 
     authFetch<MeResponse>('/auth/me')
-      .then((data) => !cancelled && setMe(data))
+      .then((data) => {
+        if (cancelled) {
+          return;
+        }
+
+        if (storeMode && data.role !== 'store') {
+          router.replace('/profile');
+          return;
+        }
+
+        setMe(data);
+      })
       .catch((err) => {
         if (!cancelled && !handleSessionError(err)) {
           setError('We could not load this profile.');
@@ -75,7 +94,7 @@ export default function ProfileView({ userId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [handleSessionError]);
+  }, [handleSessionError, router, storeMode]);
 
   // 2) Datos del perfil, sus posts, su clóset y (si es el propio) estadísticas
   useEffect(() => {
@@ -88,7 +107,7 @@ export default function ProfileView({ userId }: Props) {
 
     async function load() {
       try {
-        const [userData, postsData, garmentsData, statsData] =
+        const [userData, postsData, garmentsData, statsData, storeData, eventsData] =
           await Promise.all([
             authFetch<ProfileUser>(`/users/${targetId}`),
             authFetch<Paginated<ProfilePost>>(
@@ -100,6 +119,12 @@ export default function ProfileView({ userId }: Props) {
             own
               ? authFetch<MyStatistics>('/users/me/statistics')
               : Promise.resolve(null),
+            storeMode
+              ? authFetch<StoreProfile>('/stores/me')
+              : Promise.resolve(null),
+            storeMode
+              ? authFetch<ProfileEvent[]>('/events/mine')
+              : Promise.resolve([] as ProfileEvent[]),
           ]);
 
         if (!cancelled) {
@@ -107,6 +132,8 @@ export default function ProfileView({ userId }: Props) {
           setPosts(postsData);
           setGarments(garmentsData);
           setStats(statsData);
+          setStore(storeData);
+          setEvents(eventsData);
         }
       } catch (err) {
         if (cancelled || handleSessionError(err)) {
@@ -126,7 +153,7 @@ export default function ProfileView({ userId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [targetId, me, handleSessionError]);
+  }, [targetId, me, storeMode, handleSessionError]);
 
   async function loadMore() {
     const current = tab === 'posts' ? posts : garments;
@@ -203,7 +230,7 @@ export default function ProfileView({ userId }: Props) {
     );
   }
 
-  if (!user || !me || !posts || !garments) {
+  if (!user || !me || !posts || !garments || (storeMode && !store)) {
     return (
       <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
         <div className="mx-auto w-full max-w-[560px] space-y-4">
@@ -220,39 +247,50 @@ export default function ProfileView({ userId }: Props) {
 
   const headerStats = stats
     ? [
-        { label: 'Posts', value: stats.posts },
-        { label: 'Closet', value: stats.garments.available },
+        { label: 'Follow', value: stats.community.following },
         { label: 'Followers', value: stats.community.followers },
-        { label: 'Following', value: stats.community.following },
+        { label: 'Likes', value: stats.community.likesReceived },
       ]
-    : [];
+    : [
+        { label: 'Posts', value: posts.meta.total },
+        { label: 'Closet', value: garments.meta.total },
+      ];
 
-  const current = tab === 'posts' ? posts : garments;
-  const hasMore = current.meta.page < current.meta.totalPages;
+  function logout() {
+    clearSession();
+    router.replace('/login');
+  }
+
+  const tabs: Tab[] = storeMode ? ['posts', 'closet', 'events'] : ['posts', 'closet'];
+  const showingEvents = tab === 'events';
+  const current = tab === 'closet' ? garments : posts;
+  const hasMore = !showingEvents && current.meta.page < current.meta.totalPages;
+
+  const dim = '#8A8A8A';
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[130px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
+    <main className="min-h-screen bg-[#191919] pb-[190px] text-white">
+      <div className="mx-auto w-full max-w-[560px]">
         <ProfileHeader
           user={user}
+          store={store}
           accent={accent}
           accentText={accentText}
           stats={headerStats}
+          isOwn={isOwn}
+          onLogout={logout}
+          onBack={() => router.back()}
           action={
             !isOwn ? (
               <button
                 type="button"
                 onClick={toggleFollow}
                 disabled={followBusy}
-                className="h-[40px] shrink-0 rounded-full border px-5 text-[14px] font-medium disabled:opacity-50"
+                className="h-[40px] rounded-full border px-6 text-[14px] font-medium disabled:opacity-50"
                 style={
                   following
                     ? { borderColor: '#6C6C6C', color: '#F5F5F5' }
-                    : {
-                        backgroundColor: accent,
-                        borderColor: accent,
-                        color: accentText,
-                      }
+                    : { backgroundColor: accent, borderColor: accent, color: accentText }
                 }
               >
                 {following ? 'Following' : 'Follow'}
@@ -261,54 +299,114 @@ export default function ProfileView({ userId }: Props) {
           }
         />
 
-        {/* Pestañas */}
-        <div className="mt-6 grid grid-cols-2 border-b border-[#2A2A2A]">
-          {(['posts', 'closet'] as Tab[]).map((item) => {
-            const active = item === tab;
-            const total = (item === 'posts' ? posts : garments).meta.total;
+        <div className="px-6">
+          {/* Pestañas */}
+          <div
+            className="mt-6 grid border-b border-[#2A2A2A]"
+            style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
+          >
+            {tabs.map((item) => {
+              const active = item === tab;
+              const label =
+                item === 'closet' ? (storeMode ? 'Garments' : 'Closet') : item === 'posts' ? 'Posts' : 'Events';
 
-            return (
+              return (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setTab(item)}
+                  className="flex items-center justify-center gap-2 pb-3 text-[15px] font-medium"
+                  style={{
+                    color: active ? '#F5F5F5' : dim,
+                    borderBottom: `2px solid ${active ? accent : 'transparent'}`,
+                  }}
+                >
+                  {item === 'posts' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                  )}
+                  {item === 'closet' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7a2 2 0 1 0-2-2"/><path d="m12 7 9 6a1 1 0 0 1-.6 1.8H3.6A1 1 0 0 1 3 13l9-6z"/></svg>
+                  )}
+                  {item === 'events' && (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                  )}
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-5">
+            {showingEvents ? (
+              events.length === 0 ? (
+                <p className="py-12 text-center text-[14px] text-[#8A8A8A]">No events yet.</p>
+              ) : (
+                <div className="space-y-4">
+                  {events.map((event) => (
+                    <StoreEventCard key={event.id} event={event} mode="store" />
+                  ))}
+                </div>
+              )
+            ) : current.data.length === 0 ? (
+              <p className="py-12 text-center text-[14px] text-[#8A8A8A]">
+                {tab === 'posts' ? 'No posts yet.' : 'Nothing in the closet yet.'}
+              </p>
+            ) : tab === 'posts' ? (
+              <PostsGrid posts={posts.data} accent={accent} />
+            ) : (
+              <ClosetGrid
+                garments={garments.data}
+                accent={accent}
+                accentText={accentText}
+                title={
+                  storeMode
+                    ? 'Our garments'
+                    : isOwn
+                      ? 'Welcome to my Closet!'
+                      : `${user.name ?? user.username}'s Closet`
+                }
+              />
+            )}
+
+            {hasMore && (
               <button
-                key={item}
                 type="button"
-                onClick={() => setTab(item)}
-                className="pb-3 text-[15px] font-medium capitalize"
-                style={{
-                  color: active ? '#F5F5F5' : '#8A8A8A',
-                  borderBottom: `2px solid ${active ? accent : 'transparent'}`,
-                }}
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="mx-auto mt-6 block h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px] disabled:opacity-50"
               >
-                {item} <span className="text-[12px]">({total})</span>
+                {loadingMore ? 'Loading...' : 'Load more'}
               </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-5">
-          {current.data.length === 0 ? (
-            <p className="py-12 text-center text-[14px] text-[#8A8A8A]">
-              {tab === 'posts'
-                ? 'No posts yet.'
-                : 'Nothing in the closet yet.'}
-            </p>
-          ) : tab === 'posts' ? (
-            <PostsGrid posts={posts.data} />
-          ) : (
-            <ClosetGrid garments={garments.data} />
-          )}
-
-          {hasMore && (
-            <button
-              type="button"
-              onClick={loadMore}
-              disabled={loadingMore}
-              className="mx-auto mt-6 block h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px] disabled:opacity-50"
-            >
-              {loadingMore ? 'Loading...' : 'Load more'}
-            </button>
-          )}
+            )}
+          </div>
         </div>
       </div>
+
+      {isOwn && (
+        <>
+          <div className="pointer-events-none fixed bottom-[112px] left-1/2 z-40 flex w-full max-w-[560px] -translate-x-1/2 justify-end px-6">
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              aria-label="Create"
+              className="pointer-events-auto flex h-[60px] w-[60px] items-center justify-center rounded-full text-[30px] font-light"
+              style={{
+                backgroundColor: accent,
+                color: accentText,
+                boxShadow: `0 0 24px ${accent}66`,
+              }}
+            >
+              +
+            </button>
+          </div>
+
+          {me.role === 'store' ? (
+            <StoreCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+          ) : (
+            <UserCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+          )}
+        </>
+      )}
 
       {me.role === 'store' ? <StoreBottomNav /> : <UserBottomNav />}
     </main>

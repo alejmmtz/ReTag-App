@@ -19,6 +19,7 @@ export type ProfilePost = {
   caption: string;
   postType: 'community' | 'offer' | 'show off' | 'event';
   createdAt: string;
+  likesCount?: number;
   images: ProfileImage[];
 };
 
@@ -27,6 +28,7 @@ export type ProfileGarment = {
   name: string;
   size: { id: number; type: string; label: string } | null;
   brand: { id: number; name: string } | null;
+  category?: { id: number; name: string } | null;
   price: number | string | null;
   transactionType: 'sale' | 'trade' | 'both' | null;
   status: string;
@@ -41,6 +43,31 @@ export type Paginated<T> = {
 export type MyStatistics = {
   posts: number;
   garments: { total: number; available: number };
-  community: { followers: number; following: number };
+  community: { followers: number; following: number; likesReceived: number };
   environment: { waterSaved: number | null };
+};
+// GET /stores/me
+export type StoreProfile = {
+  id: string;
+  userId: string;
+  storeName: string;
+  socialmedia: string | null;
+  schedule: string | null;
+  location: string | null;
+  description: string | null;
+  images: {
+    id: number;
+    url: string;
+    isCover: boolean;
+    isProfile: boolean;
+  }[];
+};
+
+export type ProfileEvent = {
+  id: string;
+  title: string;
+  startsAt: string;
+  endsAt: string;
+  participantsCount?: number;
+  store?: { id: string; storeName: string };
 };

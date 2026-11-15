@@ -12,13 +12,16 @@ import { uploadImages } from '../../../lib/uploads';
 
 const MAX_CAPTION = 350;
 
-// Colores por rol: verde para user, azul para store.
 const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
 
-type Garment = { id: string; name: string; status: string };
+type Garment = {
+  id: string;
+  name: string;
+  status: string;
+  images?: { url: string; isCover: boolean }[];
+};
 type EventItem = { id: string; title: string };
 
-// Qué tipos de post puede crear cada rol (lo mismo que valida el backend).
 const TYPES_BY_ROLE: Record<
   'user' | 'store',
   { value: PostType; label: string }[]
@@ -165,68 +168,72 @@ export default function CreatePostPage() {
     }
   }
 
+  const accentText = role === 'user' ? '#1A1A1A' : '#FFFFFF';
+  const selectedGarment = garments.find((garment) => garment.id === garmentId);
+  const garmentPhoto = selectedGarment
+    ? (selectedGarment.images?.find((image) => image.isCover) ??
+      selectedGarment.images?.[0])?.url
+    : null;
+  const placeholder =
+    postType === 'community'
+      ? "Tell the community something, make sure it's cool."
+      : 'What do you offer to the community?';
+
   return (
-    <main className="min-h-screen bg-[#191919] pb-[120px] text-white">
+    <main className="min-h-screen bg-[#191919] pb-[170px] text-white">
       <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
-        <header className="flex items-center gap-4">
+        <header className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#303030] text-[20px]"
+            className="flex h-[40px] w-[40px] items-center justify-center text-[28px]"
           >
             ‹
           </button>
 
-          <h1 className="text-[22px] font-medium">Create a post</h1>
+          <h1 className="text-[20px] font-medium">New post</h1>
         </header>
 
-        {/* Tipo de post */}
-        <section className="mt-8">
-          <p className="mb-3 text-[14px] text-[#8A8A8A]">Post type</p>
-
-          <div className="flex flex-wrap gap-2">
-            {TYPES_BY_ROLE[role].map((type) => {
-              const active = type.value === postType;
-
-              return (
-                <button
-                  key={type.value}
-                  type="button"
-                  onClick={() => changeType(type.value)}
-                  className="h-[40px] rounded-full border px-5 text-[14px] font-medium"
-                  style={
-                    active
-                      ? {
-                          backgroundColor: accent,
-                          borderColor: accent,
-                          color: role === 'user' ? '#1A1A1A' : '#FFFFFF',
-                        }
-                      : { borderColor: '#6C6C6C', color: '#F5F5F5' }
-                  }
-                >
-                  {type.label}
-                </button>
-              );
-            })}
-          </div>
+        {/* Fotos (área grande arriba) */}
+        <section className="mt-5">
+          <ImagePicker images={images} onChange={setImages} accent={accent} />
         </section>
 
-        {/* Fotos */}
-        <section className="mt-8">
-          <p className="mb-3 text-[14px] text-[#8A8A8A]">Photos</p>
-          <ImagePicker images={images} onChange={setImages} accent={accent} />
+        {/* Tipo de post: el activo va en blanco */}
+        <section className="mt-6 flex flex-wrap gap-2">
+          {TYPES_BY_ROLE[role].map((type) => {
+            const active = type.value === postType;
+
+            return (
+              <button
+                key={type.value}
+                type="button"
+                onClick={() => changeType(type.value)}
+                className="h-[38px] rounded-full border px-5 text-[14px] font-medium"
+                style={
+                  active
+                    ? { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF', color: '#1A1A1A' }
+                    : { borderColor: '#6C6C6C', color: '#F5F5F5' }
+                }
+              >
+                {type.label}
+              </button>
+            );
+          })}
         </section>
 
         {/* Prenda enlazada */}
         {showsGarment && (
-          <section className="mt-8">
-            <p className="mb-3 text-[14px] text-[#8A8A8A]">
-              {needsGarment ? 'Garment to offer' : 'Garment (optional)'}
+          <section className="mt-6">
+            <p className="mb-3 text-[15px] font-medium">
+              {needsGarment
+                ? 'Which Garment of your closet are you going to post?'
+                : 'Which Garment are you going to show off?'}
             </p>
 
             {garments.length === 0 ? (
-              <p className="rounded-[18px] border border-[#2A2A2A] px-4 py-3 text-[13px] text-[#8A8A8A]">
+              <p className="rounded-[18px] bg-[#262626] px-4 py-3 text-[13px] text-[#9A9A9A]">
                 You have no available garments yet.{' '}
                 <button
                   type="button"
@@ -237,13 +244,35 @@ export default function CreatePostPage() {
                   List one
                 </button>
               </p>
+            ) : needsGarment ? (
+              <div className="relative aspect-[16/9] w-full overflow-hidden rounded-[22px] bg-[#262626]">
+                {garmentPhoto && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={garmentPhoto} alt="" className="h-full w-full object-cover" />
+                )}
+                <select
+                  value={garmentId}
+                  onChange={(event) => setGarmentId(event.target.value)}
+                  aria-label="Garment to offer"
+                  className="absolute inset-x-3 bottom-3 h-[44px] rounded-full bg-black/70 px-4 text-[14px] text-white outline-none backdrop-blur"
+                >
+                  <option value="">Select a garment</option>
+                  {garments.map((garment) => (
+                    <option key={garment.id} value={garment.id}>
+                      {garment.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
             ) : (
               <select
                 value={garmentId}
                 onChange={(event) => setGarmentId(event.target.value)}
-                className="h-[48px] w-full rounded-full border border-[#6C6C6C] bg-[#191919] px-4 text-[14px] text-white outline-none"
+                aria-label="Garment to show off"
+                className="h-[48px] w-full rounded-full px-4 text-[14px] font-medium outline-none"
+                style={{ backgroundColor: accent, color: accentText }}
               >
-                <option value="">Select a garment</option>
+                <option value="">Select a garment (optional)</option>
                 {garments.map((garment) => (
                   <option key={garment.id} value={garment.id}>
                     {garment.name}
@@ -256,11 +285,11 @@ export default function CreatePostPage() {
 
         {/* Evento enlazado */}
         {needsEvent && (
-          <section className="mt-8">
-            <p className="mb-3 text-[14px] text-[#8A8A8A]">Event to promote</p>
+          <section className="mt-6">
+            <p className="mb-3 text-[15px] font-medium">Which event are you promoting?</p>
 
             {events.length === 0 ? (
-              <p className="rounded-[18px] border border-[#2A2A2A] px-4 py-3 text-[13px] text-[#8A8A8A]">
+              <p className="rounded-[18px] bg-[#262626] px-4 py-3 text-[13px] text-[#9A9A9A]">
                 You have no events yet.{' '}
                 <button
                   type="button"
@@ -275,7 +304,8 @@ export default function CreatePostPage() {
               <select
                 value={eventId}
                 onChange={(event) => setEventId(event.target.value)}
-                className="h-[48px] w-full rounded-full border border-[#6C6C6C] bg-[#191919] px-4 text-[14px] text-white outline-none"
+                className="h-[48px] w-full rounded-full px-4 text-[14px] font-medium outline-none"
+                style={{ backgroundColor: accent, color: accentText }}
               >
                 <option value="">Select an event</option>
                 {events.map((event) => (
@@ -289,17 +319,15 @@ export default function CreatePostPage() {
         )}
 
         {/* Descripción */}
-        <section className="mt-8">
-          <p className="mb-3 text-[14px] text-[#8A8A8A]">Caption</p>
-
+        <section className="mt-6">
           <textarea
             value={caption}
             onChange={(event) =>
               setCaption(event.target.value.slice(0, MAX_CAPTION))
             }
             rows={5}
-            placeholder="Write something about your post..."
-            className="w-full resize-none rounded-[18px] border border-[#6C6C6C] bg-transparent p-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]"
+            placeholder={placeholder}
+            className="w-full resize-none rounded-[22px] bg-[#262626] p-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]"
           />
 
           <p className="mt-1 text-right text-[12px] text-[#8A8A8A]">
@@ -308,23 +336,25 @@ export default function CreatePostPage() {
         </section>
 
         {error && (
-          <p className="mt-4 text-[13px] text-[#FB3F0F]" role="alert">
+          <p className="mt-2 text-[13px] text-[#FB3F0F]" role="alert">
             {error}
           </p>
         )}
+      </div>
 
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={!canSubmit}
-          className="mt-8 h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
-          style={{
-            backgroundColor: accent,
-            color: role === 'user' ? '#1A1A1A' : '#FFFFFF',
-          }}
-        >
-          {submitting ? 'Posting...' : 'Post it'}
-        </button>
+      {/* Botón fijo abajo */}
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#191919] via-[#191919] to-transparent pb-8 pt-6">
+        <div className="mx-auto w-full max-w-[560px] px-6">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={!canSubmit}
+            className="h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
+            style={{ backgroundColor: accent, color: accentText }}
+          >
+            {submitting ? 'Posting...' : 'Post it'}
+          </button>
+        </div>
       </div>
     </main>
   );
