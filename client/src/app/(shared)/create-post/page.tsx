@@ -140,7 +140,10 @@ export default function CreatePostPage() {
     setError(null);
 
     try {
-      const imageUrls = await uploadImages(images.map((image) => image.file));
+      const imageUrls = await uploadImages(
+        images.map((image) => image.file),
+        'Posts',
+      );
 
       await authFetch('/posts', {
         method: 'POST',

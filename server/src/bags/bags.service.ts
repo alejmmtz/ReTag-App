@@ -11,7 +11,7 @@ import { CreateBagDto } from './dto/create-bag.dto';
 import { GarmentEntity } from '../garments/entities/garment.entity';
 import { GarmentStatus } from '../common/types/enums';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { paginate } from '../common/utils/paginate';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 @Injectable()
 export class BagsService {
@@ -76,7 +76,7 @@ export class BagsService {
       take: limit,
     });
 
-    return paginate(
+    return paginationResponse(
       items.map((item) => ({
         addedAt: item.createdAt,
         garment: {
@@ -103,8 +103,8 @@ export class BagsService {
         },
       })),
       total,
-      page,
       limit,
+      (page - 1) * limit,
     );
   }
 

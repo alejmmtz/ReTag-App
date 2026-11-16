@@ -147,8 +147,8 @@ export default function EditProfileForm() {
 
     try {
       const [newPhoto, newCover] = await Promise.all([
-        photoFile ? uploadImage(photoFile) : Promise.resolve(null),
-        coverFile ? uploadImage(coverFile) : Promise.resolve(null),
+        photoFile ? uploadImage(photoFile, 'Users') : Promise.resolve(null),
+        coverFile ? uploadImage(coverFile, 'Users') : Promise.resolve(null),
       ]);
 
       const finalPhoto = newPhoto ?? photoUrl;

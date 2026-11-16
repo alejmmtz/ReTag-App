@@ -5,7 +5,6 @@ import {
   OneToOne,
   OneToMany,
   PrimaryGeneratedColumn,
-  ManyToOne,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 
@@ -46,12 +45,6 @@ export class StoreEntity {
 
   @OneToMany(() => GarmentEntity, (garment) => garment.store)
   garments!: GarmentEntity[];
-
-  @ManyToOne(() => StoreEntity, (store) => store.garments, {
-    nullable: true,
-  })
-  @JoinColumn({ name: 'store_id' })
-  store?: StoreEntity;
 
   @OneToMany(() => StoreImage, (storeImage) => storeImage.store, {
     cascade: true,

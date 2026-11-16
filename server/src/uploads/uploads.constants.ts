@@ -1,15 +1,20 @@
-// Carpeta (relativa a donde corre el servidor) donde se guardan las fotos subidas.
-export const UPLOADS_DIR = 'uploads';
+export enum UploadBucket {
+  Posts = 'Posts',
+  Events = 'Events',
+  Users = 'Users',
+  Garments = 'Garments',
+}
 
-// Ruta pública desde la que se sirven las fotos: http://localhost:3001/uploads/<archivo>
-export const UPLOADS_PUBLIC_PREFIX = '/uploads/';
+export enum ImageTypes {
+  jpg = 'image/jpeg',
+  png = 'image/png',
+  webp = 'image/webp',
+  gif = 'image/gif',
+}
+
+// Mantiene accesibles las imágenes locales creadas antes de migrar a Storage.
+export const LEGACY_UPLOADS_DIR = 'uploads';
+export const LEGACY_UPLOADS_PREFIX = '/uploads/';
 
 export const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
-
-// Solo se aceptan imágenes; la extensión se define según el tipo real recibido.
-export const ALLOWED_IMAGE_TYPES: Record<string, string> = {
-  'image/jpeg': '.jpg',
-  'image/png': '.png',
-  'image/webp': '.webp',
-  'image/gif': '.gif',
-};
+export const UPLOAD_URL_TTL_SECONDS = 300;

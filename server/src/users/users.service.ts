@@ -11,10 +11,10 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterUserGarmentsQueryDto } from './dto/filter-user-garments-query.dto';
 import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { SearchUsersQueryDto } from './dto/search-users-query.dto';
-import { paginate } from '../common/utils/paginate';
 import { FollowEntity } from './entities/follow.entity';
 import { GarmentsService } from '../garments/garments.service';
 import { PostsService } from '../posts/posts.service';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 @Injectable()
 export class UsersService {
@@ -124,7 +124,7 @@ export class UsersService {
       .take(limit)
       .getManyAndCount();
 
-    return paginate(
+    return paginationResponse(
       users.map((user) => ({
         id: user.id,
         username: user.username,
@@ -133,7 +133,6 @@ export class UsersService {
         role: user.role,
       })),
       total,
-      page,
       limit,
     );
   }

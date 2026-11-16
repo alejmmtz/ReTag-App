@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { FilterGarmentsQueryDto } from './dto/filter-garments-query.dto';
 import { CreateGarmentDto } from './dto/create-garment.dto';
 import { GarmentStatus, TransactionTypeEnum } from '../common/types/enums';
-import { CategoryEntity } from '../catalogs/entities/category.entity';
 import { GarmentRulesService } from './garment-rules.service';
 import { UpdateGarmentDto } from './dto/update-garment.dto';
 import { CatalogsService } from '../catalogs/catalogs.service';
@@ -19,8 +18,8 @@ import { GarmentImageEntity } from './entities/garment-image.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { GarmentImagesService } from './garment-images.service';
 import { FilterSellerGarmentsQueryDto } from './dto/filter-seller-garments-query.dto';
-import { paginate } from '../common/utils/paginate';
 import { StoreEntity } from '../stores/entities/store.entity';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 @Injectable()
 export class GarmentsService {
@@ -141,7 +140,7 @@ export class GarmentsService {
       take: limit,
     });
 
-    return paginate(garments, total, page, limit);
+    return paginationResponse(garments, total, limit, (page - 1) * limit);
   }
 
   async createGarment(

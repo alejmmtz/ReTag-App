@@ -9,7 +9,6 @@ import { PostEntity } from './entities/post.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, SelectQueryBuilder, DataSource } from 'typeorm';
-import { paginate } from '../common/utils/paginate';
 import {
   POST_RELATIONS,
   POST_SELECT,
@@ -35,6 +34,7 @@ import { GarmentEntity } from '../garments/entities/garment.entity';
 import { EventEntity } from '../events/entities/event.entity';
 import { PostImageEntity } from './entities/post-image.entity';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 @Injectable()
 export class PostsService {
@@ -104,7 +104,7 @@ export class PostsService {
     const ids = rows.map((row) => row.id);
 
     if (ids.length === 0) {
-      return paginate<PostResponse>([], total, page, limit);
+      return paginationResponse<PostResponse>([], total, limit, (page - 1) * limit);
     }
 
     const posts = await this.postsRepository.find({
@@ -122,7 +122,7 @@ export class PostsService {
 
     const data = await this.toPostResponses(orderedPosts, viewerId);
 
-    return paginate(data, total, page, limit);
+    return paginationResponse(data, total, limit, (page - 1) * limit);
   }
 
   async findByUser(userId: string, query: PaginationQueryDto) {
@@ -149,14 +149,14 @@ export class PostsService {
       likeRows.map((row) => [row.postId, Number(row.count)]),
     );
 
-    return paginate(
+    return paginationResponse(
       posts.map((post) => ({
         ...post,
         likesCount: likesByPost.get(post.id) ?? 0,
       })),
       total,
-      page,
       limit,
+      (page - 1) * limit,
     );
   }
 

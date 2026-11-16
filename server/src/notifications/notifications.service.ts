@@ -5,9 +5,9 @@ import { UserEntity } from '../users/entities/user.entity';
 import { UserLikesEntity } from '../users/entities/user-like.entity';
 import { FollowEntity } from '../users/entities/follow.entity';
 import { BagEntity } from '../bags/entities/bag.entity';
-import { PaginationQueryDto } from '../users/dto/pagination-query.dto';
-import { paginate } from '../common/utils/paginate';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { NotificationTypeEnum } from '../common/types/notification-type.enum';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 export interface NotificationItem {
   type: NotificationTypeEnum;
@@ -82,12 +82,8 @@ export class NotificationsService {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
       .slice((page - 1) * limit, page * limit);
 
-    return paginate(
-      notifications,
-      likesTotal + followsTotal + bagsTotal,
-      page,
-      limit,
-    );
+    const total = likesTotal + followsTotal + bagsTotal;
+    return paginationResponse(notifications, total, limit, (page - 1) * limit);
   }
 
   private toActor(user: UserEntity) {

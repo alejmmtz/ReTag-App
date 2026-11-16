@@ -63,7 +63,6 @@ export class EventsController {
   @Post(':id/join')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.USER)
-  @UseGuards(JwtAuthGuard)
   joinEvent(
     @Req() request: AuthenticatedRequest,
     @Param('id', ParseUUIDPipe) eventId: string,

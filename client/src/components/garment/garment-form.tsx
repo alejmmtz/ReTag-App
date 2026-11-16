@@ -1,24 +1,24 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import ImagePicker, { type PickedImage } from '../posts/image-picker';
-import type { MeResponse } from '../posts/post-types';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import { uploadImages } from '../../lib/uploads';
-import type { GarmentDetail } from './garment-detail-types';
+import ImagePicker, { type PickedImage } from "../posts/image-picker";
+import type { MeResponse } from "../posts/post-types";
+import { ApiError, authFetch, clearSession } from "../../lib/http";
+import { uploadImages } from "../../lib/uploads";
+import type { GarmentDetail } from "./garment-detail-types";
 import {
   CONDITIONS,
   MATERIALS,
   type CatalogsResponse,
   type TransactionType,
-} from './garment-types';
+} from "./garment-types";
 
 const MAX_DESCRIPTION = 350;
 const MAX_PHOTOS = 10;
 
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: "#C8F66F", store: "#2864E8" } as const;
 
 type Props = {
   garment?: GarmentDetail;
@@ -28,7 +28,7 @@ export default function GarmentForm({ garment }: Props) {
   const router = useRouter();
   const isEdit = !!garment;
 
-  const [role, setRole] = useState<'user' | 'store' | null>(null);
+  const [role, setRole] = useState<"user" | "store" | null>(null);
   const [catalogs, setCatalogs] = useState<CatalogsResponse | null>(null);
 
   const [keptUrls, setKeptUrls] = useState<string[]>(
@@ -36,24 +36,24 @@ export default function GarmentForm({ garment }: Props) {
   );
   const [images, setImages] = useState<PickedImage[]>([]);
 
-  const [name, setName] = useState(garment?.name ?? '');
-  const [description, setDescription] = useState(garment?.description ?? '');
+  const [name, setName] = useState(garment?.name ?? "");
+  const [description, setDescription] = useState(garment?.description ?? "");
   const [categoryId, setCategoryId] = useState(
-    garment?.category ? String(garment.category.id) : '',
+    garment?.category ? String(garment.category.id) : "",
   );
   const [brandId, setBrandId] = useState(
-    garment?.brand ? String(garment.brand.id) : '',
+    garment?.brand ? String(garment.brand.id) : "",
   );
   const [sizeId, setSizeId] = useState(
-    garment?.size ? String(garment.size.id) : '',
+    garment?.size ? String(garment.size.id) : "",
   );
-  const [material, setMaterial] = useState(garment?.material ?? '');
-  const [condition, setCondition] = useState(garment?.condition ?? '');
+  const [material, setMaterial] = useState(garment?.material ?? "");
+  const [condition, setCondition] = useState(garment?.condition ?? "");
   const [careId, setCareId] = useState(
-    garment?.care ? String(garment.care.id) : '',
+    garment?.care ? String(garment.care.id) : "",
   );
   const [datePurchased, setDatePurchased] = useState(
-    garment?.datePurchased ?? '',
+    garment?.datePurchased ?? "",
   );
   const [colorIds, setColorIds] = useState<number[]>(
     garment?.colors.map((color) => color.id) ?? [],
@@ -62,10 +62,10 @@ export default function GarmentForm({ garment }: Props) {
     garment?.tags.map((tag) => tag.id) ?? [],
   );
   const [transactionType, setTransactionType] = useState<TransactionType>(
-    garment?.transactionType ?? 'sale',
+    garment?.transactionType ?? "sale",
   );
   const [price, setPrice] = useState(
-    garment?.price != null ? String(Number(garment.price)) : '',
+    garment?.price != null ? String(Number(garment.price)) : "",
   );
 
   const [materialsOpen, setMaterialsOpen] = useState(false);
@@ -76,7 +76,7 @@ export default function GarmentForm({ garment }: Props) {
   function handleSessionError(err: unknown) {
     if (err instanceof ApiError && err.status === 401) {
       clearSession();
-      router.replace('/login');
+      router.replace("/login");
       return true;
     }
 
@@ -90,8 +90,8 @@ export default function GarmentForm({ garment }: Props) {
     async function load() {
       try {
         const [me, data] = await Promise.all([
-          authFetch<MeResponse>('/auth/me'),
-          authFetch<CatalogsResponse>('/catalogs'),
+          authFetch<MeResponse>("/auth/me"),
+          authFetch<CatalogsResponse>("/catalogs"),
         ]);
 
         if (!cancelled) {
@@ -100,7 +100,7 @@ export default function GarmentForm({ garment }: Props) {
         }
       } catch (err) {
         if (!cancelled && !handleSessionError(err)) {
-          setError('We could not load the form. Try again later.');
+          setError("We could not load the form. Try again later.");
         }
       }
     }
@@ -126,28 +126,28 @@ export default function GarmentForm({ garment }: Props) {
   }
 
   const accent = ACCENT[role];
-  const isStore = role === 'store';
-  const accentText = isStore ? '#FFFFFF' : '#1A1A1A';
+  const isStore = role === "store";
+  const accentText = isStore ? "#FFFFFF" : "#1A1A1A";
   const today = new Date().toISOString().slice(0, 10);
 
-  const effectiveType: TransactionType = isStore ? 'sale' : transactionType;
-  const needsPrice = effectiveType !== 'trade';
+  const effectiveType: TransactionType = isStore ? "sale" : transactionType;
+  const needsPrice = effectiveType !== "trade";
   const priceNumber = Number(price);
   const priceValid =
-    !needsPrice || (price !== '' && priceNumber >= 1 && priceNumber <= 10000);
+    !needsPrice || (price !== "" && priceNumber >= 1 && priceNumber <= 10000);
 
   const totalPhotos = keptUrls.length + images.length;
 
   const canSubmit =
     !submitting &&
     totalPhotos > 0 &&
-    name.trim() !== '' &&
-    description.trim() !== '' &&
-    categoryId !== '' &&
-    brandId !== '' &&
-    sizeId !== '' &&
-    material !== '' &&
-    datePurchased !== '' &&
+    name.trim() !== "" &&
+    description.trim() !== "" &&
+    categoryId !== "" &&
+    brandId !== "" &&
+    sizeId !== "" &&
+    material !== "" &&
+    datePurchased !== "" &&
     colorIds.length > 0 &&
     tagIds.length > 0 &&
     priceValid;
@@ -165,7 +165,10 @@ export default function GarmentForm({ garment }: Props) {
     setError(null);
 
     try {
-      const uploaded = await uploadImages(images.map((image) => image.file));
+      const uploaded = await uploadImages(
+        images.map((image) => image.file),
+        "Garments",
+      );
       const urls = [...keptUrls, ...uploaded];
 
       const body = {
@@ -186,7 +189,7 @@ export default function GarmentForm({ garment }: Props) {
 
       if (garment) {
         await authFetch(`/garments/${garment.id}`, {
-          method: 'PUT',
+          method: "PUT",
           body: JSON.stringify(body),
         });
 
@@ -194,15 +197,15 @@ export default function GarmentForm({ garment }: Props) {
         return;
       }
 
-      await authFetch(isStore ? '/garments/store' : '/garments', {
-        method: 'POST',
+      await authFetch(isStore ? "/garments/store" : "/garments", {
+        method: "POST",
         body: JSON.stringify({
           ...body,
           ...(isStore ? {} : { transactionType: effectiveType }),
         }),
       });
 
-      router.push('/create-garment/sent');
+      router.push("/create-garment/sent");
     } catch (err) {
       if (handleSessionError(err)) {
         return;
@@ -211,7 +214,7 @@ export default function GarmentForm({ garment }: Props) {
       setError(
         err instanceof ApiError
           ? err.message
-          : 'We could not save your garment. Try again.',
+          : "We could not save your garment. Try again.",
       );
       setSubmitting(false);
     }
@@ -220,7 +223,7 @@ export default function GarmentForm({ garment }: Props) {
   function chipStyle(active: boolean) {
     return active
       ? { backgroundColor: accent, borderColor: accent, color: accentText }
-      : { borderColor: '#6C6C6C', color: '#F5F5F5' };
+      : { borderColor: "#6C6C6C", color: "#F5F5F5" };
   }
 
   const showAllMaterials = materialsOpen;
@@ -230,9 +233,9 @@ export default function GarmentForm({ garment }: Props) {
     : catalogs.careDetails.slice(0, 4);
 
   const UNDERLINE =
-    'w-full border-b border-[#4A4A4A] bg-transparent pb-2 text-[16px] text-white outline-none placeholder:text-[#8A8A8A] focus:border-white';
+    "w-full border-b border-[#4A4A4A] bg-transparent pb-2 text-[16px] text-white outline-none placeholder:text-[#8A8A8A] focus:border-white";
   const PILL_SELECT =
-    'h-[44px] w-full rounded-full px-4 text-[14px] font-medium outline-none';
+    "h-[44px] w-full rounded-full px-4 text-[14px] font-medium outline-none";
 
   return (
     <main className="min-h-screen bg-[#191919] pb-[170px] text-white">
@@ -248,7 +251,7 @@ export default function GarmentForm({ garment }: Props) {
           </button>
 
           <h1 className="text-[20px] font-medium">
-            {isEdit ? 'Edit Garment' : 'New Garment'}
+            {isEdit ? "Edit Garment" : "New Garment"}
           </h1>
         </header>
 
@@ -313,9 +316,9 @@ export default function GarmentForm({ garment }: Props) {
             <div className="flex flex-wrap gap-2">
               {(
                 [
-                  { value: 'sale', label: 'Purchase' },
-                  { value: 'trade', label: 'Exchange' },
-                  { value: 'both', label: 'Both' },
+                  { value: "sale", label: "Purchase" },
+                  { value: "trade", label: "Exchange" },
+                  { value: "both", label: "Both" },
                 ] as { value: TransactionType; label: string }[]
               ).map((type) => {
                 const active = transactionType === type.value;
@@ -328,8 +331,12 @@ export default function GarmentForm({ garment }: Props) {
                     className="h-[38px] rounded-full border px-5 text-[14px] font-medium"
                     style={
                       active
-                        ? { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF', color: '#1A1A1A' }
-                        : { borderColor: '#6C6C6C', color: '#F5F5F5' }
+                        ? {
+                            backgroundColor: "#FFFFFF",
+                            borderColor: "#FFFFFF",
+                            color: "#1A1A1A",
+                          }
+                        : { borderColor: "#6C6C6C", color: "#F5F5F5" }
                     }
                   >
                     {type.label}
@@ -343,7 +350,10 @@ export default function GarmentForm({ garment }: Props) {
         {/* Precio y fecha de adquisición, lado a lado */}
         <section className="mt-6 grid grid-cols-2 gap-5">
           <div>
-            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-price">
+            <label
+              className="text-[13px] text-[#9A9A9A]"
+              htmlFor="garment-price"
+            >
               Price (USD)
             </label>
             <input
@@ -352,16 +362,19 @@ export default function GarmentForm({ garment }: Props) {
               inputMode="decimal"
               min={1}
               max={10000}
-              value={needsPrice ? price : ''}
+              value={needsPrice ? price : ""}
               disabled={!needsPrice}
               onChange={(event) => setPrice(event.target.value)}
-              placeholder={needsPrice ? '0' : 'Exchange'}
+              placeholder={needsPrice ? "0" : "Exchange"}
               className={`mt-1 ${UNDERLINE} disabled:opacity-40`}
             />
           </div>
 
           <div>
-            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-date">
+            <label
+              className="text-[13px] text-[#9A9A9A]"
+              htmlFor="garment-date"
+            >
               Date of Acquisition
             </label>
             <input
@@ -421,7 +434,10 @@ export default function GarmentForm({ garment }: Props) {
         {/* Marca y talla, lado a lado */}
         <section className="mt-6 grid grid-cols-2 gap-5">
           <div>
-            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-brand">
+            <label
+              className="text-[13px] text-[#9A9A9A]"
+              htmlFor="garment-brand"
+            >
               Brand
             </label>
             <select
@@ -440,7 +456,10 @@ export default function GarmentForm({ garment }: Props) {
           </div>
 
           <div>
-            <label className="text-[13px] text-[#9A9A9A]" htmlFor="garment-size">
+            <label
+              className="text-[13px] text-[#9A9A9A]"
+              htmlFor="garment-size"
+            >
               Size
             </label>
             <select
@@ -468,7 +487,7 @@ export default function GarmentForm({ garment }: Props) {
                 key={item}
                 type="button"
                 aria-pressed={material === item}
-                onClick={() => setMaterial(material === item ? '' : item)}
+                onClick={() => setMaterial(material === item ? "" : item)}
                 className="h-[34px] rounded-full border px-4 text-[13px] capitalize"
                 style={chipStyle(material === item)}
               >
@@ -518,11 +537,21 @@ export default function GarmentForm({ garment }: Props) {
                   key={item.id}
                   type="button"
                   aria-pressed={active}
-                  onClick={() => setCareId(active ? '' : String(item.id))}
+                  onClick={() => setCareId(active ? "" : String(item.id))}
                   className="flex min-h-[64px] items-center gap-3 rounded-[16px] border px-3 text-left text-[13px] leading-tight"
                   style={chipStyle(active)}
                 >
-                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                  <svg
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0"
+                  >
                     <path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" />
                   </svg>
                   {item.name}
@@ -559,7 +588,7 @@ export default function GarmentForm({ garment }: Props) {
                   className="h-[34px] w-[34px] rounded-full border-2"
                   style={{
                     backgroundColor: color.hexcode,
-                    borderColor: active ? accent : 'rgba(255,255,255,0.25)',
+                    borderColor: active ? accent : "rgba(255,255,255,0.25)",
                     boxShadow: active ? `0 0 0 2px ${accent}55` : undefined,
                   }}
                 />
@@ -603,11 +632,11 @@ export default function GarmentForm({ garment }: Props) {
           >
             {submitting
               ? isEdit
-                ? 'Saving...'
-                : 'Adding...'
+                ? "Saving..."
+                : "Adding..."
               : isEdit
-                ? 'Save changes'
-                : 'Add to closet'}
+                ? "Save changes"
+                : "Add to closet"}
           </button>
         </div>
       </div>

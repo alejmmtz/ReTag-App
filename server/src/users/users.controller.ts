@@ -29,7 +29,6 @@ export class UsersController {
   @Put('me')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
-  @UseGuards(JwtAuthGuard)
   update(
     @Req() req: AuthenticatedRequest,
     @Body(requestValidationPipe) data: UpdateUserDto,

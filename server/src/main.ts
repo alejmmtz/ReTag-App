@@ -1,18 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
-import {
-  UPLOADS_DIR,
-  UPLOADS_PUBLIC_PREFIX,
-} from './uploads/uploads.constants';
 import { AppModule } from './app.module';
+import {
+  LEGACY_UPLOADS_DIR,
+  LEGACY_UPLOADS_PREFIX,
+} from './uploads/uploads.constants';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   app.setGlobalPrefix('retag-server/api');
 
-  app.useStaticAssets(join(process.cwd(), UPLOADS_DIR), {
-    prefix: UPLOADS_PUBLIC_PREFIX,
+  app.useStaticAssets(join(process.cwd(), LEGACY_UPLOADS_DIR), {
+    prefix: LEGACY_UPLOADS_PREFIX,
   });
 
   app.enableCors({

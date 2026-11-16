@@ -9,7 +9,7 @@ import { StoreEntity } from './entities/store.entity';
 import { StoreImage } from './entities/store-image.entity';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
-import { paginate } from '../common/utils/paginate';
+import { paginationResponse } from '../common/utils/pagination-response';
 
 @Injectable()
 export class StoresService {
@@ -42,7 +42,7 @@ export class StoresService {
       take: limit,
     });
 
-    return paginate(stores, total, page, limit);
+    return paginationResponse(stores, total, limit, (page - 1) * limit);
   }
 
   async findOne(id: string) {
@@ -114,6 +114,7 @@ export class StoresService {
     Object.assign(store, {
       socialmedia: updateStoreDto.socialmedia,
       storeName: updateStoreDto.storeName,
+      schedule: updateStoreDto.schedule,
       location: updateStoreDto.location,
       description: updateStoreDto.description,
     });
