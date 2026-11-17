@@ -1,12 +1,21 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-green: var(--green);
+  --color-blue: var(--blue);
+  --color-grey: var(--grey);
+  --color-orange: var(--orange);
+}
+
 :root {
-  --background: #1A1A1A;
-  --foreground: #F5F5F5;
-  --green: #C8F66F;
-  --blue: #1D5CEB;
+  --background: #1a1a1a;
+  --foreground: #f5f5f5;
+  --green: #c8f66f;
+  --blue: #1d5ceb;
   --grey: #898989;
-  --orange: #FB3F0F;
+  --orange: #fb3f0f;
 }
 
 * {
@@ -26,12 +35,11 @@ body {
 body {
   min-height: 100vh;
 
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  opacity: 0;
-  width: 0;
-  height: 0;
-  padding: 0;
-  margin: 0;
-}
-
+  input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    padding: 0;
+    margin: 0;
+  }
 }
