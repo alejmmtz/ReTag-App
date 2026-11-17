@@ -1,14 +1,13 @@
-import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
 export const metadata = {
-  title: 'ReTag',
-  description: 'Second-hand fashion and circular clothing.',
+  title: "ReTag",
+  description: "Second-hand fashion and circular clothing.",
 };
 
 const generalSans = localFont({
-  src: '../../public/fonts/GeneralSans-Variable.woff2',
+  src: "../../public/fonts/GeneralSans-Variable.woff2",
   variable: "--font-general-sans",
 });
 
