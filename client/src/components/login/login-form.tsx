@@ -100,7 +100,7 @@ export default function LoginForm() {
               name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
-              placeholder="••••••••"
+              placeholder={showPassword ? "Nothing to see here" : "••••••••"}
               required
               className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pb-2 text-[14px] text-foreground outline-none placeholder:text-grey focus:ring-0"
             />

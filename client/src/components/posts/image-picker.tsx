@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 
 export type PickedImage = {
@@ -14,6 +15,7 @@ type Props = {
   max?: number;
   accent: string;
   label?: string;
+  variant?: 'default' | 'garment';
 };
 
 export default function ImagePicker({
@@ -22,6 +24,7 @@ export default function ImagePicker({
   max = 10,
   accent,
   label = 'Add images',
+  variant = 'default',
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef(images);
@@ -86,7 +89,7 @@ export default function ImagePicker({
 
       {/* Foto grande */}
       {current ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[22px] bg-[#262626]">
+        <div className={`relative w-full overflow-hidden bg-[#262626] ${variant === 'garment' ? 'aspect-square rounded-[18px]' : 'aspect-[4/3] rounded-[22px]'}`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={current.previewUrl}
@@ -113,17 +116,9 @@ export default function ImagePicker({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-[22px] bg-[#262626] text-[15px] text-[#D6D6D6]"
+          className={`flex w-full flex-col items-center justify-center gap-3 bg-[#202020] text-grey ${variant === 'garment' ? 'aspect-square rounded-[18px] text-[16px]' : 'aspect-[4/3] rounded-[22px] text-[15px]'}`}
         >
-          <span
-            className="flex h-[56px] w-[56px] items-center justify-center rounded-full"
-            style={{ backgroundColor: accent, color: accent === '#C8F66F' ? '#1A1A1A' : '#FFFFFF' }}
-          >
-            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-              <circle cx="12" cy="13" r="4" />
-            </svg>
-          </span>
+          <Image src="/icons/image.svg" alt="" width={variant === 'garment' ? 42 : 26} height={variant === 'garment' ? 42 : 26} />
           {label}
         </button>
       )}

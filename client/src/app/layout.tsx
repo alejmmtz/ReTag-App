@@ -13,8 +13,10 @@ const generalSans = localFont({
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={generalSans.variable}>
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className={generalSans.variable} suppressHydrationWarning>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }
