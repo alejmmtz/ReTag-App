@@ -13,7 +13,7 @@ export default function TransactionDone({
   const router = useRouter();
 
   return (
-    <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="flex w-full max-w-lg flex-col items-center text-center">
 
           <img

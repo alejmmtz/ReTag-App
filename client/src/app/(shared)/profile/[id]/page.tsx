@@ -14,7 +14,7 @@ async function ProfileById({ params }: Props) {
 
 export default function ProfilePage({ params }: Props) {
   return (
-    <Suspense fallback={<main className="bg-background mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter" />}>
+    <Suspense fallback={<main className="bg-background mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter" />}>
       <ProfileById params={params} />
     </Suspense>
   );

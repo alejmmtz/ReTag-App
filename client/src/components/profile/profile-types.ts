@@ -21,6 +21,7 @@ export type ProfilePost = {
   createdAt: string;
   likesCount?: number;
   images: ProfileImage[];
+  garment?: { id: string } | null;
 };
 
 export type ProfileGarment = {

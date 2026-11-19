@@ -53,7 +53,7 @@ export default function StoreCreateSheet({
             aria-label="Close create menu"
             className="button-icon bg-surface text-foreground ring-1 ring-line"
           >
-            <span aria-hidden="true" className="inline-block h-6 w-6" />
+            <AssetIcon name="x icon" width={18} height={18} />
           </button>
         </div>
 
@@ -68,8 +68,8 @@ export default function StoreCreateSheet({
             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-blue">
               <AssetIcon
                 name="calendar"
-                width={28}
-                height={28}
+                width={24}
+                height={24}
               />
             </div>
 
@@ -93,8 +93,8 @@ export default function StoreCreateSheet({
             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-green text-background">
               <AssetIcon
                 name="garment"
-                width={28}
-                height={28}
+                width={24}
+                height={24}
               />
             </div>
 

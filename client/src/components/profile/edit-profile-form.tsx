@@ -99,7 +99,7 @@ export default function EditProfileForm() {
 
   if (loadError) {
     return (
-      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <p className="text-sm text-grey">{loadError}</p>
       </main>
     );
@@ -107,7 +107,7 @@ export default function EditProfileForm() {
 
   if (!me) {
     return (
-      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <div className="mx-auto w-full max-w-lg space-y-4">
           <div className="mx-auto h-[112px] w-[112px] animate-pulse rounded-full bg-surface" />
           <div className="h-[40px] w-full animate-pulse rounded-full bg-surface" />
@@ -202,7 +202,7 @@ export default function EditProfileForm() {
   }
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg mb-32">
         <header className="flex items-center gap-2">
           <button

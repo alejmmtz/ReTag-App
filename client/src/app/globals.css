@@ -20,18 +20,26 @@
     @apply text-xl font-semibold leading-tight tracking-tight;
   }
 
-  h2, h3, h4 {
+  h2,
+  h3,
+  h4 {
     @apply text-base font-semibold leading-snug tracking-tight;
   }
 
   :where(button, a, input, textarea, select, summary, label) {
     -webkit-tap-highlight-color: transparent;
-    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-property:
+      color, background-color, border-color, opacity, box-shadow, transform;
     transition-duration: 200ms;
     transition-timing-function: ease-out;
   }
 
-  :where(button:not(:disabled), a[href], summary, label:has(input[type="file"])):active {
+  :where(
+    button:not(:disabled),
+    a[href],
+    summary,
+    label:has(input[type="file"])
+  ):active {
     opacity: 0.75;
   }
 
@@ -65,7 +73,7 @@
   }
 
   .button-icon {
-    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full p-2.5;
+    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full p-2;
   }
 
   .image-overlay {
@@ -78,12 +86,18 @@
 }
 
 @keyframes page-enter {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -123,6 +137,17 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-general-sans), sans-serif;
+}
+/* Para Firefox */
+html,
+body {
+  scrollbar-width: none;
+}
+
+/* Para Chrome, Edge, Safari y Opera */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
 }
 
 body {

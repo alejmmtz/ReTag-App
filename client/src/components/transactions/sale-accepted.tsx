@@ -49,7 +49,7 @@ export default function SaleAccepted({
     otherUser?.username ?? 'user';
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg pb-28">
 
         <section className="flex flex-col items-center text-center">

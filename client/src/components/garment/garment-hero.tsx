@@ -23,7 +23,7 @@ export default function GarmentHero({ garment, showBag, onBack, onOpenBag }: Pro
         type="button"
         aria-label="Go back"
         onClick={onBack}
-        className="button-icon image-overlay absolute left-8 top-24"
+        className="button-icon image-overlay absolute left-8 top-18"
       >
         <AssetIcon name="chevron" width={10} height={18} />
       </button>
@@ -33,7 +33,7 @@ export default function GarmentHero({ garment, showBag, onBack, onOpenBag }: Pro
           type="button"
           onClick={onOpenBag}
           aria-label="Open bag"
-          className="button-icon image-overlay absolute right-8 top-24"
+          className="button-icon image-overlay absolute right-8 top-18"
         >
           <AssetIcon name="bag" width={19} height={19} />
         </button>

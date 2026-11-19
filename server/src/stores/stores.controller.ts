@@ -1,6 +1,7 @@
 import {
   Controller,
   Get,
+  Post,
   Body,
   Patch,
   Param,
@@ -11,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { StoresService } from './stores.service';
+import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -23,6 +25,16 @@ import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 @UseGuards(JwtAuthGuard)
 export class StoresController {
   constructor(private readonly storesService: StoresService) {}
+
+  @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  create(
+    @Req() request: AuthenticatedRequest,
+    @Body(requestValidationPipe) createStoreDto: CreateStoreDto,
+  ) {
+    return this.storesService.create(request.user.id, createStoreDto);
+  }
 
   @Get()
   findAll(@Query(requestValidationPipe) query: PaginationQueryDto) {

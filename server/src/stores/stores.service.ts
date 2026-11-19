@@ -7,9 +7,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { StoreEntity } from './entities/store.entity';
 import { StoreImage } from './entities/store-image.entity';
+import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { paginationResponse } from '../common/utils/pagination-response';
+import { UserEntity } from '../users/entities/user.entity';
+import { UserRoleEnum } from '../common/types/enums';
 
 @Injectable()
 export class StoresService {
@@ -18,7 +21,58 @@ export class StoresService {
     private readonly storesRepository: Repository<StoreEntity>,
     @InjectRepository(StoreImage)
     private readonly storeImagesRepository: Repository<StoreImage>,
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
   ) {}
+
+  async create(userId: string, createStoreDto: CreateStoreDto) {
+    const existing = await this.storesRepository.findOne({
+      where: { userId },
+    });
+
+    if (existing) {
+      throw new ConflictException('This user already has a store.');
+    }
+
+    const store = this.storesRepository.create({
+      userId,
+      storeName: createStoreDto.storeName,
+      socialmedia: createStoreDto.socialmedia,
+      schedule: createStoreDto.schedule,
+      location: createStoreDto.location,
+      description: createStoreDto.description,
+    });
+
+    if (createStoreDto.images?.length) {
+      store.images = createStoreDto.images.map((image) =>
+        this.storeImagesRepository.create({
+          url: image.url,
+          isCover: image.isCover ?? false,
+          isProfile: image.isProfile ?? false,
+        }),
+      );
+    }
+
+    try {
+      const saved = await this.storesRepository.save(store);
+
+      // Promote the user role to STORE so guards work on subsequent requests.
+      await this.usersRepository.update(userId, { role: UserRoleEnum.STORE });
+
+      return { id: saved.id };
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        'driverError' in error &&
+        (error.driverError as { code?: string }).code === '23505'
+      ) {
+        throw new ConflictException(
+          'Store data conflicts with an existing record',
+        );
+      }
+      throw error;
+    }
+  }
 
   async findAll(query: PaginationQueryDto) {
     const { page, limit } = query;

@@ -16,7 +16,7 @@ async function EditById({ params }: Props) {
 // /garment/:id/edit: editar una prenda propia.
 export default function EditGarmentPage({ params }: Props) {
   return (
-    <Suspense fallback={<main className="bg-background mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter" />}>
+    <Suspense fallback={<main className="bg-background mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter" />}>
       <EditById params={params} />
     </Suspense>
   );

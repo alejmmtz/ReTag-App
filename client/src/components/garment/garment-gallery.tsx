@@ -47,7 +47,7 @@ export default function GarmentGallery({ images, alt }: Props) {
       </div>
 
       {ordered.length > 1 && (
-        <span aria-live="polite" aria-atomic="true" className="image-overlay absolute left-1/2 top-24 flex min-h-11 -translate-x-1/2 items-center rounded-full px-4 py-2 text-xs tabular-nums">
+        <span aria-live="polite" aria-atomic="true" className="image-overlay absolute left-1/2 top-18 flex min-h-11 -translate-x-1/2 items-center rounded-full px-4 py-2 text-xs tabular-nums">
           {index + 1} / {ordered.length}
         </span>
       )}

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 
 import ImagePicker, { type PickedImage } from '../../../components/posts/image-picker';
 import type { MeResponse, PostType } from '../../../components/posts/post-types';
+import { offerImageUrls } from '../../../components/posts/post-images';
 import { ApiError, authFetch, clearSession } from '../../../lib/http';
 import { uploadImages } from '../../../lib/uploads';
 
@@ -87,7 +88,7 @@ export default function CreatePostPage() {
 
   if (!role || !postType) {
     return (
-      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         {error ? (
           <p role="alert" className="text-center text-sm text-orange">{error}</p>
         ) : (
@@ -125,7 +126,10 @@ export default function CreatePostPage() {
     setError(null);
 
     try {
-      const imageUrls = await uploadImages(images.map((image) => image.file), 'Posts');
+      if (needsGarment && !selectedGarment) throw new Error('Choose a garment to offer.');
+      const imageUrls = needsGarment
+        ? await offerImageUrls(selectedGarment!)
+        : await uploadImages(images.map((image) => image.file), 'Posts');
       await authFetch('/posts', {
         method: 'POST',
         body: JSON.stringify({
@@ -144,7 +148,7 @@ export default function CreatePostPage() {
         return;
       }
       setError(
-        submitError instanceof ApiError
+        submitError instanceof Error
           ? submitError.message
           : 'We could not publish your post. Try again.',
       );
@@ -153,7 +157,7 @@ export default function CreatePostPage() {
   }
 
   return (
-    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <header className="flex min-h-11 shrink-0 items-center gap-2 border-b border-white/10 pb-6">
         <button
           type="button"

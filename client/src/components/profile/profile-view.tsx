@@ -12,6 +12,7 @@ import UserCreateSheet from '../events/user-create-sheet';
 import StoreBottomNav from '../navigation/store-bottom-nav';
 import UserBottomNav from '../navigation/user-bottom-nav';
 import type { MeResponse } from '../posts/post-types';
+import { withOfferImagesForPosts } from '../posts/post-images';
 import { ApiError, authFetch, clearSession } from '../../lib/http';
 import { ClosetGrid, PostsGrid } from './profile-grids';
 import ProfileHeader from './profile-header';
@@ -113,7 +114,10 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
           await Promise.all([
             authFetch<Paginated<ProfilePost>>(
               `/users/${targetId}/posts?page=1&limit=${PAGE_SIZE}`,
-            ),
+            ).then(async (result) => ({
+              ...result,
+              data: await withOfferImagesForPosts(result.data),
+            })),
             authFetch<Paginated<ProfileGarment>>(
               `/users/${targetId}/garments?page=1&limit=${PAGE_SIZE}`,
             ),
@@ -177,8 +181,9 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
       );
 
       if (tab === 'posts') {
+        const postsPage = { ...data, data: await withOfferImagesForPosts(data.data) };
         setPosts((prev) =>
-          prev ? { ...data, data: [...prev.data, ...data.data] } : data,
+          prev ? { ...postsPage, data: [...prev.data, ...postsPage.data] } : postsPage,
         );
       } else {
         setGarments((prev) =>
@@ -222,7 +227,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
   if (error) {
     return (
-      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <p className="text-sm text-grey">{error}</p>
         <button
           type="button"
@@ -237,7 +242,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
   if (!user || !me || !posts || !garments || (storeMode && !store)) {
     return (
-      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <div className="mx-auto w-full max-w-lg space-y-4">
           <div className="h-[84px] w-full animate-pulse rounded-[22px] bg-surface" />
           <div className="h-[72px] w-full animate-pulse rounded-[18px] bg-surface" />

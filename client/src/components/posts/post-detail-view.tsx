@@ -9,6 +9,7 @@ import StoreBottomNav from '../navigation/store-bottom-nav';
 import UserBottomNav from '../navigation/user-bottom-nav';
 import { ApiError, authFetch, clearSession } from '../../lib/http';
 import PostCard from './post-card';
+import { withOfferImages } from './post-images';
 import type { MeResponse, PostItem } from './post-types';
 
 type PostDetail = PostItem & { isFollowingAuthor: boolean };
@@ -33,7 +34,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
       try {
         const [meData, postData] = await Promise.all([
           authFetch<MeResponse>('/auth/me'),
-          authFetch<PostDetail>(`/posts/${postId}`),
+          authFetch<PostDetail>(`/posts/${postId}`).then(withOfferImages),
         ]);
 
         if (!cancelled) {
@@ -112,7 +113,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
   if (error) {
     return (
-      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <p className="text-sm text-grey">{error}</p>
         <button
           type="button"
@@ -127,7 +128,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
   if (!post || !me) {
     return (
-      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         <div className="mx-auto w-full max-w-lg">
           <div className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-surface" />
         </div>
@@ -140,7 +141,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
   const isOwner = post.author.id === me.id;
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg mb-28">
         <header className="mb-5 flex items-center gap-2">
           <button

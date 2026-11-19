@@ -162,7 +162,7 @@ export default function CreateEventForm() {
   }
 
   return (
-    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       {/* Header */}
       <header className="border-b border-line pb-6">
         <div className="mx-auto flex w-full max-w-lg items-center gap-5">

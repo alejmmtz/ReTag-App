@@ -106,7 +106,7 @@ export default function ProfileHeader({
   const description = store?.description ?? user.description;
 
   return (
-    <header className="relative isolate overflow-hidden px-8 pb-8 pt-28">
+    <header className="relative isolate overflow-hidden px-8 pb-8 pt-22">
       {/* Fondo: banner de la tienda o foto de perfil difuminada */}
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 overflow-hidden">
         {(isStore ? cover : picture) ? (
@@ -131,7 +131,7 @@ export default function ProfileHeader({
 
       <div>
         {/* Barra superior */}
-        <div className="absolute inset-x-8 top-24 z-30 flex h-11 items-center justify-between">
+        <div className="absolute inset-x-8 top-18 z-30 flex h-11 items-center justify-between">
           {isStore && !isOwn ? (
             <button
               type="button"

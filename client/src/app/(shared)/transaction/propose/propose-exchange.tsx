@@ -108,7 +108,7 @@ export default function ProposeExchange({ garmentId }: Props) {
 
   if (loading) {
     return (
-      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         Loading...
       </main>
     );
@@ -116,14 +116,14 @@ export default function ProposeExchange({ garmentId }: Props) {
 
   if (error) {
     return (
-      <main className="flex items-center justify-center bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="flex items-center justify-center bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         {error}
       </main>
     );
   }
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg">
         {/* Header */}
         <header className="flex items-center gap-5 border-b border-line pb-6">

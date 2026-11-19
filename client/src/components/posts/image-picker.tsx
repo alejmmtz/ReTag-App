@@ -112,7 +112,7 @@ export default function ImagePicker({
             onClick={() => handleRemove(current.id)}
             className="button-icon image-overlay absolute right-3 top-3"
           >
-            <span aria-hidden="true" className="inline-block h-3 w-3" />
+            <AssetIcon name="x icon" width={18} height={18} />
           </button>
           {images.length > 1 && (
             <span className="image-overlay absolute bottom-3 right-3 rounded-full px-3 py-1.5 text-xs tabular-nums">
@@ -128,8 +128,8 @@ export default function ImagePicker({
         >
           <AssetIcon
             name="image"
-            width={32}
-            height={32}
+            width={28}
+            height={28}
           />
           {label}
         </button>

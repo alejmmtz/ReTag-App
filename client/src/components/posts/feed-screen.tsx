@@ -16,6 +16,7 @@ import UserBottomNav from '../navigation/user-bottom-nav';
 import { ApiError, authFetch, clearSession } from '../../lib/http';
 import FeedFilterSelect from './feed-filter-select';
 import PostCard from './post-card';
+import { withOfferImagesForPosts } from './post-images';
 import UserSearchResults from './user-search-results';
 import type {
   FeedFilter,
@@ -101,12 +102,13 @@ export default function FeedScreen({ role }: Props) {
         const result = await authFetch<PostsPage>(
           `/posts?feed=${filter}&page=1&limit=${PAGE_SIZE}`,
         );
+        const postsWithImages = await withOfferImagesForPosts(result.data);
 
         if (cancelled) {
           return;
         }
 
-        setPosts(result.data);
+        setPosts(postsWithImages);
         setPage(1);
         setTotalPages(result.meta.totalPages);
       } catch (error) {
@@ -147,10 +149,11 @@ export default function FeedScreen({ role }: Props) {
       const result = await authFetch<PostsPage>(
         `/posts?feed=${filter}&page=${nextPage}&limit=${PAGE_SIZE}`,
       );
+      const postsWithImages = await withOfferImagesForPosts(result.data);
 
       setPosts((previous) => [
         ...previous,
-        ...result.data.filter(
+        ...postsWithImages.filter(
           (post) => !previous.some((item) => item.id === post.id),
         ),
       ]);
@@ -208,7 +211,7 @@ export default function FeedScreen({ role }: Props) {
   }
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg mb-28">
         {/* Header */}
         <header className="flex items-center justify-between gap-4">

@@ -128,7 +128,7 @@ export default function GarmentForm({ garment }: Props) {
 
   if (!role || !catalogs) {
     return (
-      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
         {error ? (
           <p className="text-center text-sm text-orange">{error}</p>
         ) : (
@@ -258,7 +258,7 @@ export default function GarmentForm({ garment }: Props) {
 
   return (
     <main
-      className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter"
+      className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter"
     >
       <div className="mx-auto w-full mb-28">
         {/* Header */}
@@ -300,7 +300,7 @@ export default function GarmentForm({ garment }: Props) {
                   }
                   className="button-icon image-overlay absolute right-1 top-1"
                 >
-                  <span aria-hidden="true" className="inline-block h-3 w-3" />
+                  <AssetIcon name="x icon" width={16} height={16} />
                 </button>
               </div>
             ))}
@@ -475,7 +475,7 @@ export default function GarmentForm({ garment }: Props) {
                     style={chipStyle(active)}
                   >
                     #{tag.name}
-                    {active && <span aria-hidden="true" className="ml-1.5 inline-block h-3 w-3" />}
+                    {active && <AssetIcon name="x icon" width={14} height={14} className="ml-2" />}
                   </button>
                 );
               })}

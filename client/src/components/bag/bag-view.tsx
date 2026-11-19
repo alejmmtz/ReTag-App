@@ -132,7 +132,7 @@ export default function BagView() {
   }
 
   return (
-    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg mb-28">
         <header className="flex items-center gap-2">
           <button
@@ -235,7 +235,7 @@ export default function BagView() {
                     disabled={removing === garment.id}
                     className="absolute right-3 top-3 flex h-[32px] w-[32px] items-center justify-center rounded-full bg-black/40 text-sm text-[#D6D6D6] disabled:opacity-40 min-h-11 min-w-11"
                   >
-                    <span aria-hidden="true" className="inline-block h-4 w-4" />
+                    <AssetIcon name="x icon" width={16} height={16} />
                   </button>
                 </li>
               );

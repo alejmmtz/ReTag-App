@@ -135,7 +135,7 @@ export default function PostCard({
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center text-grey/50">
-            <AssetIcon name="image" width={32} height={32} />
+            <AssetIcon name="image" width={28} height={28} />
           </div>
         )}
 
