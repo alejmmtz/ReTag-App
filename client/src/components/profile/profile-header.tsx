@@ -1,3 +1,4 @@
+import AssetIcon from '../icons/asset-icon';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -22,16 +23,28 @@ function Avatar({
   name,
   accent,
   accentText,
+  decorated,
 }: {
   src: string | null;
   name: string;
   accent: string;
   accentText: string;
+  decorated: boolean;
 }) {
   return (
-    <div className="relative">
+    <div className="relative isolate w-fit">
+      {decorated && (
+        <Image
+          src="/illustrations/wow.png"
+          alt=""
+          aria-hidden
+          width={297}
+          height={157}
+          className="pointer-events-none absolute -left-4 -top-7 z-0 h-auto w-20 -rotate-12 select-none min-[440px]:-left-10 min-[440px]:w-24"
+        />
+      )}
       <div
-        className="flex h-[112px] w-[112px] items-center justify-center overflow-hidden rounded-full border-[3px] border-[#191919] text-[40px] font-medium"
+        className="relative z-10 flex size-36 items-center justify-center overflow-hidden rounded-full border-4 border-background text-xl font-medium shadow-xl shadow-background/40 min-[440px]:size-44"
         style={{ backgroundColor: accent, color: accentText }}
       >
         {src ? (
@@ -41,43 +54,36 @@ function Avatar({
           name.charAt(0).toUpperCase()
         )}
       </div>
-
-      {/* Stickers del diseño */}
-      <Image
-        src="/illustrations/upa.png"
-        alt=""
-        width={285}
-        height={215}
-        className="pointer-events-none absolute -bottom-3 -right-8 w-[64px] -rotate-6"
-      />
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -left-3 top-0 text-[26px] -rotate-12"
-      >
-        ✨
-      </span>
+      {decorated && (
+        <>
+          <Image
+            src="/illustrations/upa.png"
+            alt=""
+            aria-hidden
+            width={285}
+            height={215}
+            className="pointer-events-none absolute -bottom-4 -left-10 z-20 h-auto w-28 -rotate-6 select-none"
+          />
+          <Image
+            src="/illustrations/star.png"
+            alt=""
+            aria-hidden
+            width={178}
+            height={202}
+            className="pointer-events-none absolute -bottom-2 -right-9 z-20 h-auto w-16 rotate-6 select-none"
+          />
+        </>
+      )}
     </div>
   );
 }
 
 function LogoutIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <path d="m16 17 5-5-5-5" />
-      <path d="M21 12H9" />
-    </svg>
-  );
+  return <AssetIcon name="logout" className="text-orange" width={20} height={20} />;
 }
 
 function StoreIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 9 4.5 4h15L21 9" />
-      <path d="M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0" />
-      <path d="M5 12v8h14v-8" />
-    </svg>
-  );
+  return <AssetIcon name="store" width={20} height={20} />;
 }
 
 export default function ProfileHeader({
@@ -100,16 +106,16 @@ export default function ProfileHeader({
   const description = store?.description ?? user.description;
 
   return (
-    <header className="relative">
+    <header className="relative isolate overflow-hidden px-8 pb-8 pt-28">
       {/* Fondo: banner de la tienda o foto de perfil difuminada */}
-      <div className="absolute inset-x-0 top-0 h-[260px] overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-96 overflow-hidden">
         {(isStore ? cover : picture) ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={(isStore ? cover : picture) as string}
             alt=""
             className={`h-full w-full object-cover ${
-              isStore ? 'opacity-60' : 'scale-125 opacity-40 blur-2xl'
+              isStore ? 'opacity-45' : 'scale-125 opacity-15 blur-3xl'
             }`}
           />
         ) : (
@@ -120,26 +126,27 @@ export default function ProfileHeader({
             }}
           />
         )}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#191919]/60 to-[#191919]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/15 via-background/60 to-background" />
       </div>
 
-      <div className="relative px-6 pt-5">
+      <div>
         {/* Barra superior */}
-        <div className="flex h-[44px] items-center justify-between">
+        <div className="absolute inset-x-8 top-24 z-30 flex h-11 items-center justify-between">
           {isStore && !isOwn ? (
             <button
               type="button"
               onClick={onBack}
-              className="flex h-[36px] items-center gap-1 rounded-full bg-[#C8F66F] px-4 text-[14px] font-medium text-[#1A1A1A]"
+              className="flex h-[36px] items-center gap-1 rounded-full bg-green px-4 text-sm font-medium text-background min-h-11 min-w-11"
             >
-              ‹ Back
+              <AssetIcon name="chevron" width={9} height={16} />
+              Back
             </button>
           ) : isOwn ? (
             <button
               type="button"
               onClick={onLogout}
               aria-label="Log out"
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-black/40 text-[#FF8A3D]"
+              className="button-icon bg-background/75 text-orange ring-1 ring-foreground/10 backdrop-blur-md"
             >
               <LogoutIcon />
             </button>
@@ -148,9 +155,9 @@ export default function ProfileHeader({
               type="button"
               onClick={onBack}
               aria-label="Back"
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-black/40 text-[20px]"
+              className="button-icon image-overlay"
             >
-              ‹
+              <AssetIcon name="chevron" width={9} height={16} />
             </button>
           )}
 
@@ -158,7 +165,7 @@ export default function ProfileHeader({
             <Link
               href="/create-store"
               aria-label="Open a store"
-              className="flex h-[40px] w-[40px] items-center justify-center rounded-full bg-[#2864E8] text-white"
+              className="button-icon bg-blue text-foreground shadow-sm"
             >
               <StoreIcon />
             </Link>
@@ -166,17 +173,18 @@ export default function ProfileHeader({
         </div>
 
         {/* Avatar, nombre y usuario */}
-        <div className="mt-6 flex flex-col items-center text-center">
+        <div className="flex flex-col items-center text-center">
           <Avatar
             src={picture}
             name={displayName}
             accent={accent}
             accentText={accentText}
+            decorated={!isStore}
           />
-          <h1 className="mt-5 max-w-full truncate text-[24px] font-semibold leading-tight">
+          <h1 className="mt-8 max-w-full truncate text-xl font-semibold leading-tight">
             {displayName}
           </h1>
-          <p className="max-w-full truncate text-[14px] text-[#9A9A9A]">
+          <p className="mt-2 max-w-full truncate text-sm text-grey">
             @{handle}
           </p>
 
@@ -186,16 +194,13 @@ export default function ProfileHeader({
         {/* Estadísticas */}
         {stats.length > 0 && (
           <div
-            className="mt-6 grid text-center"
+            className="mt-8 grid min-w-0 gap-4 text-center"
             style={{ gridTemplateColumns: `repeat(${stats.length}, 1fr)` }}
           >
-            {stats.map((stat, index) => (
-              <div
-                key={stat.label}
-                className={index > 0 ? 'border-l border-[#333]' : ''}
-              >
-                <p className="text-[22px] font-semibold">{stat.value}</p>
-                <p className="text-[13px] text-[#9A9A9A]">{stat.label}</p>
+            {stats.map((stat) => (
+              <div key={stat.label} className="min-w-0">
+                <p className="text-xl font-semibold tabular-nums">{stat.value}</p>
+                <p className="mt-1 text-xs text-grey">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -204,14 +209,14 @@ export default function ProfileHeader({
         {/* Ubicación y descripción de la tienda */}
         {isStore && store?.location && (
           <div className="mt-5 flex justify-center">
-            <span className="inline-flex max-w-full items-center gap-2 truncate rounded-full border border-[#3A3A3A] px-4 py-[6px] text-[13px]">
-              <span aria-hidden style={{ color: accent }}>●</span>
+            <span className="inline-flex max-w-full items-center gap-2 truncate rounded-full border border-[#3A3A3A] px-4 py-1.5 text-sm">
+              <AssetIcon name="location" width={14} height={14} />
               {store.location}
             </span>
           </div>
         )}
         {description && (
-          <p className="mx-auto mt-4 max-w-[420px] text-center text-[14px] leading-relaxed text-[#D6D6D6]">
+          <p className="mx-auto mt-4 max-w-[420px] text-center text-sm leading-relaxed text-[#D6D6D6]">
             {description}
           </p>
         )}

@@ -76,8 +76,8 @@ export default function RegisterFlow() {
   }
 
   return (
-    <main className="mx-auto min-h-dvh w-full px-8 bg-background py-12 text-foreground sm:px-10 sm:py-12">
-      <div className="justify-center items-center flex">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 page-enter">
+      <div key={step} className="w-full page-enter">
         {step === 1 && (
           <StepOne
             fields={fields}

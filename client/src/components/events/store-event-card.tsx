@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -52,7 +53,7 @@ export default function StoreEventCard({
     >
       <div className="flex items-center gap-4">
         {/* Illustration */}
-        <div className="flex h-[78px] w-[78px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[#2864E8]">
+        <div className="flex h-[78px] w-[78px] shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-blue">
           <Image
             src="/illustrations/star.png"
             alt=""
@@ -65,28 +66,25 @@ export default function StoreEventCard({
         {/* Event info */}
         <div className="min-w-0 flex-1">
           {/* Title */}
-          <h2 className="truncate text-[18px] font-semibold leading-tight text-white">
+          <h2 className="truncate text-base font-semibold leading-tight text-foreground">
             {event.title}
           </h2>
 
           {/* Store */}
           <div className="mt-1 flex items-center gap-1.5">
-            <span className="truncate text-[14px] text-[#D0D0D0]">
+            <span className="truncate text-sm text-[#D0D0D0]">
               {event.store?.storeName ?? 'ReTag Store'}
             </span>
 
-            <span className="flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full bg-[#2864E8] text-[9px] font-bold text-white">
-              ✓
-            </span>
+            <Image src="/icons/verified-badge.svg" alt="Verified" width={14} height={14} className="shrink-0" />
           </div>
 
           {/* Date + participants */}
-          <div className="mt-2 flex items-center gap-3 text-[12px] text-[#CFCFCF]">
+          <div className="mt-2 flex items-center gap-3 text-xs text-[#CFCFCF]">
             {/* Date */}
             <div className="flex min-w-0 items-center gap-1.5">
-              <Image
-                src="/icons/calendar.svg"
-                alt=""
+              <AssetIcon
+                name="calendar"
                 width={15}
                 height={15}
                 className="shrink-0"
@@ -103,9 +101,8 @@ export default function StoreEventCard({
 
             {/* Participants */}
             <div className="flex shrink-0 items-center gap-1">
-              <Image
-                src="/icons/participants.svg"
-                alt=""
+              <AssetIcon
+                name="participants"
                 width={15}
                 height={15}
               />

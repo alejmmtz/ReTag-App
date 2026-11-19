@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 type GarmentImage = {
   id: number;
   url: string;
@@ -40,8 +42,8 @@ export default function TransactionGarmentCard({
         relative overflow-hidden rounded-2xl border-4
         ${
           isGreen
-            ? 'border-[#C8F66F]'
-            : 'border-[#F5F5F5]'
+            ? 'border-green'
+            : 'border-foreground'
         }
       `}
     >
@@ -52,23 +54,21 @@ export default function TransactionGarmentCard({
           flex max-w-[85%] items-center gap-3
           rounded-br-[10px]
           px-3 py-2
-          text-[#1A1A1A]
+          text-background
           ${
             isGreen
-              ? 'bg-[#C8F66F]'
-              : 'bg-[#F5F5F5]'
+              ? 'bg-green'
+              : 'bg-foreground'
           }
         `}
       >
-        <p className="truncate text-[14px] font-medium md:text-[15px]">
+        <p className="truncate text-sm font-medium">
           {label}
         </p>
 
         {/* Optional check used in Propose */}
         {showCheck && (
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#1A1A1A] text-[12px] font-bold text-[#C8F66F]">
-            ✓
-          </span>
+          <Image src="/icons/verified-badge.svg" alt="" width={16} height={16} className="shrink-0" />
         )}
       </div>
 
@@ -80,7 +80,7 @@ export default function TransactionGarmentCard({
           className="aspect-square w-full object-cover"
         />
       ) : (
-        <div className="flex aspect-square items-center justify-center bg-[#242424] text-white/50">
+        <div className="flex aspect-square items-center justify-center bg-surface text-foreground/50">
           No image
         </div>
       )}

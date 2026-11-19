@@ -22,8 +22,8 @@ export default function StepThree({
   goToStep,
 }: StepThreeProps) {
   return (
-    <section>
-      <h1 className="text-[28px] leading-tight font-medium tracking-[-0.03em] sm:text-[32px]">
+    <section className="w-full">
+      <h1 className="text-2xl leading-tight font-semibold tracking-tight">
         An overview of your{" "}
         <span className="font-semibold text-green">Brand New Self</span> at
         ReTag
@@ -47,11 +47,11 @@ export default function StepThree({
           />
         )}
       </div>
-      <p className="mt-4 rounded-xl border border-white px-4 py-4 text-[16px]">
+      <p className="mt-4 rounded-xl border border-white px-4 py-4 text-sm">
         {fields.name} is @
         <span className="underline">{fields.username.replace(/^@/, "")}</span>
       </p>
-      <p className="mt-6 text-center text-[12px] mx-6 text-grey">
+      <p className="mt-6 text-center text-xs mx-6 text-grey">
         We’re ReShaping fashion into a more constructive, circular cycle. Are
         you ready to be part of the change?
       </p>
@@ -63,7 +63,7 @@ export default function StepThree({
             setAccepted(event.target.checked);
             clearError();
           }}
-          className="accent-green"
+          className="accent-green text-sm"
         />
         <span>
           I accept{" "}
@@ -81,7 +81,7 @@ export default function StepThree({
         type="button"
         onClick={submitRegistration}
         disabled={isSubmitting}
-        className="mt-7 w-full rounded-full bg-green px-5 py-3 text-[15px] font-semibold text-background disabled:opacity-70"
+        className="button-pill mt-7 w-full bg-green text-background disabled:opacity-70"
       >
         {isSubmitting ? "Signing Up…" : "Sign Up"}
       </button>
@@ -89,7 +89,7 @@ export default function StepThree({
         type="button"
         onClick={() => goToStep(2)}
         disabled={isSubmitting}
-        className="mt-4 block w-full text-center text-sm font-semibold text-green underline"
+        className="mt-4 block w-full text-center text-sm font-semibold text-green underline min-h-11 min-w-11"
       >
         Return
       </button>

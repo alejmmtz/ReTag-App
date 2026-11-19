@@ -11,7 +11,7 @@ import type { MeResponse } from '../posts/post-types';
 import { ApiError, authFetch, clearSession } from '../../lib/http';
 
 const PAGE_SIZE = 15;
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
 
 type NotificationItem = {
   type: 'like' | 'follow' | 'bag';
@@ -126,10 +126,10 @@ export default function NotificationsView() {
   const accentText = role === 'store' ? '#FFFFFF' : '#1A1A1A';
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[130px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-16">
-        <h1 className="text-[22px] font-medium leading-tight">Notifications</h1>
-        <p className="mt-1 text-[14px] text-[#9A9A9A]">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
+        <h1 className="text-xl font-semibold leading-tight">Notifications</h1>
+        <p className="mt-1 text-sm text-grey">
           Likes, new followers and bags on your garments.
         </p>
 
@@ -138,14 +138,14 @@ export default function NotificationsView() {
             {[0, 1, 2, 3].map((item) => (
               <div
                 key={item}
-                className="h-[68px] w-full animate-pulse rounded-[18px] bg-[#262626]"
+                className="h-[68px] w-full animate-pulse rounded-[18px] bg-surface"
               />
             ))}
           </div>
         )}
 
         {!loading && error && (
-          <p className="mt-10 text-center text-[14px] text-[#FB3F0F]" role="alert">
+          <p className="mt-10 text-center text-sm text-orange" role="alert">
             {error}
           </p>
         )}
@@ -159,8 +159,8 @@ export default function NotificationsView() {
               height={160}
               className="mb-6 h-auto w-[180px]"
             />
-            <h2 className="text-[18px] font-medium">Nothing here yet</h2>
-            <p className="mt-2 max-w-[260px] text-[14px] text-[#9A9A9A]">
+            <h2 className="text-base font-semibold">Nothing here yet</h2>
+            <p className="mt-2 max-w-[260px] text-sm text-grey">
               When someone likes your posts or follows you, you will see it here.
             </p>
           </div>
@@ -172,10 +172,10 @@ export default function NotificationsView() {
               <li key={`${item.type}-${item.actor.id}-${item.createdAt}-${index}`}>
                 <Link
                   href={hrefOf(item)}
-                  className="flex items-center gap-3 rounded-[18px] bg-[#262626] p-3"
+                  className="flex items-center gap-3 rounded-[18px] bg-surface p-3"
                 >
                   <span
-                    className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full text-[16px] font-medium"
+                    className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-medium"
                     style={{ backgroundColor: accent, color: accentText }}
                   >
                     {item.actor.profilePicture ? (
@@ -190,12 +190,12 @@ export default function NotificationsView() {
                     )}
                   </span>
 
-                  <p className="min-w-0 flex-1 text-[14px] leading-snug">
+                  <p className="min-w-0 flex-1 text-sm leading-snug">
                     <span className="font-medium">@{item.actor.username}</span>{' '}
                     <span className="text-[#D6D6D6]">{TEXT[item.type]}</span>
                   </p>
 
-                  <span className="shrink-0 text-[12px] text-[#9A9A9A]">
+                  <span className="shrink-0 text-xs text-grey">
                     {timeAgo(item.createdAt)}
                   </span>
                 </Link>
@@ -208,7 +208,7 @@ export default function NotificationsView() {
           <button
             type="button"
             onClick={() => loadPage(page + 1)}
-            className="mx-auto mt-6 block h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px]"
+            className="button-pill mx-auto mt-6 block border border-[#6C6C6C]"
           >
             Load more
           </button>

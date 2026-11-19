@@ -63,12 +63,12 @@ export default function GarmentEditLoader({ garmentId }: { garmentId: string }) 
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-24 text-center text-white">
-        <p className="text-[15px] text-[#8A8A8A]">{error}</p>
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <p className="text-sm text-grey">{error}</p>
         <button
           type="button"
           onClick={() => router.back()}
-          className="mt-6 h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px]"
+          className="button-pill mt-6 border border-[#6C6C6C]"
         >
           Go back
         </button>
@@ -78,8 +78,8 @@ export default function GarmentEditLoader({ garmentId }: { garmentId: string }) 
 
   if (!garment) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
-        <div className="h-[48px] w-full animate-pulse rounded-full bg-[#262626]" />
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <div className="h-12 w-full animate-pulse rounded-full bg-surface" />
       </main>
     );
   }

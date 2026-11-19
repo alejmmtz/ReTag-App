@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../../../components/icons/asset-icon';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
@@ -9,7 +10,7 @@ import { ApiError, authFetch, clearSession } from '../../../lib/http';
 import { uploadImages } from '../../../lib/uploads';
 
 const MAX_CAPTION = 350;
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
 
 type Garment = {
   id: string;
@@ -86,11 +87,11 @@ export default function CreatePostPage() {
 
   if (!role || !postType) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-background px-6 text-foreground">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         {error ? (
           <p role="alert" className="text-center text-sm text-orange">{error}</p>
         ) : (
-          <div className="h-12 w-full max-w-md animate-pulse rounded-xl bg-[#262626]" />
+          <div className="h-12 w-full max-w-md animate-pulse rounded-xl bg-surface" />
         )}
       </main>
     );
@@ -152,36 +153,34 @@ export default function CreatePostPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col bg-background text-foreground">
-      <header className="flex h-[72px] shrink-0 items-center gap-2 border-b border-white/10 px-5">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <header className="flex min-h-11 shrink-0 items-center gap-2 border-b border-white/10 pb-6">
         <button
           type="button"
           aria-label="Go back"
           onClick={() => router.back()}
-          className="flex h-10 w-10 items-center justify-start text-3xl leading-none"
+          className="flex h-10 w-10 items-center justify-start text-base leading-none min-h-11 min-w-11"
         >
-          ‹
+          <AssetIcon name="chevron" width={9} height={16} />
         </button>
-        <h1 className="text-[18px] font-medium">New post</h1>
+        <h1 className="text-xl font-semibold">New post</h1>
       </header>
 
-      <section className="flex min-h-[280px] flex-1 items-center justify-center px-6 py-5">
+      <section className="flex min-h-[280px] flex-1 items-center justify-center py-5">
         {needsGarment && garmentPhoto ? (
-          <div className="relative aspect-square w-full max-w-[360px] overflow-hidden rounded-[22px] border-[4px] border-[#F5F5F5] bg-[#262626]">
+          <div className="relative aspect-square w-full max-w-[360px] overflow-hidden rounded-[22px] border-[4px] border-foreground bg-surface">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={garmentPhoto} alt={selectedGarment?.name ?? 'Selected garment'} className="h-full w-full object-cover" />
             <select
               value={garmentId}
               onChange={(event) => setGarmentId(event.target.value)}
               aria-label="Garment to offer"
-              className="absolute left-0 top-0 h-[64px] w-[54%] max-w-[82%] appearance-none rounded-br-[20px] rounded-tl-[16px] bg-[#F5F5F5] py-3 pl-4 pr-12 text-left text-[16px] font-medium leading-tight text-[#1A1A1A] outline-none sm:text-[20px]"
+              className="absolute left-0 top-0 h-[64px] w-[54%] max-w-[82%] appearance-none rounded-br-[20px] rounded-tl-[16px] bg-foreground py-3 pl-4 pr-12 text-left text-sm font-medium leading-tight text-background outline-none"
             >
               <option value="">Choose a garment</option>
               {garments.map((garment) => <option key={garment.id} value={garment.id}>{garment.name}</option>)}
             </select>
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="pointer-events-none absolute left-[calc(54%-2.75rem)] top-[18px] h-7 w-7 text-[#1A1A1A]">
-              <path d="m5 8 7 7 7-7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <AssetIcon name="chevron-down" width={16} height={9} className="pointer-events-none absolute left-[calc(54%-2.2rem)] top-[27px] text-background" />
           </div>
         ) : (
           <div className="w-full max-w-[360px]">
@@ -190,25 +189,25 @@ export default function CreatePostPage() {
         )}
       </section>
 
-      <section className="shrink-0 border-t border-white/10 bg-[#191919] px-6 pb-6 pt-5">
+      <section className="shrink-0 border-t border-white/10 bg-background pb-6 pt-5">
         {needsGarment && !garmentPhoto && (
           <div className="mb-4">
-            <p className="mb-2 text-[13px]">Which Garment of your closet are you going to post?</p>
+            <p className="mb-2 text-sm">Which Garment of your closet are you going to post?</p>
             {garments.length ? (
-              <select value={garmentId} onChange={(event) => setGarmentId(event.target.value)} aria-label="Garment to offer" className="h-10 w-full rounded-lg bg-white px-3 text-[13px] text-[#1A1A1A]">
+              <select value={garmentId} onChange={(event) => setGarmentId(event.target.value)} aria-label="Garment to offer" className="h-10 w-full rounded-lg bg-white px-3 text-sm text-background">
                 <option value="">Select a garment</option>
                 {garments.map((garment) => <option key={garment.id} value={garment.id}>{garment.name}</option>)}
               </select>
             ) : (
-              <p className="text-xs text-grey">You have no available garments yet. <button type="button" onClick={() => router.push('/create-garment')} className="underline" style={{ color: accent }}>List one</button></p>
+              <p className="text-xs text-grey">You have no available garments yet. <button type="button" onClick={() => router.push('/create-garment')} className="underline min-h-11 min-w-11" style={{ color: accent }}>List one</button></p>
             )}
           </div>
         )}
 
         {postType === 'show off' && (
           <div className="mb-4">
-            <p className="mb-2 text-[13px]">Which Garment are you going to show off?</p>
-            <select value={garmentId} onChange={(event) => setGarmentId(event.target.value)} aria-label="Garment to show off" className="h-10 w-full rounded-lg px-3 text-[13px]" style={{ backgroundColor: accent, color: accentText }}>
+            <p className="mb-2 text-sm">Which Garment are you going to show off?</p>
+            <select value={garmentId} onChange={(event) => setGarmentId(event.target.value)} aria-label="Garment to show off" className="h-10 w-full rounded-lg px-3 text-sm" style={{ backgroundColor: accent, color: accentText }}>
               <option value="">Select a garment (optional)</option>
               {garments.map((garment) => <option key={garment.id} value={garment.id}>{garment.name}</option>)}
             </select>
@@ -217,14 +216,14 @@ export default function CreatePostPage() {
 
         {needsEvent && (
           <div className="mb-4">
-            <p className="mb-2 text-[13px]">Which event are you promoting?</p>
+            <p className="mb-2 text-sm">Which event are you promoting?</p>
             {events.length ? (
-              <select value={eventId} onChange={(event) => setEventId(event.target.value)} aria-label="Event to promote" className="h-10 w-full rounded-lg px-3 text-[13px]" style={{ backgroundColor: accent, color: accentText }}>
+              <select value={eventId} onChange={(event) => setEventId(event.target.value)} aria-label="Event to promote" className="h-10 w-full rounded-lg px-3 text-sm" style={{ backgroundColor: accent, color: accentText }}>
                 <option value="">Select an event</option>
                 {events.map((event) => <option key={event.id} value={event.id}>{event.title}</option>)}
               </select>
             ) : (
-              <p className="text-xs text-grey">You have no events yet. <button type="button" onClick={() => router.push('/create-event')} className="underline" style={{ color: accent }}>Create one</button></p>
+              <p className="text-xs text-grey">You have no events yet. <button type="button" onClick={() => router.push('/create-event')} className="underline min-h-11 min-w-11" style={{ color: accent }}>Create one</button></p>
             )}
           </div>
         )}
@@ -238,7 +237,7 @@ export default function CreatePostPage() {
                 type="button"
                 onClick={() => changeType(type.value)}
                 aria-pressed={active}
-                className="h-10 flex-1 rounded-full border px-2 text-[12px] font-medium transition-colors"
+                className="h-10 flex-1 rounded-full border px-2 text-sm font-medium transition-colors min-h-11 min-w-11"
                 style={active
                   ? { backgroundColor: '#FFFFFF', borderColor: '#FFFFFF', color: '#1A1A1A' }
                   : { backgroundColor: 'transparent', borderColor: '#6C6C6C', color: '#898989' }}
@@ -255,17 +254,17 @@ export default function CreatePostPage() {
           rows={4}
           aria-label="Post caption"
           placeholder={captionPlaceholder}
-          className="w-full resize-none rounded-2xl border border-white/5 bg-[#202020] p-4 text-[13px] leading-5 text-foreground outline-none placeholder:text-grey focus:border-white/20"
+          className="w-full resize-none rounded-2xl border border-white/5 bg-surface p-4 text-sm leading-5 text-foreground outline-none placeholder:text-grey focus:border-white/20"
         />
-        <p className="mt-1 text-right text-[11px] text-grey">{caption.length}/{MAX_CAPTION}</p>
-        {error && <p role="alert" className="mt-2 text-[13px] text-orange">{error}</p>}
+        <p className="mt-1 text-right text-xs text-grey">{caption.length}/{MAX_CAPTION}</p>
+        {error && <p role="alert" className="mt-2 text-sm text-orange">{error}</p>}
 
         <div className="mt-4 border-t border-white/10 pt-4">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="h-[50px] w-full rounded-full text-[15px] font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+            className="button-pill w-full disabled:cursor-not-allowed disabled:opacity-40"
             style={{ backgroundColor: accent, color: accentText }}
           >
             {submitting ? 'Posting…' : 'Post it'}

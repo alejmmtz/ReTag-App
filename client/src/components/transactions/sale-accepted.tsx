@@ -49,30 +49,30 @@ export default function SaleAccepted({
     otherUser?.username ?? 'user';
 
   return (
-    <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto min-h-dvh w-full max-w-[520px] px-6 pb-[140px] pt-20">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg pb-28">
 
         <section className="flex flex-col items-center text-center">
 
           {/* Title */}
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             You sold a Garment
           </h1>
 
           {/* Illustration */}
           <img
-            src="/illustrations/proporsal-sent-2.png"
+            src="/illustrations/proposal-sent.png"
             alt="Garment sold"
             className="mt-6 w-[148px]"
           />
 
           {/* Message */}
-          <p className="mt-6 max-w-[360px] text-[14px] text-white/50">
+          <p className="mt-6 max-w-[360px] text-sm text-foreground/50">
             <span
               className={
                 isStoreSale
                   ? 'text-[#1465FF]'
-                  : 'text-[#C8F66F]'
+                  : 'text-green'
               }
             >
               @{username}
@@ -95,10 +95,10 @@ export default function SaleAccepted({
                 className="h-10 w-10 rounded-lg object-cover"
               />
             ) : (
-              <div className="h-10 w-10 rounded-lg bg-[#F5F5F5]" />
+              <div className="h-10 w-10 rounded-lg bg-foreground" />
             )}
 
-            <p className="text-[14px] font-medium">
+            <p className="text-sm font-medium">
               @{username}
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function SaleAccepted({
             {phone ? (
               <a
                 href={`tel:${phone}`}
-                className="flex w-1/2 items-center justify-center rounded-full bg-[#F5F5F5] py-3 text-[12px] font-medium text-[#1A1A1A] active:scale-[0.98]"
+                className="flex w-1/2 items-center justify-center rounded-full bg-foreground py-3 text-sm font-medium text-background active:scale-[0.98] min-h-11"
               >
                 ☎ Contact
               </a>
@@ -121,7 +121,7 @@ export default function SaleAccepted({
               <button
                 type="button"
                 disabled
-                className="w-1/2 rounded-full bg-[#F5F5F5] py-3 text-[14px] font-medium text-[#1A1A1A] opacity-40"
+                className="w-1/2 rounded-full bg-foreground py-3 text-sm font-medium text-background opacity-40 min-h-11 min-w-11"
               >
                 ☎ Contact
               </button>
@@ -133,7 +133,7 @@ export default function SaleAccepted({
                 href={`https://wa.me/${whatsappPhone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="flex w-1/2 items-center justify-center rounded-full bg-[#C8F66F] py- text-[12px] font-medium text-[#1A1A1A] active:scale-[0.98]"
+                className="flex w-1/2 items-center justify-center rounded-full bg-green py-3 text-sm font-medium text-background active:scale-[0.98] min-h-11"
               >
                 WhatsApp
               </a>
@@ -141,7 +141,7 @@ export default function SaleAccepted({
               <button
                 type="button"
                 disabled
-                className="w-1/2 rounded-full bg-[#C8F66F] py-3 text-[14px] font-medium text-[#1A1A1A] opacity-40"
+                className="w-1/2 rounded-full bg-green py-3 text-sm font-medium text-background opacity-40 min-h-11 min-w-11"
               >
                 WhatsApp
               </button>
@@ -153,11 +153,11 @@ export default function SaleAccepted({
 
         <section className="mt-8">
 
-          <div className="relative overflow-hidden rounded-2xl border-4 border-[#F5F5F5]">
+          <div className="relative overflow-hidden rounded-2xl border-4 border-foreground">
 
             {/* Garment label */}
-            <div className="absolute left-0 top-0 z-10 max-w-[85%] rounded-br-[24px] bg-[#F5F5F5] px-3 py-2 text-[#1A1A1A]">
-              <p className="truncate text-[14px] font-medium">
+            <div className="absolute left-0 top-0 z-10 max-w-[85%] rounded-br-[24px] bg-foreground px-3 py-2 text-background">
+              <p className="truncate text-sm font-medium">
                 {transaction.garment.name}
               </p>
             </div>
@@ -170,7 +170,7 @@ export default function SaleAccepted({
                 className="aspect-square w-full object-cover"
               />
             ) : (
-              <div className="flex aspect-square items-center justify-center bg-[#242424] text-white/50">
+              <div className="flex aspect-square items-center justify-center bg-surface text-foreground/50">
                 No image
               </div>
             )}
@@ -181,18 +181,18 @@ export default function SaleAccepted({
 
       {/* go to activity*/}
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-[#1A1A1A]/95 px-6 py-5 backdrop-blur">
-        <div className="mx-auto w-full max-w-[520px]">
+      <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-20 border-t border-white/10 bg-background/95 px-8 py-5 backdrop-blur">
+        <div className="mx-auto w-full max-w-lg">
 
           <button
             type="button"
             onClick={() => router.push('/activity')}
-            className={`
+            className={`button-pill 
               w-full
-              rounded-full
-              py-4
-              text-[15px]
-              font-medium
+              
+              
+              
+              
               transition-all
               duration-150
               active:scale-[0.98]

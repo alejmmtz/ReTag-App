@@ -1,4 +1,5 @@
 import Image from "next/image";
+import AssetIcon from "../icons/asset-icon";
 import type { AccountFields, RegisterStepProps } from "./types";
 
 type StepTwoProps = RegisterStepProps & {
@@ -16,8 +17,8 @@ export default function StepTwo({
   goToStep,
 }: StepTwoProps) {
   return (
-    <section>
-      <h1 className="text-[28px] leading-tight font-medium tracking-tighter sm:text-[32px]">
+    <section className="w-full">
+      <h1 className="text-2xl leading-tight font-semibold tracking-tight">
         What does the person leading the change look like?
       </h1>
       <div
@@ -44,17 +45,18 @@ export default function StepTwo({
           />
         )}
       </div>
-      <p className="mt-4 text-[16px]">
+      <p className="mt-4 text-sm">
         Leave a good impression, {fields.name}!
       </p>
-      <label className="mt-8 flex py-6 cursor-pointer flex-col items-center justify-center rounded-2xl bg-grey/25 border-2 border-grey text-[16px] transition-all text-white font-medium focus:border-green focus:text-green">
+      <label className="mt-6 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-grey/40 bg-surface/60 px-4 py-6 text-center text-sm font-medium text-foreground active:border-green/60 focus-within:border-green">
+        <AssetIcon name="plus" />
         {preview
           ? "Change your Profile Picture"
           : "Upload your Profile Picture"}
         <input
           type="file"
           accept="image/*"
-          className="sr-only"
+          className="sr-only text-sm"
           onChange={(event) => {
             setPhoto(event.target.files?.[0] ?? null);
             clearError();
@@ -69,14 +71,14 @@ export default function StepTwo({
       <button
         type="button"
         onClick={() => goToStep(3)}
-        className="mt-4 flex w-full items-center justify-center rounded-full bg-green p-3 px-5 text-[16px] font-semibold text-background transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:cursor-wait disabled:opacity-70"
+        className="mt-4 flex w-full items-center justify-center rounded-full bg-green p-3 px-5 text-sm font-semibold text-background transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:cursor-wait disabled:opacity-70 min-h-11 min-w-11"
       >
         {preview ? "Looking Good!" : "Continue Without a Picture"}
       </button>
       <button
         type="button"
         onClick={() => goToStep(1)}
-        className="mt-4 block w-full text-center text-sm font-semibold text-green underline"
+        className="mt-4 block w-full text-center text-sm font-semibold text-green underline min-h-11 min-w-11"
       >
         Return
       </button>

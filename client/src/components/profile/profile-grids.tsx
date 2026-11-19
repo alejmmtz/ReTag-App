@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -11,9 +12,9 @@ function coverOf(images: { url: string; isCover: boolean }[]) {
 
 const RATIOS = ['aspect-[3/4]', 'aspect-square', 'aspect-[4/5]', 'aspect-[3/5]'];
 
-export function PostsGrid({ posts, accent }: { posts: ProfilePost[]; accent: string }) {
+export function PostsGrid({ posts }: { posts: ProfilePost[] }) {
   return (
-    <div className="columns-2 gap-3">
+    <div className="columns-2 gap-6">
       {posts.map((post, index) => {
         const cover = coverOf(post.images);
 
@@ -21,7 +22,7 @@ export function PostsGrid({ posts, accent }: { posts: ProfilePost[]; accent: str
           <Link
             key={post.id}
             href={`/post/${post.id}`}
-            className={`relative mb-3 block w-full break-inside-avoid overflow-hidden rounded-[18px] bg-[#262626] ${RATIOS[index % RATIOS.length]}`}
+            className={`relative mb-6 block w-full break-inside-avoid overflow-hidden rounded-xl bg-surface ${RATIOS[index % RATIOS.length]}`}
           >
             {cover ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -31,15 +32,14 @@ export function PostsGrid({ posts, accent }: { posts: ProfilePost[]; accent: str
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center p-4 text-[13px] leading-snug text-[#D6D6D6]">
+              <div className="flex h-full w-full items-center p-4 text-sm leading-snug text-[#D6D6D6]">
                 {post.caption.slice(0, 90)}
               </div>
             )}
 
-            <span className="absolute bottom-2 left-2 flex items-center gap-1 rounded-full bg-black/60 px-2 py-[2px] text-[12px]">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill={accent} aria-hidden>
-                <path d="M12 21s-7.5-4.6-9.6-9.1C.9 8.6 2.7 5 6.2 5c2 0 3.3 1.1 4 2.2L12 9.5l1.8-2.3C14.5 6.1 15.8 5 17.8 5c3.5 0 5.3 3.6 3.8 6.9C19.5 16.4 12 21 12 21z" />
-              </svg>
+            <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/80 to-transparent" />
+            <span className="absolute bottom-3 left-3 flex items-center gap-1.5 text-xs font-medium tabular-nums text-foreground">
+              <AssetIcon name="like" width={20} height={20} />
               {post.likesCount ?? 0}
             </span>
           </Link>
@@ -88,10 +88,10 @@ export function ClosetGrid({
 
   return (
     <div>
-      <h2 className="mb-3 text-[18px] font-semibold">{title}</h2>
+      <h2 className="mb-3 text-base font-semibold">{title}</h2>
 
       {categories.length > 1 && (
-        <div className="-mx-6 mb-4 flex gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none]">
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
           {categories.map((name) => {
             const active = name === category;
 
@@ -100,7 +100,8 @@ export function ClosetGrid({
                 key={name}
                 type="button"
                 onClick={() => setCategory(name)}
-                className="h-[34px] shrink-0 rounded-full border px-4 text-[13px] font-medium"
+                aria-pressed={active}
+                className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium"
                 style={
                   active
                     ? { backgroundColor: accent, borderColor: accent, color: accentText }
@@ -114,13 +115,13 @@ export function ClosetGrid({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid min-w-0 grid-cols-2 gap-x-4 gap-y-6">
         {visible.map((garment) => {
           const cover = coverOf(garment.images);
 
           return (
             <Link key={garment.id} href={`/garment/${garment.id}`} className="block">
-              <div className="aspect-[4/5] overflow-hidden rounded-[18px] bg-[#262626]">
+              <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-surface">
                 {cover ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -129,17 +130,17 @@ export function ClosetGrid({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-[12px] text-[#6C6C6C]">
+                  <div className="flex h-full w-full items-center justify-center text-xs text-[#6C6C6C]">
                     No photo
                   </div>
                 )}
               </div>
 
-              <p className="mt-2 truncate text-[14px] font-medium">{garment.name}</p>
-              <p className="truncate text-[12px] text-[#8A8A8A]">
+              <p className="mt-2 truncate text-sm font-medium">{garment.name}</p>
+              <p className="truncate text-xs text-grey">
                 {[garment.brand?.name, garment.size?.label].filter(Boolean).join(' · ')}
               </p>
-              <p className="text-[13px] font-medium" style={{ color: accent }}>
+              <p className="text-sm font-medium" style={{ color: accent }}>
                 {priceLabel(garment)}
               </p>
             </Link>

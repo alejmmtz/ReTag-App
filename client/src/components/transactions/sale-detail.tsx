@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import { useRouter } from 'next/navigation';
 import type {
   Transaction,
@@ -57,40 +58,40 @@ export default function SaleDetail({
   const image = getGarmentImage(transaction);
 
   return (
-    <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto min-h-dvh w-full max-w-[520px]">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg">
 
         {/* Header */}
         <header
         className={`
-            flex items-center gap-4
-            border-b-1
-            px-7 pb-5 pt-12
-            border-[#2E2E2E]
-        `}
+ flex items-center gap-4
+ border-b-1
+ pb-6 
+ border-line
+ `}
         >
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-[24px]"
+            className="text-sm min-h-11 min-w-11"
             aria-label="Go back"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
 
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             Go back
           </h1>
         </header>
 
         {/* Purchase information */}
         <section
-          className={`px-7 pt-10 ${
-            transaction.status === 'pending' &&
-            !isBuyer
-              ? 'pb-32'
-              : 'pb-7'
-          }`}
+          className={` pt-10 ${
+ transaction.status === 'pending' &&
+ !isBuyer
+ ? 'pb-32'
+ : 'pb-7'
+ }`}
         >
 
           {/* Garment */}
@@ -103,24 +104,24 @@ export default function SaleDetail({
                 className="h-[85px] w-[90px] rounded-xl object-cover"
               />
             ) : (
-              <div className="h-[85px] w-[110px] rounded-xl bg-[#242424]" />
+              <div className="h-[85px] w-[110px] rounded-xl bg-surface" />
             )}
 
             <div>
-              <h2 className="text-[18px] font-medium">
+              <h2 className="text-base font-semibold">
                 {transaction.garment.name}
                 </h2>
 
                 {/* Garment size */}
             {transaction.garment.size && (
-            <p className="mt-2 text-[14px] text-white/50">
+            <p className="mt-2 text-sm text-foreground/50">
                 Size {transaction.garment.size.label}
             </p>
             )}
 
                 {/* Garment condition */}
             {transaction.garment.condition && (
-            <p className="mt-1 text-[14px] text-white/50">
+            <p className="mt-1 text-sm text-foreground/50">
                 {transaction.garment.condition.charAt(0).toUpperCase() +
                 transaction.garment.condition.slice(1)}
             </p>
@@ -138,15 +139,15 @@ export default function SaleDetail({
                 className="h-10 w-10 rounded-full object-cover"
               />
             ) : (
-              <div className="h-10 w-10 rounded-full bg-[#F5F5F5]" />
+              <div className="h-10 w-10 rounded-full bg-foreground" />
             )}
 
             <div>
-              <p className="text-[14px] font-medium">
+              <p className="text-sm font-medium">
                 @{otherUser?.username ?? 'user'}
               </p>
 
-              <p className="text-[13px] text-white/50">
+              <p className="text-sm text-foreground/50">
                 {isBuyer ? 'Seller' : 'Buyer'}
               </p>
             </div>
@@ -155,8 +156,8 @@ export default function SaleDetail({
           {/* Price */}
           <div className="mt-10">
 
-            <div className="flex justify-between py-3 text-[15px]">
-              <span className="text-white/50">
+            <div className="flex justify-between py-3 text-sm">
+              <span className="text-foreground/50">
                 Price
               </span>
 
@@ -165,8 +166,8 @@ export default function SaleDetail({
               </span>
             </div>
 
-            <div className="flex justify-between border-b border-white/10 py-3 text-[15px]">
-              <span className="text-white/50">
+            <div className="flex justify-between border-b border-white/10 py-3 text-sm">
+              <span className="text-foreground/50">
                 Shipping
               </span>
 
@@ -196,9 +197,9 @@ export default function SaleDetail({
         {/* Seller can accept or reject purchase */}
         {transaction.status === 'pending' &&
           !isBuyer && (
-            <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#2E2E2E] bg-[#1A1A1A]/95 px-7 py-5">
+            <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-20 border-t border-line bg-background/95 px-8 py-5">
 
-              <div className="mx-auto flex max-w-[520px] gap-3">
+              <div className="mx-auto flex max-w-lg gap-3">
 
                 {/* Reject */}
                 <button
@@ -207,7 +208,7 @@ export default function SaleDetail({
                   onClick={() =>
                     onUpdateStatus('canceled')
                   }
-                  className="w-1/2 rounded-full border border-[#F5F5F5] py-3 text-[14px] font-medium active:scale-[0.98] disabled:opacity-40"
+                  className="w-1/2 rounded-full border border-foreground py-3 text-sm font-medium active:scale-[0.98] disabled:opacity-40 min-h-11 min-w-11"
                 >
                   Reject
                 </button>
@@ -219,12 +220,12 @@ export default function SaleDetail({
                 onClick={() =>
                     onUpdateStatus('in_progress')
                 }
-                className={`
+                className={`button-pill 
                     w-1/2
-                    rounded-full
-                    py-4
-                    text-[14px]
-                    font-medium
+                    
+                    
+                    
+                    
                     active:scale-[0.98]
                     disabled:opacity-40
                     ${accentBackground}

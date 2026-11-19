@@ -1,5 +1,6 @@
 'use client';
 
+import CreateAction from '../navigation/create-action';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -28,7 +29,7 @@ const PAGE_SIZE = 10;
 
 const THEME = {
   user: { accent: '#C8F66F', text: '#1A1A1A', glow: 'rgba(200,246,111,0.45)' },
-  store: { accent: '#2864E8', text: '#FFFFFF', glow: 'rgba(40,100,232,0.5)' },
+  store: { accent: '#1D5CEB', text: '#FFFFFF', glow: 'rgba(29,92,235,0.5)' },
 } as const;
 
 type Props = {
@@ -207,15 +208,15 @@ export default function FeedScreen({ role }: Props) {
   }
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[130px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-16">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
         {/* Header */}
         <header className="flex items-center justify-between gap-4">
-          <h1 className="text-[22px] font-medium leading-tight">
+          <h1 className="min-w-0 break-words text-xl font-semibold leading-tight">
             Keep it Circular{name ? `, ${name}` : ''}!
           </h1>
 
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-4">
             <Link href="/notifications" aria-label="Notifications">
               <HeartIcon />
             </Link>
@@ -228,14 +229,14 @@ export default function FeedScreen({ role }: Props) {
           </div>
         </header>
 
-        <label className="mt-6 flex h-[48px] items-center gap-3 rounded-full border border-[#6C6C6C] px-4 text-[#8A8A8A]">
+        <label className="mt-6 flex h-12 items-center gap-3 rounded-full border border-[#6C6C6C] px-4 text-grey">
           <SearchIcon />
           <input
             type="search"
             value={searchText}
             onChange={(event) => setSearchText(event.target.value)}
             placeholder="Search for users and stores..."
-            className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-[#8A8A8A]"
+            className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-grey min-h-11"
           />
         </label>
 
@@ -262,7 +263,7 @@ export default function FeedScreen({ role }: Props) {
             {[0, 1].map((item) => (
               <div
                 key={item}
-                className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-[#262626]"
+                className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-surface"
               />
             ))}
           </div>
@@ -279,11 +280,11 @@ export default function FeedScreen({ role }: Props) {
               className="h-auto w-[150px] brightness-0 invert"
             />
 
-            <h2 className="mt-8 text-[20px] font-medium">
+            <h2 className="mt-8 text-base font-semibold">
               We couldn’t find any posts
             </h2>
 
-            <p className="mt-2 text-[15px] text-[#8A8A8A]">
+            <p className="mt-2 text-sm text-grey">
               {error
                 ? 'Don’t worry, looks like you are offline.'
                 : filter === 'following'
@@ -295,7 +296,7 @@ export default function FeedScreen({ role }: Props) {
               <button
                 type="button"
                 onClick={() => setReloadKey((previous) => previous + 1)}
-                className="mt-6 h-[44px] rounded-full px-8 text-[15px] font-medium"
+                className="mt-6 h-[44px] rounded-full px-8 text-sm font-medium min-h-11 min-w-11"
                 style={{ backgroundColor: theme.accent, color: theme.text }}
               >
                 Try again
@@ -311,13 +312,14 @@ export default function FeedScreen({ role }: Props) {
               <PostCard
                 key={post.id}
                 post={post}
+                viewerRole={role}
                 showFollowing={filter === 'following'}
                 onToggleLike={toggleLike}
               />
             ))}
 
             {loadingMore && (
-              <p className="py-4 text-center text-[#8A8A8A]">Loading...</p>
+              <p className="py-4 text-center text-grey">Loading...</p>
             )}
 
             <div ref={sentinelRef} className="h-1" />
@@ -327,21 +329,7 @@ export default function FeedScreen({ role }: Props) {
         )}
       </div>
 
-      <div className="pointer-events-none fixed bottom-[112px] left-1/2 z-40 flex w-full max-w-[560px] -translate-x-1/2 justify-end px-6">
-        <button
-          type="button"
-          onClick={() => setSheetOpen(true)}
-          aria-label="Create"
-          className="pointer-events-auto flex h-[60px] w-[60px] items-center justify-center rounded-full text-[30px] font-light"
-          style={{
-            backgroundColor: theme.accent,
-            color: theme.text,
-            boxShadow: `0 0 24px ${theme.glow}`,
-          }}
-        >
-          +
-        </button>
-      </div>
+      <CreateAction role={role} open={sheetOpen} onClick={() => setSheetOpen(true)} />
 
       {role === 'store' ? (
         <StoreCreateSheet

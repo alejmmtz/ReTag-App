@@ -1,5 +1,7 @@
 'use client';
 
+import CreateAction from '../navigation/create-action';
+import AssetIcon from '../icons/asset-icon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
@@ -24,7 +26,7 @@ import type {
 } from './profile-types';
 
 const PAGE_SIZE = 12;
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
 
 type Tab = 'posts' | 'closet' | 'events';
 
@@ -220,12 +222,12 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-24 text-center text-white">
-        <p className="text-[15px] text-[#8A8A8A]">{error}</p>
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <p className="text-sm text-grey">{error}</p>
         <button
           type="button"
           onClick={() => router.back()}
-          className="mt-6 h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px]"
+          className="button-pill mt-6 border border-[#6C6C6C]"
         >
           Go back
         </button>
@@ -235,11 +237,11 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
   if (!user || !me || !posts || !garments || (storeMode && !store)) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
-        <div className="mx-auto w-full max-w-[560px] space-y-4">
-          <div className="h-[84px] w-full animate-pulse rounded-[22px] bg-[#262626]" />
-          <div className="h-[72px] w-full animate-pulse rounded-[18px] bg-[#262626]" />
-          <div className="h-[240px] w-full animate-pulse rounded-[18px] bg-[#262626]" />
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <div className="mx-auto w-full max-w-lg space-y-4">
+          <div className="h-[84px] w-full animate-pulse rounded-[22px] bg-surface" />
+          <div className="h-[72px] w-full animate-pulse rounded-[18px] bg-surface" />
+          <div className="h-[240px] w-full animate-pulse rounded-[18px] bg-surface" />
         </div>
       </main>
     );
@@ -269,11 +271,11 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
   const current = tab === 'closet' ? garments : posts;
   const hasMore = !showingEvents && current.meta.page < current.meta.totalPages;
 
-  const dim = '#8A8A8A';
+  const dim = '#898989';
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[190px] text-white">
-      <div className="mx-auto w-full max-w-[560px]">
+    <main className="mx-auto min-h-dvh w-full max-w-lg bg-background pb-12 text-foreground page-enter">
+      <div className="mx-auto w-full max-w-lg mb-40">
         <ProfileHeader
           user={user}
           store={store}
@@ -289,7 +291,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 type="button"
                 onClick={toggleFollow}
                 disabled={followBusy}
-                className="h-[40px] rounded-full border px-6 text-[14px] font-medium disabled:opacity-50"
+                className="button-pill border disabled:opacity-50"
                 style={
                   following
                     ? { borderColor: '#6C6C6C', color: '#F5F5F5' }
@@ -301,7 +303,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
             ) : (
               <Link
                 href="/profile/edit"
-                className="inline-flex h-[40px] items-center rounded-full border px-6 text-[14px] font-medium"
+                className="button-pill border"
                 style={{ borderColor: accent, color: accent }}
               >
                 Edit profile
@@ -310,10 +312,12 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
           }
         />
 
-        <div className="px-6">
+        <div className="min-w-0 px-8">
           {/* Pestañas */}
           <div
-            className="mt-6 grid border-b border-[#2A2A2A]"
+            role="tablist"
+            aria-label="Profile content"
+            className="grid min-w-0 border-b border-line"
             style={{ gridTemplateColumns: `repeat(${tabs.length}, 1fr)` }}
           >
             {tabs.map((item) => {
@@ -324,22 +328,31 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               return (
                 <button
                   key={item}
+                  id={`profile-${item}-tab`}
+                  role="tab"
+                  aria-selected={active}
+                  aria-controls={`profile-${item}-panel`}
                   type="button"
                   onClick={() => setTab(item)}
-                  className="flex items-center justify-center gap-2 pb-3 text-[15px] font-medium"
+                  className="flex min-h-16 min-w-0 items-center justify-center gap-2 rounded-t-3xl px-3 py-4 text-sm font-medium transition-[color,background-color,border-color]"
                   style={{
                     color: active ? '#F5F5F5' : dim,
-                    borderBottom: `2px solid ${active ? accent : 'transparent'}`,
+                    backgroundColor: active ? 'var(--color-surface)' : 'transparent',
+                    borderBottom: `2px solid ${active ? '#F5F5F5' : 'transparent'}`,
                   }}
                 >
                   {item === 'posts' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    <AssetIcon
+                      name="posts"
+                      width={20}
+                      height={20}
+                    />
                   )}
                   {item === 'closet' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 7a2 2 0 1 0-2-2"/><path d="m12 7 9 6a1 1 0 0 1-.6 1.8H3.6A1 1 0 0 1 3 13l9-6z"/></svg>
+                    <AssetIcon name="garment" width={20} height={20} />
                   )}
                   {item === 'events' && (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+                    <AssetIcon name="calendar" width={20} height={20} />
                   )}
                   {label}
                 </button>
@@ -347,10 +360,10 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
             })}
           </div>
 
-          <div className="mt-5">
+          <div key={tab} id={`profile-${tab}-panel`} role="tabpanel" aria-labelledby={`profile-${tab}-tab`} className="mt-8 page-enter">
             {showingEvents ? (
               events.length === 0 ? (
-                <p className="py-12 text-center text-[14px] text-[#8A8A8A]">No events yet.</p>
+                <p className="py-12 text-center text-sm text-grey">No events yet.</p>
               ) : (
                 <div className="space-y-4">
                   {events.map((event) => (
@@ -359,11 +372,11 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 </div>
               )
             ) : current.data.length === 0 ? (
-              <p className="py-12 text-center text-[14px] text-[#8A8A8A]">
+              <p className="py-12 text-center text-sm text-grey">
                 {tab === 'posts' ? 'No posts yet.' : 'Nothing in the closet yet.'}
               </p>
             ) : tab === 'posts' ? (
-              <PostsGrid posts={posts.data} accent={accent} />
+              <PostsGrid posts={posts.data} />
             ) : (
               <ClosetGrid
                 garments={garments.data}
@@ -384,7 +397,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 type="button"
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="mx-auto mt-6 block h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px] disabled:opacity-50"
+                className="button-pill mx-auto mt-6 block border border-[#6C6C6C] disabled:opacity-50"
               >
                 {loadingMore ? 'Loading...' : 'Load more'}
               </button>
@@ -395,21 +408,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
       {isOwn && (
         <>
-          <div className="pointer-events-none fixed bottom-[112px] left-1/2 z-40 flex w-full max-w-[560px] -translate-x-1/2 justify-end px-6">
-            <button
-              type="button"
-              onClick={() => setSheetOpen(true)}
-              aria-label="Create"
-              className="pointer-events-auto flex h-[60px] w-[60px] items-center justify-center rounded-full text-[30px] font-light"
-              style={{
-                backgroundColor: accent,
-                color: accentText,
-                boxShadow: `0 0 24px ${accent}66`,
-              }}
-            >
-              +
-            </button>
-          </div>
+          <CreateAction role={me.role} open={sheetOpen} onClick={() => setSheetOpen(true)} />
 
           {me.role === 'store' ? (
             <StoreCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />

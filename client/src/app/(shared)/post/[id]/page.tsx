@@ -14,7 +14,7 @@ async function PostById({ params }: Props) {
 
 export default function PostPage({ params }: Props) {
   return (
-    <Suspense fallback={<main className="min-h-screen bg-[#191919]" />}>
+    <Suspense fallback={<main className="bg-background mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter" />}>
       <PostById params={params} />
     </Suspense>
   );

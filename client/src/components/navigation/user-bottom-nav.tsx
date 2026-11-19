@@ -49,25 +49,25 @@ export default function UserBottomNav() {
     return pathname.startsWith(href);
   }
 
-  function getIcon(icon: NavItem['icon']) {
+  function getIcon(icon: NavItem['icon'], active: boolean) {
     if (icon === 'home') {
-      return <HomeIcon />;
+      return <HomeIcon active={active} />;
     }
 
     if (icon === 'events') {
-      return <CalendarIcon />;
+      return <CalendarIcon active={active} />;
     }
 
     if (icon === 'activity') {
-      return <ActivityIcon />;
+      return <ActivityIcon active={active} />;
     }
 
-    return <ProfileIcon />;
+    return <ProfileIcon active={active} />;
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 mx-auto h-[92px] w-full max-w-[560px] border-t border-[#303030] bg-[#171717]">
-      <div className="grid h-full grid-cols-4">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 mx-auto h-23 w-full max-w-lg border-t border-line bg-[#171717] px-8">
+      <div className="grid h-full grid-cols-4 min-w-0">
         {navItems.map((item) => {
           const active = isActive(item.href);
 
@@ -75,15 +75,16 @@ export default function UserBottomNav() {
             <Link
               key={item.label}
               href={item.href}
+              aria-current={active ? "page" : undefined}
               className={`flex flex-col items-center justify-center gap-[6px] ${
                 active
-                  ? 'text-white'
-                  : 'text-[#4E4E4E]'
+                  ? 'text-foreground'
+                  : 'text-grey'
               }`}
             >
-              {getIcon(item.icon)}
+              {getIcon(item.icon, active)}
 
-              <span className="text-[12px]">
+              <span className="text-xs">
                 {item.label}
               </span>
             </Link>

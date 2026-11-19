@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -8,11 +9,11 @@ import { ApiError, authFetch, clearSession } from '../../lib/http';
 import { uploadImage } from '../../lib/uploads';
 import type { ProfileUser, StoreProfile } from './profile-types';
 
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
 const MAX_DESCRIPTION = 300;
 
 const UNDERLINE =
-  'w-full border-b border-[#4A4A4A] bg-transparent pb-2 text-[16px] text-white outline-none placeholder:text-[#8A8A8A] focus:border-white';
+  'min-h-11 w-full border-b border-line bg-transparent pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:border-foreground';
 
 export default function EditProfileForm() {
   const router = useRouter();
@@ -98,18 +99,18 @@ export default function EditProfileForm() {
 
   if (loadError) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-24 text-center text-white">
-        <p className="text-[15px] text-[#8A8A8A]">{loadError}</p>
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <p className="text-sm text-grey">{loadError}</p>
       </main>
     );
   }
 
   if (!me) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
-        <div className="mx-auto w-full max-w-[560px] space-y-4">
-          <div className="mx-auto h-[112px] w-[112px] animate-pulse rounded-full bg-[#262626]" />
-          <div className="h-[40px] w-full animate-pulse rounded-full bg-[#262626]" />
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <div className="mx-auto w-full max-w-lg space-y-4">
+          <div className="mx-auto h-[112px] w-[112px] animate-pulse rounded-full bg-surface" />
+          <div className="h-[40px] w-full animate-pulse rounded-full bg-surface" />
         </div>
       </main>
     );
@@ -201,18 +202,18 @@ export default function EditProfileForm() {
   }
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[170px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-32">
         <header className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[40px] w-[40px] items-center justify-center text-[28px]"
+            className="flex h-[40px] w-[40px] items-center justify-center text-sm min-h-11 min-w-11"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
-          <h1 className="text-[20px] font-medium">Edit profile</h1>
+          <h1 className="text-xl font-semibold">Edit profile</h1>
         </header>
 
         {/* Portada (solo tienda) */}
@@ -222,19 +223,20 @@ export default function EditProfileForm() {
               ref={coverInput}
               type="file"
               accept="image/*"
-              className="hidden"
+              className="hidden text-sm"
               onChange={(event) => pick(event, setCoverFile, setCoverUrl)}
             />
             <button
               type="button"
               onClick={() => coverInput.current?.click()}
-              className="relative flex h-[140px] w-full items-center justify-center overflow-hidden rounded-[22px] bg-[#262626] text-[14px] text-[#D6D6D6]"
+              className="relative flex h-[140px] w-full items-center justify-center overflow-hidden rounded-[22px] bg-surface text-sm text-[#D6D6D6] min-h-11 min-w-11"
             >
               {coverUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
               )}
-              <span className="relative rounded-full bg-black/60 px-4 py-2">
+              <span className="image-overlay relative inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2">
+                <AssetIcon name={coverUrl ? "image" : "plus"} width={18} height={18} />
                 {coverUrl ? 'Change cover' : 'Add a cover photo'}
               </span>
             </button>
@@ -247,17 +249,17 @@ export default function EditProfileForm() {
             ref={photoInput}
             type="file"
             accept="image/*"
-            className="hidden"
+            className="hidden text-sm"
             onChange={(event) => pick(event, setPhotoFile, setPhotoUrl)}
           />
           <button
             type="button"
             onClick={() => photoInput.current?.click()}
             aria-label="Change profile photo"
-            className="relative"
+            className="relative min-h-11 min-w-11"
           >
             <span
-              className="flex h-[112px] w-[112px] items-center justify-center overflow-hidden rounded-full text-[40px] font-medium"
+              className="flex h-[112px] w-[112px] items-center justify-center overflow-hidden rounded-full text-xl font-medium"
               style={{ backgroundColor: accent, color: accentText }}
             >
               {photoUrl ? (
@@ -268,23 +270,20 @@ export default function EditProfileForm() {
               )}
             </span>
             <span
-              className="absolute bottom-0 right-0 flex h-[36px] w-[36px] items-center justify-center rounded-full border-[3px] border-[#191919]"
+              className="absolute bottom-0 right-0 flex h-[36px] w-[36px] items-center justify-center rounded-full border-[3px] border-background"
               style={{ backgroundColor: accent, color: accentText }}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                <circle cx="12" cy="13" r="4" />
-              </svg>
+              <AssetIcon name="image" width={20} height={20} />
             </span>
           </button>
-          <p className="mt-3 text-[13px] text-[#9A9A9A]">Tap to change your photo</p>
+          <p className="mt-3 text-sm text-grey">Tap to change your photo</p>
         </section>
 
         {/* Campos */}
         {isStore ? (
           <>
             <section className="mt-6">
-              <label className="text-[13px] text-[#9A9A9A]" htmlFor="store-name">Store name</label>
+              <label className="text-sm text-grey" htmlFor="store-name">Store name</label>
               <input
                 id="store-name"
                 value={storeName}
@@ -294,7 +293,7 @@ export default function EditProfileForm() {
             </section>
 
             <section className="mt-6">
-              <label className="text-[13px] text-[#9A9A9A]" htmlFor="store-handle">Social media handle</label>
+              <label className="text-sm text-grey" htmlFor="store-handle">Social media handle</label>
               <input
                 id="store-handle"
                 value={handle}
@@ -305,7 +304,7 @@ export default function EditProfileForm() {
             </section>
 
             <section className="mt-6">
-              <label className="text-[13px] text-[#9A9A9A]" htmlFor="store-location">Location</label>
+              <label className="text-sm text-grey" htmlFor="store-location">Location</label>
               <input
                 id="store-location"
                 value={location}
@@ -318,7 +317,7 @@ export default function EditProfileForm() {
         ) : (
           <>
             <section className="mt-6">
-              <label className="text-[13px] text-[#9A9A9A]" htmlFor="profile-name">Name</label>
+              <label className="text-sm text-grey" htmlFor="profile-name">Name</label>
               <input
                 id="profile-name"
                 value={name}
@@ -328,7 +327,7 @@ export default function EditProfileForm() {
             </section>
 
             <section className="mt-6">
-              <label className="text-[13px] text-[#9A9A9A]" htmlFor="profile-username">Username</label>
+              <label className="text-sm text-grey" htmlFor="profile-username">Username</label>
               <input
                 id="profile-username"
                 value={username}
@@ -345,27 +344,27 @@ export default function EditProfileForm() {
             onChange={(event) => setDescription(event.target.value.slice(0, MAX_DESCRIPTION))}
             rows={4}
             placeholder="Bio: tell the community about you..."
-            className="w-full resize-none rounded-[22px] bg-[#262626] p-4 text-[14px] text-white outline-none placeholder:text-[#8A8A8A]"
+            className="w-full resize-none rounded-[22px] bg-surface p-4 text-sm text-foreground outline-none placeholder:text-grey"
           />
-          <p className="mt-1 text-right text-[12px] text-[#8A8A8A]">
+          <p className="mt-1 text-right text-xs text-grey">
             {description.length}/{MAX_DESCRIPTION}
           </p>
         </section>
 
         {error && (
-          <p className="mt-2 text-[13px] text-[#FB3F0F]" role="alert">
+          <p className="mt-2 text-sm text-orange" role="alert">
             {error}
           </p>
         )}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#191919] via-[#191919] to-transparent pb-8 pt-6">
-        <div className="mx-auto w-full max-w-[560px] px-6">
+      <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-40 bg-gradient-to-t from-background via-background to-transparent pb-8 pt-6 px-8">
+        <div className="mx-auto w-full max-w-lg">
           <button
             type="button"
             onClick={handleSave}
             disabled={!canSave}
-            className="h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
+            className="button-pill w-full disabled:opacity-40"
             style={{ backgroundColor: accent, color: accentText }}
           >
             {saving ? 'Saving...' : 'Save changes'}

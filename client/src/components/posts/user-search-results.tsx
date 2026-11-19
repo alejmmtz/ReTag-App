@@ -65,7 +65,7 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
         {[0, 1, 2].map((item) => (
           <div
             key={item}
-            className="h-[64px] w-full animate-pulse rounded-[18px] bg-[#262626]"
+            className="h-[64px] w-full animate-pulse rounded-[18px] bg-surface"
           />
         ))}
       </div>
@@ -74,7 +74,7 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
 
   if (failed) {
     return (
-      <p className="mt-10 text-center text-[14px] text-[#FB3F0F]" role="alert">
+      <p className="mt-10 text-center text-sm text-orange" role="alert">
         We could not search right now.
       </p>
     );
@@ -82,7 +82,7 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
 
   if (results.length === 0) {
     return (
-      <p className="mt-10 text-center text-[14px] text-[#9A9A9A]">
+      <p className="mt-10 text-center text-sm text-grey">
         No users or stores match &ldquo;{term}&rdquo;.
       </p>
     );
@@ -97,12 +97,12 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
           <li key={user.id}>
             <Link
               href={`/profile/${user.id}`}
-              className="flex items-center gap-3 rounded-[18px] bg-[#262626] p-3"
+              className="flex items-center gap-3 rounded-[18px] bg-surface p-3"
             >
               <span
-                className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full text-[16px] font-medium"
+                className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-medium"
                 style={{
-                  backgroundColor: user.role === 'store' ? '#2864E8' : '#C8F66F',
+                  backgroundColor: user.role === 'store' ? '#1D5CEB' : '#C8F66F',
                   color: user.role === 'store' ? '#FFFFFF' : '#1A1A1A',
                 }}
               >
@@ -115,13 +115,13 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
               </span>
 
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[15px] font-medium">{shownName}</span>
-                <span className="block truncate text-[13px] text-[#9A9A9A]">@{user.username}</span>
+                <span className="block truncate text-sm font-medium">{shownName}</span>
+                <span className="block truncate text-sm text-grey">@{user.username}</span>
               </span>
 
               {user.role === 'store' && (
                 <span
-                  className="shrink-0 rounded-full px-3 py-1 text-[12px] font-medium"
+                  className="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
                   style={{ backgroundColor: accent, color: accentText }}
                 >
                   Store

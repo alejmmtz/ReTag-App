@@ -7,6 +7,88 @@
   --color-blue: var(--blue);
   --color-grey: var(--grey);
   --color-orange: var(--orange);
+  --color-surface: #202020;
+  --color-line: #303030;
+}
+
+@layer base {
+  body {
+    @apply text-sm leading-relaxed;
+  }
+
+  h1 {
+    @apply text-xl font-semibold leading-tight tracking-tight;
+  }
+
+  h2, h3, h4 {
+    @apply text-base font-semibold leading-snug tracking-tight;
+  }
+
+  :where(button, a, input, textarea, select, summary, label) {
+    -webkit-tap-highlight-color: transparent;
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-duration: 200ms;
+    transition-timing-function: ease-out;
+  }
+
+  :where(button:not(:disabled), a[href], summary, label:has(input[type="file"])):active {
+    opacity: 0.75;
+  }
+
+  :where(button, a, input, textarea, select, summary):focus-visible {
+    outline: 2px solid var(--green);
+    outline-offset: 4px;
+  }
+
+  :where(input, textarea, select) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  :where(button, a, input, textarea, select):disabled {
+    cursor: not-allowed;
+  }
+
+  ::selection {
+    background: var(--green);
+    color: var(--background);
+  }
+}
+
+@utility page-enter {
+  animation: page-enter 220ms ease-out both;
+}
+
+@layer components {
+  .button-pill {
+    @apply inline-flex min-h-12 min-w-0 items-center justify-center gap-2 rounded-full px-5 py-3 text-center text-sm font-semibold leading-5;
+  }
+
+  .button-icon {
+    @apply inline-flex size-11 shrink-0 items-center justify-center rounded-full p-2.5;
+  }
+
+  .image-overlay {
+    @apply bg-grey/75 text-foreground backdrop-blur-md ring-1 ring-foreground/10 shadow-sm shadow-background/15;
+  }
+
+  .floating-action {
+    @apply pointer-events-auto inline-flex size-14 shrink-0 items-center justify-center rounded-full p-4 shadow-lg shadow-background/25 ring-1 ring-foreground/10 active:scale-95;
+  }
+}
+
+@keyframes page-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 input:-webkit-autofill,

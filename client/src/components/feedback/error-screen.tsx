@@ -8,8 +8,8 @@ export default function ErrorScreen({
   message = 'Something went wrong.',
 }: ErrorScreenProps) {
   return (
-    <main className="flex min-h-dvh bg-[#1A1A1A] px-6 text-[#F5F5F5]">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col items-center justify-center text-center">
+    <main className="flex bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 page-enter">
+      <div className="mx-auto flex w-full max-w-lg flex-col items-center justify-center text-center">
 
         <img
           src="/illustrations/error.png"
@@ -17,11 +17,11 @@ export default function ErrorScreen({
           className="mb-8 w-[150px]"
         />
 
-        <h1 className="text-[20px] font-medium">
+        <h1 className="text-xl font-semibold">
           {title}
         </h1>
 
-        <p className="mt-2 text-[16px] text-[#8A8A8A]">
+        <p className="mt-2 text-sm text-grey">
           {message}
         </p>
       </div>

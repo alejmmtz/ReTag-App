@@ -23,23 +23,23 @@ export default function TradeAccepted({
   const whatsappPhone = phone.replace(/\D/g, '');
 
   return (
-    <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto min-h-dvh w-full max-w-[520px] px-6 pb-[140px] pt-20">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg pb-28">
 
         <section className="flex flex-col items-center text-center">
 
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             Your proposal was accepted!
           </h1>
 
           {/* Illustration */}
           <img
-            src="/illustrations/proporsal-sent-2.png"
+            src="/illustrations/proposal-sent.png"
             alt="Trade accepted"
             className="mt-6 w-[148px]"
           />
 
-          <p className="mt-6 text-[14px] text-white/50">
+          <p className="mt-6 text-sm text-foreground/50">
             Get in touch to coordinate the exchange.
           </p>
         </section>
@@ -57,10 +57,10 @@ export default function TradeAccepted({
                 className="h-10 w-10 rounded-lg object-cover"
               />
             ) : (
-              <div className="h-10 w-10 rounded-lg bg-[#F5F5F5]" />
+              <div className="h-10 w-10 rounded-lg bg-foreground" />
             )}
 
-            <p className="text-[14px] font-medium">
+            <p className="text-sm font-medium">
               @{otherUser?.username ?? 'user'}
             </p>
           </div>
@@ -72,17 +72,7 @@ export default function TradeAccepted({
             {phone ? (
               <a
                 href={`tel:${phone}`}
-                className="
-                  flex w-1/2
-                  items-center justify-center
-                  rounded-full
-                  bg-[#F5F5F5]
-                  py-3
-                  text-[12px]
-                  font-medium
-                  text-[#1A1A1A]
-                  active:scale-[0.98]
-                "
+                className="flex w-1/2 items-center justify-center rounded-full bg-foreground py-3 text-sm font-medium text-background active:scale-[0.98] min-h-11"
               >
                 ☎  Contact
               </a>
@@ -90,7 +80,7 @@ export default function TradeAccepted({
               <button
                 type="button"
                 disabled
-                className="w-1/2 rounded-full bg-[#F5F5F5] py-2 text-[14px] font-medium text-[#1A1A1A] opacity-40"
+                className="w-1/2 rounded-full bg-foreground py-2 text-sm font-medium text-background opacity-40 min-h-11 min-w-11"
               >
                 ☎ Contact
               </button>
@@ -102,17 +92,7 @@ export default function TradeAccepted({
                 href={`https://wa.me/${whatsappPhone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="
-                  flex w-1/2
-                  items-center justify-center
-                  rounded-full
-                  bg-[#C8F66F]
-                  py-3
-                  text-[12px]
-                  font-medium
-                  text-[#1A1A1A]
-                  active:scale-[0.98]
-                "
+                className="flex w-1/2 items-center justify-center rounded-full bg-green py-3 text-sm font-medium text-background active:scale-[0.98] min-h-11"
               >
                 WhatsApp
               </a>
@@ -120,7 +100,7 @@ export default function TradeAccepted({
               <button
                 type="button"
                 disabled
-                className="w-1/2 rounded-full bg-[#C8F66F] py-3 text-[14px] font-medium text-[#1A1A1A] opacity-40"
+                className="w-1/2 rounded-full bg-green py-3 text-sm font-medium text-background opacity-40 min-h-11 min-w-11"
               >
                 WhatsApp
               </button>
@@ -138,23 +118,12 @@ export default function TradeAccepted({
           />
         </section>
 
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-[#1A1A1A]/95 px-6 py-5 backdrop-blur">
-        <div className="mx-auto w-full max-w-[520px]">
+        <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-20 border-t border-white/10 bg-background/95 px-8 py-5 backdrop-blur">
+        <div className="mx-auto w-full max-w-lg">
             <button
             type="button"
             onClick={() => router.push('/activity')}
-            className="
-                w-full
-                rounded-full
-                bg-[#C8F66F]
-                py-4
-                text-[15px]
-                font-medium
-                text-[#1A1A1A]
-                transition-all
-                duration-150
-                active:scale-[0.98]
-            "
+            className="button-pill w-full bg-green text-background transition-all duration-150 active:scale-[0.98]"
             >
             Go to activity
             </button>
@@ -163,14 +132,8 @@ export default function TradeAccepted({
 
         {transaction.tradeGarment && (
           <>
-            <div className="flex items-center justify-center py-6 text-[42px] leading-none">
-              <span className="text-[#F5F5F5]">
-                ↓
-              </span>
-
-              <span className="text-[#C8F66F]">
-                ↑
-              </span>
+            <div className="flex items-center justify-center py-6">
+              <span aria-hidden="true" className="inline-block h-6 w-6" />
             </div>
 
             {/* tradeGarment = garment the buyer gives */}

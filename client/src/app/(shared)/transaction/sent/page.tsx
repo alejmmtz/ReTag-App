@@ -6,8 +6,8 @@ export default function TransactionSentPage() {
   const router = useRouter();
 
   return (
-    <main className="flex min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto flex min-h-dvh w-full max-w-[520px] flex-col items-center justify-center px-15">
+    <main className="flex bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto flex w-full max-w-lg flex-col items-center justify-center">
         
         <img
         src="/illustrations/proposal-sent.png"
@@ -16,11 +16,11 @@ export default function TransactionSentPage() {
         />
 
         <div className="mb-8 text-center">
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             Your proposal was sent!
           </h1>
 
-          <p className="mt-2 text-[14px] text-[#8A8A8A]">
+          <p className="mt-2 text-sm text-grey">
             Check its status in Activity
           </p>
         </div>
@@ -28,18 +28,7 @@ export default function TransactionSentPage() {
         <button
           type="button"
           onClick={() => router.push('/activity')}
-          className="
-            w-[197px]
-            rounded-full
-            bg-[#C8F66F]
-            py-3
-            text-[14px]
-            font-medium
-            text-[#1A1A1A]
-            transition-all
-            duration-150
-            active:scale-[0.98]
-          "
+          className="w-[197px] rounded-full bg-green py-3 text-sm font-medium text-background transition-all duration-150 active:scale-[0.98] min-h-11 min-w-11"
         >
           Go to activity
         </button>

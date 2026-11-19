@@ -1,5 +1,6 @@
 'use client';
 
+import CreateAction from '../../../../components/navigation/create-action';
 import {
   useEffect,
   useState,
@@ -117,25 +118,25 @@ export default function UserEventsPage() {
   }, [activeTab]);
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[115px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-20">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
 
         {/* Title */}
-        <h1 className="text-[20px] font-medium">
+        <h1 className="text-xl font-semibold">
           Look at these cool Events
         </h1>
 
         {/* Tabs */}
-        <div className="mt-7 grid grid-cols-2 gap-3">
+        <div className="mt-7 grid grid-cols-2 gap-3 min-w-0">
           <button
             type="button"
             onClick={() =>
               setActiveTab('explore')
             }
-            className={`h-[35px] rounded-full border text-[13px] font-medium transition ${
+            className={`h-[35px] rounded-full border text-sm font-medium transition ${
               activeTab === 'explore'
-                ? 'border-[#C8F66F] bg-[#C8F66F] text-black'
-                : 'border-[#727272] text-[#929292]'
+                ? 'border-green bg-green text-black'
+                : 'border-[#727272] text-grey'
             }`}
           >
             Explore
@@ -146,10 +147,10 @@ export default function UserEventsPage() {
             onClick={() =>
               setActiveTab('mine')
             }
-            className={`h-[35px] rounded-full border text-[13px] font-medium transition ${
+            className={`h-[35px] rounded-full border text-sm font-medium transition ${
               activeTab === 'mine'
-                ? 'border-[#C8F66F] bg-[#C8F66F] text-black'
-                : 'border-[#727272] text-[#929292]'
+                ? 'border-green bg-green text-black'
+                : 'border-[#727272] text-grey'
             }`}
           >
             My Events
@@ -157,9 +158,9 @@ export default function UserEventsPage() {
         </div>
 
         {/* Events */}
-        <div className="mt-10 space-y-4">
+        <div key={activeTab} className="mt-10 space-y-4 page-enter">
           {loading && (
-            <p className="text-[#858585]">
+            <p className="text-grey">
               Loading...
             </p>
           )}
@@ -183,7 +184,7 @@ export default function UserEventsPage() {
           {!loading &&
             !error &&
             events.length === 0 && (
-              <p className="text-[#858585]">
+              <p className="text-grey">
                 {activeTab ===
                 'explore'
                   ? 'There are no events yet.'
@@ -194,13 +195,7 @@ export default function UserEventsPage() {
       </div>
 
     {/* Floating button */}
-        <button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        className="fixed bottom-[120px] left-[210px] z-40 ml-[120px] flex h-[60px] w-[60px] -translate-x-1/2 items-center justify-center rounded-full bg-[#C8F66F] text-[30px] font-light text-black shadow-[0_0_24px_rgba(200,246,111,0.35)]"
-        >
-        +
-        </button>
+        <CreateAction role={"user"} open={sheetOpen} onClick={() => setSheetOpen(true)} />
 
         <UserCreateSheet
         open={sheetOpen}

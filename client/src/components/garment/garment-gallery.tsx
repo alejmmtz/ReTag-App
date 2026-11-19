@@ -13,7 +13,7 @@ export default function GarmentGallery({ images, alt }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="flex aspect-[4/5] w-full items-center justify-center bg-[#262626] text-[13px] text-[#6C6C6C]">
+      <div className="flex aspect-[2/3] w-full items-center justify-center bg-surface text-sm text-[#6C6C6C]">
         No photo
       </div>
     );
@@ -23,7 +23,7 @@ export default function GarmentGallery({ images, alt }: Props) {
   );
 
   return (
-    <div className="relative">
+    <div className="relative overflow-hidden">
       <div
         className="flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]"
         onScroll={(event) => {
@@ -34,7 +34,7 @@ export default function GarmentGallery({ images, alt }: Props) {
         {ordered.map((image, position) => (
           <div
             key={image.id}
-            className="aspect-[4/5] max-h-[560px] w-full shrink-0 snap-center bg-[#262626]"
+            className="aspect-[2/3] w-full shrink-0 snap-center bg-surface"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -47,8 +47,8 @@ export default function GarmentGallery({ images, alt }: Props) {
       </div>
 
       {ordered.length > 1 && (
-        <span className="absolute bottom-12 right-4 rounded-full bg-black/70 px-3 py-1 text-[12px]">
-          {index + 1}/{ordered.length}
+        <span aria-live="polite" aria-atomic="true" className="image-overlay absolute left-1/2 top-24 flex min-h-11 -translate-x-1/2 items-center rounded-full px-4 py-2 text-xs tabular-nums">
+          {index + 1} / {ordered.length}
         </span>
       )}
     </div>

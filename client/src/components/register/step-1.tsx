@@ -1,5 +1,6 @@
 "use client";
 
+import AssetIcon from '../icons/asset-icon';
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -20,12 +21,12 @@ export default function StepOne({
   error,
 }: StepOneProps) {
   const inputClass =
-    "h-9 w-full border-0 border-b border-grey bg-transparent px-0 pb-2 text-[14px] text-foreground outline-none placeholder:text-grey focus:border-green focus:ring-0";
+    "h-9 w-full border-0 border-b border-grey bg-transparent px-0 pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:border-green focus:ring-0";
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <section>
-      <h1 className="text-[28px] font-medium tracking-[-0.03em] sm:text-[32px]">
+    <section className="w-full">
+      <h1 className="text-2xl font-semibold tracking-tight">
         This is your first step toward{" "}
         <span className="font-semibold text-green">ReTagging</span> the way you
         treat your Garments.
@@ -54,7 +55,7 @@ export default function StepOne({
         }}
         className="space-y-4"
       >
-        <label className="block text-[14px]">
+        <label className="block text-sm">
           Name
           <input
             className={inputClass}
@@ -66,7 +67,7 @@ export default function StepOne({
             onChange={(event) => updateField("name", event.target.value)}
           />
         </label>
-        <label className="block text-[14px]">
+        <label className="block text-sm">
           Username
           <input
             className={inputClass}
@@ -78,7 +79,7 @@ export default function StepOne({
             onChange={(event) => updateField("username", event.target.value)}
           />
         </label>
-        <label className="block text-[14px]">
+        <label className="block text-sm">
           Email
           <input
             className={inputClass}
@@ -91,7 +92,7 @@ export default function StepOne({
             onChange={(event) => updateField("email", event.target.value)}
           />
         </label>
-        <label className="block text-[14px]">
+        <label className="block text-sm">
           Phone
           <input
             className={inputClass}
@@ -104,11 +105,11 @@ export default function StepOne({
             onChange={(event) => updateField("phone", event.target.value)}
           />
         </label>
-        <label className="block text-[14px]">
+        <label className="block text-sm">
           Password
           <span className="flex h-9 items-center border-b border-grey focus-within:border-green">
             <input
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pb-2 text-[14px] text-foreground outline-none placeholder:text-grey focus:ring-0"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:ring-0 min-h-11"
               name="password"
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
@@ -121,27 +122,22 @@ export default function StepOne({
               type="button"
               onClick={() => setShowPassword((visible) => !visible)}
               aria-label={showPassword ? "Hide password" : "Show password"}
-              className="flex h-8 w-8 items-center justify-end"
+              className="flex h-8 w-8 items-center justify-end text-grey transition-colors active:text-foreground min-h-11 min-w-11"
             >
-              <Image
-                src={
-                  showPassword
-                    ? "/illustrations/eye.svg"
-                    : "/illustrations/eye-off-icon.svg"
-                }
-                alt=""
+              <AssetIcon
+                name={showPassword ? "eye" : "eye-off-icon"}
                 width={20}
                 height={20}
-                className="brightness-0 invert"
+                className="transition-colors"
               />
             </button>
           </span>
-          <span className="mt-2 block text-[12px] text-grey">
+          <span className="mt-2 block text-xs text-grey">
             10+ characters with uppercase, lowercase, number, and @$!%*?&
           </span>
         </label>
         {error && (
-          <p role="alert" className="text-sm text-white">
+          <p role="alert" className="text-sm text-foreground">
             <span className="text-green font-medium">
               A little piece of advice!
             </span>{" "}
@@ -150,7 +146,7 @@ export default function StepOne({
         )}
         <button
           type="submit"
-          className="mt-4 w-full rounded-full bg-green px-5 py-3 text-[15px] font-semibold text-background"
+          className="button-pill mt-4 w-full bg-green text-background"
         >
           Continue
         </button>

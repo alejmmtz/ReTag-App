@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import AssetIcon from '../icons/asset-icon';
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -19,7 +19,7 @@ import {
 const MAX_DESCRIPTION = 350;
 const MAX_PHOTOS = 10;
 
-const ACCENT = { user: "#C8F66F", store: "#2864E8" } as const;
+const ACCENT = { user: "#C8F66F", store: "#1D5CEB" } as const;
 
 type Props = {
   garment?: GarmentDetail;
@@ -27,21 +27,13 @@ type Props = {
 
 function SelectChevron({ color = "currentColor" }: { color?: string }) {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 20 20"
-      fill="none"
-      className="pointer-events-none h-4 w-4 shrink-0"
+    <AssetIcon
+      name="chevron-down"
+      width={16}
+      height={9}
+      className="pointer-events-none"
       style={{ color }}
-    >
-      <path
-        d="M5 7.5L10 12.5L15 7.5"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    />
   );
 }
 
@@ -136,11 +128,11 @@ export default function GarmentForm({ garment }: Props) {
 
   if (!role || !catalogs) {
     return (
-      <main className="min-h-screen bg-[#141414] px-6 pt-16 text-white">
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         {error ? (
-          <p className="text-center text-[14px] text-[#FB3F0F]">{error}</p>
+          <p className="text-center text-sm text-orange">{error}</p>
         ) : (
-          <div className="mx-auto h-[48px] max-w-[520px] animate-pulse rounded-full bg-[#222222]" />
+          <div className="mx-auto h-12 max-w-lg animate-pulse rounded-full bg-[#222222]" />
         )}
       </main>
     );
@@ -155,23 +147,28 @@ export default function GarmentForm({ garment }: Props) {
   const needsPrice = effectiveType !== "trade";
   const priceNumber = Number(price);
   const priceValid =
-    !needsPrice || (price !== "" && priceNumber >= 1 && priceNumber <= 10000);
+    !needsPrice ||
+    (price !== "" &&
+      !Number.isNaN(priceNumber) &&
+      priceNumber >= 1 &&
+      priceNumber <= 10000);
 
   const totalPhotos = keptUrls.length + images.length;
 
-  const canSubmit =
-    !submitting &&
-    totalPhotos > 0 &&
-    name.trim() !== "" &&
-    description.trim() !== "" &&
-    categoryId !== "" &&
-    brandId !== "" &&
-    sizeId !== "" &&
-    material !== "" &&
-    datePurchased !== "" &&
-    colorIds.length > 0 &&
-    tagIds.length > 0 &&
-    priceValid;
+  const missingFields: string[] = [];
+  if (totalPhotos === 0) missingFields.push("photo");
+  if (name.trim() === "") missingFields.push("name");
+  if (!priceValid) missingFields.push("price ($1-$10,000)");
+  if (datePurchased === "") missingFields.push("date");
+  if (categoryId === "") missingFields.push("category");
+  if (tagIds.length === 0) missingFields.push("ReTags");
+  if (brandId === "") missingFields.push("brand");
+  if (sizeId === "") missingFields.push("size");
+  if (material === "") missingFields.push("material");
+  if (colorIds.length === 0) missingFields.push("color");
+  if (description.trim() === "") missingFields.push("description");
+
+  const canSubmit = !submitting && missingFields.length === 0;
 
   function toggle(list: number[], id: number, set: (v: number[]) => void) {
     set(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
@@ -260,27 +257,29 @@ export default function GarmentForm({ garment }: Props) {
     : catalogs.colors.slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-[#141414] pb-[140px] text-[#F5F5F5]">
-      <div className="mx-auto w-full max-w-[520px]">
+    <main
+      className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter"
+    >
+      <div className="mx-auto w-full mb-28">
         {/* Header */}
-        <header className="flex h-14 items-center gap-2 px-4">
+        <header className="flex items-center gap-2 border-b border-grey pb-6">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-[24px] leading-none text-white/90 transition hover:bg-white/5"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-sm leading-none text-foreground/90 transition active:bg-white/5 min-h-11 min-w-11"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
 
-          <h1 className="text-[17px] font-medium tracking-[-0.02em] text-white">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
             {isEdit ? "Edit Garment" : "New Garment"}
           </h1>
         </header>
 
         {/* Fotos actuales (solo al editar) */}
         {keptUrls.length > 0 && (
-          <div className="mb-3 flex gap-2.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
+          <div className="mb-3 flex gap-2.5 overflow-x-auto pb-1 [scrollbar-width:none]">
             {keptUrls.map((url, index) => (
               <div
                 key={url}
@@ -299,9 +298,9 @@ export default function GarmentForm({ garment }: Props) {
                   onClick={() =>
                     setKeptUrls(keptUrls.filter((item) => item !== url))
                   }
-                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/75 text-[12px] text-white"
+                  className="button-icon image-overlay absolute right-1 top-1"
                 >
-                  ×
+                  <span aria-hidden="true" className="inline-block h-3 w-3" />
                 </button>
               </div>
             ))}
@@ -309,7 +308,7 @@ export default function GarmentForm({ garment }: Props) {
         )}
 
         {/* Área de imágenes */}
-        <section className="w-full bg-[#191919]">
+        <section className="-mx-8 w-[calc(100%+4rem)]">
           <ImagePicker
             images={images}
             onChange={setImages}
@@ -319,11 +318,11 @@ export default function GarmentForm({ garment }: Props) {
           />
         </section>
 
-        <div className="space-y-6 px-5 pt-6">
+        <div className="space-y-8 pt-8">
           {/* Nombre */}
           <section>
             <label
-              className="block text-[12px] font-normal text-[#9E9E9E]"
+              className="block text-xs font-normal text-grey"
               htmlFor="garment-name"
             >
               Name
@@ -333,17 +332,17 @@ export default function GarmentForm({ garment }: Props) {
               value={name}
               onChange={(event) => setName(event.target.value.slice(0, 120))}
               placeholder="Stwd Jacket 2024 Winter"
-              className="mt-2 w-full border-b border-[#2E2E2E] bg-transparent pb-2.5 text-[14px] text-white outline-none placeholder:text-[#6B6B6B] focus:border-white/50"
+              className="mt-2 w-full border-b border-line bg-transparent pb-2.5 text-sm text-foreground outline-none placeholder:text-[#6B6B6B] focus:border-white/50 min-h-11"
             />
           </section>
 
           {/* Modo de transacción */}
           {!isStore && !isEdit && (
             <section>
-              <p className="mb-2.5 text-[12px] text-[#9E9E9E]">
+              <p className="mb-2.5 text-xs text-grey">
                 Transaction mode
               </p>
-              <div className="grid grid-cols-3 gap-2.5">
+              <div className="grid grid-cols-3 gap-2.5 min-w-0">
                 {(
                   [
                     { value: "sale", label: "Purchase" },
@@ -358,7 +357,7 @@ export default function GarmentForm({ garment }: Props) {
                       key={type.value}
                       type="button"
                       onClick={() => setTransactionType(type.value)}
-                      className="py-3 rounded-full border px-3 text-[12px] font-medium transition"
+                      className="rounded-full border px-3 py-3 text-sm font-medium transition min-h-11 min-w-11"
                       style={
                         active
                           ? {
@@ -385,13 +384,13 @@ export default function GarmentForm({ garment }: Props) {
           <section className="grid grid-cols-2 gap-3.5">
             <div>
               <label
-                className="block text-[12px] text-[#9E9E9E]"
+                className="block text-xs text-grey"
                 htmlFor="garment-price"
               >
                 Price
               </label>
-              <div className="mt-2 flex h-[44px] items-center rounded-[12px] border border-[#2A2A2A] bg-[#191919] px-3.5 focus-within:border-white/40 disabled:opacity-40">
-                <span className="mr-1 text-[13px] text-[#777777]">$</span>
+              <div className="mt-2 flex h-[44px] items-center rounded-[12px] border border-line bg-background px-3.5 focus-within:border-white/40 disabled:opacity-40">
+                <span className="mr-1 text-sm text-foreground">$</span>
                 <input
                   id="garment-price"
                   type="number"
@@ -402,32 +401,31 @@ export default function GarmentForm({ garment }: Props) {
                   disabled={!needsPrice}
                   onChange={(event) => setPrice(event.target.value)}
                   placeholder={needsPrice ? "9.99" : "Exchange"}
-                  className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-[#6B6B6B] disabled:opacity-40"
+                  className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-[#6B6B6B] disabled:opacity-40 min-h-11"
                 />
               </div>
             </div>
 
             <div>
               <label
-                className="block text-[12px] text-[#9E9E9E]"
+                className="block text-xs text-grey"
                 htmlFor="garment-date"
               >
                 Date of Acquisition
               </label>
-              <div className="relative mt-2 flex h-[44px] items-center rounded-[12px] border border-[#2A2A2A] bg-[#191919] px-3.5 focus-within:border-white/40">
+              <div className="relative mt-2 flex h-[44px] items-center rounded-[12px] border border-line bg-background px-3.5 focus-within:border-white/40">
                 <input
                   id="garment-date"
                   type="date"
                   value={datePurchased}
                   max={today}
                   onChange={(event) => setDatePurchased(event.target.value)}
-                  className="w-full bg-transparent pr-7 text-[13px] text-white outline-none [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0"
+                  className="w-full bg-transparent pr-7 text-sm text-foreground outline-none [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 min-h-11"
                 />
-                <Image
-                  src="/icons/calendar.svg"
-                  alt=""
-                  width={16}
-                  height={16}
+                <AssetIcon
+                  name="calendar"
+                  width={12}
+                  height={12}
                   className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 opacity-75"
                 />
               </div>
@@ -436,15 +434,18 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* Categoría */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Category</p>
+            <p className="mb-2.5 text-xs text-grey">Category</p>
             <div className="relative">
               <select
                 value={categoryId}
                 onChange={(event) => setCategoryId(event.target.value)}
                 aria-label="Category"
-                className="py-3 mt-2 text-center w-full appearance-none rounded-full text-[12px] font-medium outline-none"
+                className="mt-2 w-full appearance-none rounded-full py-3 text-center text-sm font-medium outline-none"
                 style={{ backgroundColor: accent, color: accentText }}
               >
+                <option value="" disabled>
+                  Select category
+                </option>
                 {catalogs.categories.map((item) => (
                   <option key={item.id} value={item.id}>
                     {item.name}
@@ -459,7 +460,7 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* ReTags */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">ReTags</p>
+            <p className="mb-2.5 text-xs text-grey">ReTags</p>
             <div className="flex flex-wrap gap-2">
               {catalogs.tags.map((tag) => {
                 const active = tagIds.includes(tag.id);
@@ -470,11 +471,11 @@ export default function GarmentForm({ garment }: Props) {
                     type="button"
                     aria-pressed={active}
                     onClick={() => toggle(tagIds, tag.id, setTagIds)}
-                    className="inline-flex h-[34px] items-center rounded-full border px-3.5 text-[12px] font-medium transition"
+                    className="inline-flex h-[34px] items-center rounded-full border px-3.5 text-sm font-medium transition min-h-11 min-w-11"
                     style={chipStyle(active)}
                   >
                     #{tag.name}
-                    {active && <span className="ml-1.5 text-[13px]">×</span>}
+                    {active && <span aria-hidden="true" className="ml-1.5 inline-block h-3 w-3" />}
                   </button>
                 );
               })}
@@ -485,7 +486,7 @@ export default function GarmentForm({ garment }: Props) {
           <section className="grid grid-cols-2 gap-3.5">
             <div>
               <label
-                className="block text-[12px] text-[#9E9E9E]"
+                className="block text-xs text-grey"
                 htmlFor="garment-brand"
               >
                 Brand
@@ -495,15 +496,18 @@ export default function GarmentForm({ garment }: Props) {
                   id="garment-brand"
                   value={brandId}
                   onChange={(event) => setBrandId(event.target.value)}
-                  className="h-[44px] w-full appearance-none rounded-[12px] border border-[#2A2A2A] bg-[#191919] pl-3.5 pr-9 text-[13px] text-white outline-none focus:border-white/40"
+                  className="h-[44px] w-full appearance-none rounded-[12px] border border-line bg-background pl-3.5 pr-9 text-sm text-foreground outline-none focus:border-white/40"
                 >
+                  <option value="" disabled>
+                    Select brand
+                  </option>
                   {catalogs.brands.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.name}
                     </option>
                   ))}
                 </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9E9E9E]">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-grey">
                   <SelectChevron />
                 </span>
               </div>
@@ -511,7 +515,7 @@ export default function GarmentForm({ garment }: Props) {
 
             <div>
               <label
-                className="block text-[12px] text-[#9E9E9E]"
+                className="block text-xs text-grey"
                 htmlFor="garment-size"
               >
                 Size
@@ -521,15 +525,18 @@ export default function GarmentForm({ garment }: Props) {
                   id="garment-size"
                   value={sizeId}
                   onChange={(event) => setSizeId(event.target.value)}
-                  className="h-[44px] w-full appearance-none rounded-[12px] border border-[#2A2A2A] bg-[#191919] pl-3.5 pr-9 text-[13px] text-white outline-none focus:border-white/40"
+                  className="h-[44px] w-full appearance-none rounded-[12px] border border-line bg-background pl-3.5 pr-9 text-sm text-foreground outline-none focus:border-white/40"
                 >
+                  <option value="" disabled>
+                    Select size
+                  </option>
                   {catalogs.sizes.map((item) => (
                     <option key={item.id} value={item.id}>
                       {item.type} · {item.label}
                     </option>
                   ))}
                 </select>
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9E9E9E]">
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-grey">
                   <SelectChevron />
                 </span>
               </div>
@@ -538,7 +545,7 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* Materiales */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Materials</p>
+            <p className="mb-2.5 text-xs text-grey">Materials</p>
             <div className="flex flex-wrap gap-2">
               {visibleMaterials.map((item) => (
                 <button
@@ -546,7 +553,7 @@ export default function GarmentForm({ garment }: Props) {
                   type="button"
                   aria-pressed={material === item}
                   onClick={() => setMaterial(material === item ? "" : item)}
-                  className="h-[34px] rounded-full border px-3.5 text-[12px] font-medium capitalize transition"
+                  className="h-[34px] rounded-full border px-3.5 text-sm font-medium capitalize transition min-h-11 min-w-11"
                   style={chipStyle(material === item)}
                 >
                   {item}
@@ -556,9 +563,11 @@ export default function GarmentForm({ garment }: Props) {
                 <button
                   type="button"
                   onClick={() => setMaterialsOpen(true)}
-                  className="h-[34px] rounded-full border border-[#2C2C2C] bg-[#191919] px-3.5 text-[12px] text-[#CFCFCF] transition hover:border-white/30"
+                  aria-expanded={materialsOpen}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface/60 px-4 py-2 text-sm text-grey active:border-grey active:text-foreground"
                 >
-                  More +
+                  More
+                  <AssetIcon name="plus" width={18} height={18} />
                 </button>
               )}
             </div>
@@ -566,15 +575,16 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* Condición */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Condition</p>
+            <p className="mb-2.5 text-xs text-grey">Condition</p>
             <div className="relative">
               <select
                 value={condition}
                 onChange={(event) => setCondition(event.target.value)}
                 aria-label="Condition"
-                className="py-3 w-full appearance-none rounded-full pl-4 pr-9 text-[12px] font-medium capitalize outline-none"
+                className="w-full appearance-none rounded-full py-3 pl-4 pr-9 text-sm font-medium capitalize outline-none"
                 style={{ backgroundColor: accent, color: accentText }}
               >
+                <option value="">Select condition (optional)</option>
                 {CONDITIONS.map((item) => (
                   <option key={item} value={item}>
                     {item}
@@ -589,10 +599,10 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* Cuidado y detalles */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">
+            <p className="mb-2.5 text-xs text-grey">
               Care &amp; details
             </p>
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5 min-w-0">
               {visibleCare.map((item) => {
                 const active = careId === String(item.id);
 
@@ -602,21 +612,10 @@ export default function GarmentForm({ garment }: Props) {
                     type="button"
                     aria-pressed={active}
                     onClick={() => setCareId(active ? "" : String(item.id))}
-                    className="flex h-[42px] items-center gap-2.5 rounded-[12px] border px-3.5 text-left text-[12px] font-medium transition"
+                    className="flex h-[42px] items-center gap-2.5 rounded-[12px] border px-3.5 text-left text-sm font-medium transition min-h-11 min-w-11"
                     style={chipStyle(active)}
                   >
-                    <Image
-                      src="/icons/garment.svg"
-                      alt=""
-                      width={16}
-                      height={16}
-                      className="shrink-0 opacity-85"
-                      style={{
-                        filter: active
-                          ? "brightness(0)"
-                          : "brightness(0) invert(1)",
-                      }}
-                    />
+                    <span aria-hidden="true" className="inline-block h-4 w-4 shrink-0" />
                     <span className="truncate">{item.name}</span>
                   </button>
                 );
@@ -626,16 +625,18 @@ export default function GarmentForm({ garment }: Props) {
               <button
                 type="button"
                 onClick={() => setCareOpen(true)}
-                className="mt-2.5 h-[32px] rounded-full border border-[#2C2C2C] bg-[#191919] px-3.5 text-[12px] text-[#CFCFCF]"
+                aria-expanded={careOpen}
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface/60 px-4 py-2 text-sm text-grey active:border-grey active:text-foreground"
               >
-                More +
+                More
+                <AssetIcon name="plus" width={18} height={18} />
               </button>
             )}
           </section>
 
           {/* Colores */}
           <section>
-            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Colors</p>
+            <p className="mb-2.5 text-xs text-grey">Colors</p>
             <div className="flex flex-wrap items-center gap-2.5">
               {visibleColors.map((color) => {
                 const active = colorIds.includes(color.id);
@@ -648,7 +649,7 @@ export default function GarmentForm({ garment }: Props) {
                     aria-pressed={active}
                     title={color.name}
                     onClick={() => toggle(colorIds, color.id, setColorIds)}
-                    className="flex h-[32px] w-[32px] items-center justify-center rounded-full border transition"
+                    className="flex h-[32px] w-[32px] items-center justify-center rounded-full border transition min-h-11 min-w-11"
                     style={{
                       borderColor: active ? accent : "#383838",
                       boxShadow: active ? `0 0 0 1.5px ${accent}` : undefined,
@@ -667,9 +668,10 @@ export default function GarmentForm({ garment }: Props) {
                   type="button"
                   aria-label="Show more colors"
                   onClick={() => setColorsExpanded(true)}
-                  className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-[#383838] bg-transparent text-[15px] text-[#BDBDBD] transition hover:border-white/40 hover:text-white"
+                  aria-expanded={colorsExpanded}
+                  className="button-icon border border-line bg-surface/60 text-grey active:border-grey active:text-foreground"
                 >
-                  +
+                  <AssetIcon name="plus" width={20} height={20} />
                 </button>
               )}
             </div>
@@ -678,7 +680,7 @@ export default function GarmentForm({ garment }: Props) {
           {/* Descripción */}
           <section>
             <label
-              className="mb-2 block text-[12px] text-[#9E9E9E]"
+              className="mb-2 block text-xs text-grey"
               htmlFor="garment-description"
             >
               Description
@@ -691,15 +693,15 @@ export default function GarmentForm({ garment }: Props) {
               }
               rows={4}
               placeholder="Write about the garment..."
-              className="w-full resize-none rounded-[14px] border border-[#2A2A2A] bg-[#191919] p-3.5 text-[13px] text-white outline-none placeholder:text-[#6B6B6B] focus:border-white/40"
+              className="w-full resize-none rounded-[14px] border border-line bg-background p-3.5 text-sm text-foreground outline-none placeholder:text-[#6B6B6B] focus:border-white/40"
             />
-            <p className="mt-1 text-right text-[11px] text-[#7A7A7A]">
+            <p className="mt-1 text-right text-xs text-[#7A7A7A]">
               {description.length}/{MAX_DESCRIPTION}
             </p>
           </section>
 
           {error && (
-            <p className="text-[12px] text-[#FB3F0F]" role="alert">
+            <p className="text-xs text-orange" role="alert">
               {error}
             </p>
           )}
@@ -707,13 +709,13 @@ export default function GarmentForm({ garment }: Props) {
       </div>
 
       {/* Botón fijo abajo */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#141414] via-[#141414]/95 to-transparent pb-6 pt-5">
-        <div className="mx-auto w-full max-w-[520px] px-5">
+      <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-40 bg-gradient-to-t from-background via-background/95 to-transparent pb-6 pt-12 px-8">
+        <div className="mx-auto w-full max-w-lg">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="h-[48px] w-full rounded-full text-[14px] font-medium transition disabled:opacity-40"
+            className="button-pill w-full transition disabled:opacity-50"
             style={{ backgroundColor: accent, color: accentText }}
           >
             {submitting
@@ -724,6 +726,12 @@ export default function GarmentForm({ garment }: Props) {
                 ? "Save changes"
                 : "Add to closet"}
           </button>
+
+          {!submitting && missingFields.length > 0 && (
+            <p className="mt-2 text-center text-xs text-[#8E8E8E]">
+              Oops, you&#39;re missing some things... {missingFields.join(", ")}
+            </p>
+          )}
         </div>
       </div>
     </main>

@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../../../../../components/icons/asset-icon';
 import {
   FormEvent,
   useEffect,
@@ -263,29 +264,29 @@ export default function EditEventForm({
 
   if (loading) {
     return (
-      <main className="flex h-screen items-center justify-center bg-[#191919] text-white">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         Loading...
       </main>
     );
   }
 
   return (
-    <main className="flex h-screen flex-col bg-[#191919] text-white">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
       {/* Header */}
-      <header className="border-b border-[#303030] px-8 pb-8 pt-20">
-        <div className="mx-auto flex w-full max-w-[560px] items-center gap-5">
+      <header className="border-b border-line pb-6">
+        <div className="mx-auto flex w-full max-w-lg items-center gap-5">
           <button
             type="button"
             onClick={() =>
               router.back()
             }
             aria-label="Go back"
-            className="text-[30px] font-light leading-none"
+            className="text-sm font-light leading-none min-h-11 min-w-11"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
 
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             Edit event
           </h1>
         </div>
@@ -294,15 +295,15 @@ export default function EditEventForm({
       {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="mx-auto flex min-h-[calc(100vh-130px)] w-full max-w-[560px] flex-col"
+        className="mx-auto flex w-full max-w-lg flex-col"
       >
-        <div className="flex-1 px-6 pb-10 pt-5">
+        <div className="flex-1 py-8">
 
           {/* Name */}
           <div>
             <label
               htmlFor="title"
-              className="mb-1 block text-[12px] text-[#969696]"
+              className="mb-1 block text-xs text-grey"
             >
               Name
             </label>
@@ -317,18 +318,18 @@ export default function EditEventForm({
                 )
               }
               required
-              className="h-[60px] w-full rounded-[11px] border border-[#363636] bg-[#202020] px-5 text-[13px] text-white outline-none focus:border-[#555555]"
+              className="h-12 w-full rounded-[11px] border border-line bg-surface px-5 text-sm text-foreground outline-none focus:border-[#555555] min-h-11"
             />
           </div>
 
           {/* Dates */}
-          <div className="mt-5 grid grid-cols-2 gap-4">
+          <div className="mt-5 grid grid-cols-1 min-[440px]:grid-cols-2 gap-4 min-w-0">
 
             {/* Starts */}
             <div>
               <label
                 htmlFor="startsAt"
-                className="mb-1 block text-[12px] text-[#969696]"
+                className="mb-1 block text-xs text-grey"
               >
                 Starts at
               </label>
@@ -346,7 +347,7 @@ export default function EditEventForm({
                   event.currentTarget.showPicker();
                 }}
                 required
-                className="h-[60px] w-full cursor-pointer rounded-[11px] border border-[#363636] bg-[#202020] px-5 text-[13px] text-white outline-none focus:border-[#555555]"
+                className="h-12 w-full cursor-pointer rounded-[11px] border border-line bg-surface px-5 text-sm text-foreground outline-none focus:border-[#555555] min-h-11"
               />
             </div>
 
@@ -354,7 +355,7 @@ export default function EditEventForm({
             <div>
               <label
                 htmlFor="endsAt"
-                className="mb-1 block text-[12px] text-[#969696]"
+                className="mb-1 block text-xs text-grey"
               >
                 Ends at
               </label>
@@ -372,7 +373,7 @@ export default function EditEventForm({
                   event.currentTarget.showPicker();
                 }}
                 required
-                className="h-[60px] w-full cursor-pointer rounded-[11px] border border-[#363636] bg-[#202020] px-5 text-[13px] text-white outline-none focus:border-[#555555]"
+                className="h-12 w-full cursor-pointer rounded-[11px] border border-line bg-surface px-5 text-sm text-foreground outline-none focus:border-[#555555] min-h-11"
               />
             </div>
           </div>
@@ -381,7 +382,7 @@ export default function EditEventForm({
           <div className="mt-5">
             <label
               htmlFor="location"
-              className="mb-1 block text-[12px] text-[#969696]"
+              className="mb-1 block text-xs text-grey"
             >
               Location
             </label>
@@ -395,7 +396,7 @@ export default function EditEventForm({
                   event.target.value,
                 )
               }
-              className="h-[60px] w-full rounded-[11px] border border-[#363636] bg-[#202020] px-5 text-[13px] text-white outline-none focus:border-[#555555]"
+              className="h-12 w-full rounded-[11px] border border-line bg-surface px-5 text-sm text-foreground outline-none focus:border-[#555555] min-h-11"
             />
           </div>
 
@@ -403,7 +404,7 @@ export default function EditEventForm({
           <div className="mt-5">
             <label
               htmlFor="capacity"
-              className="mb-1 block text-[12px] text-[#969696]"
+              className="mb-1 block text-xs text-grey"
             >
               Capacity
             </label>
@@ -419,7 +420,7 @@ export default function EditEventForm({
                 )
               }
               required
-              className="h-[60px] w-full rounded-[11px] border border-[#363636] bg-[#202020] px-5 text-[13px] text-white outline-none focus:border-[#555555]"
+              className="h-12 w-full rounded-[11px] border border-line bg-surface px-5 text-sm text-foreground outline-none focus:border-[#555555] min-h-11"
             />
           </div>
 
@@ -427,7 +428,7 @@ export default function EditEventForm({
           <div className="mt-5">
             <label
               htmlFor="description"
-              className="mb-2 block text-[12px] text-[#969696]"
+              className="mb-2 block text-xs text-grey"
             >
               Description
             </label>
@@ -442,10 +443,10 @@ export default function EditEventForm({
               }
               required
               maxLength={650}
-              className="h-[110px] w-full resize-none rounded-[14px] border border-[#363636] bg-[#202020] px-5 py-4 text-[13px] leading-[1.5] text-white outline-none focus:border-[#555555]"
+              className="h-[110px] w-full resize-none rounded-[14px] border border-line bg-surface px-5 py-4 text-sm leading-[1.5] text-foreground outline-none focus:border-[#555555]"
             />
 
-            <p className="mt-1 text-right text-[12px] text-[#707070]">
+            <p className="mt-1 text-right text-xs text-[#707070]">
               {description.length}/650
             </p>
           </div>
@@ -462,11 +463,11 @@ export default function EditEventForm({
         </div>
 
         {/* Bottom action */}
-        <div className="sticky bottom-0 border-t border-[#303030] bg-[#191919] px-6 py-5">
+        <div className="sticky bottom-0 border-t border-line bg-background py-5">
           <button
             type="submit"
             disabled={saving}
-            className="h-[47px] w-full rounded-full bg-[#2864E8] text-[15px] font-medium text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+            className="button-pill w-full bg-blue text-foreground transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
           >
             {saving
               ? 'Saving...'

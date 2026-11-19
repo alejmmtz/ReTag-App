@@ -1,5 +1,6 @@
 'use client';
 
+import CreateAction from '../../../../components/navigation/create-action';
 import { useEffect, useState } from 'react';
 import StoreBottomNav from '../../../../components/navigation/store-bottom-nav';
 import StoreEventCard from '../../../../components/events/store-event-card';
@@ -60,9 +61,9 @@ export default function StoreEventsPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[120px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-24">
-        <h1 className="text-[24px] font-medium">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
+        <h1 className="text-xl font-semibold">
           This are your events
         </h1>
 
@@ -94,13 +95,7 @@ export default function StoreEventsPage() {
       </div>
 
       {/* Floating button */}
-      <button
-        type="button"
-        onClick={() => setSheetOpen(true)}
-        className="fixed bottom-[120px] left-[210px] z-40 ml-[120px] flex h-[60px] w-[60px] -translate-x-1/2 items-center justify-center rounded-full bg-[#2864E8] text-[30px] font-light text-white shadow-[0_0_24px_rgba(40,100,232,0.45)]"
-      >
-        +
-      </button>
+      <CreateAction role={"store"} open={sheetOpen} onClick={() => setSheetOpen(true)} />
 
       <StoreCreateSheet
         open={sheetOpen}

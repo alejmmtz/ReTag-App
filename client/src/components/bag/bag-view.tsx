@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -131,20 +132,20 @@ export default function BagView() {
   }
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[130px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
         <header className="flex items-center gap-2">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[40px] w-[40px] items-center justify-center text-[28px]"
+            className="flex h-[40px] w-[40px] items-center justify-center text-sm min-h-11 min-w-11"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
-          <h1 className="text-[20px] font-medium">My bag</h1>
+          <h1 className="text-xl font-semibold">My bag</h1>
           {total > 0 && (
-            <span className="text-[14px] text-[#9A9A9A]">({total})</span>
+            <span className="text-sm text-grey">({total})</span>
           )}
         </header>
 
@@ -153,14 +154,14 @@ export default function BagView() {
             {[0, 1, 2].map((item) => (
               <div
                 key={item}
-                className="h-[112px] w-full animate-pulse rounded-[18px] bg-[#262626]"
+                className="h-[112px] w-full animate-pulse rounded-[18px] bg-surface"
               />
             ))}
           </div>
         )}
 
         {!loading && error && (
-          <p className="mt-10 text-center text-[14px] text-[#FB3F0F]" role="alert">
+          <p className="mt-10 text-center text-sm text-orange" role="alert">
             {error}
           </p>
         )}
@@ -174,13 +175,13 @@ export default function BagView() {
               height={160}
               className="mb-6 h-auto w-[180px]"
             />
-            <h2 className="text-[18px] font-medium">Your bag is empty</h2>
-            <p className="mt-2 max-w-[260px] text-[14px] text-[#9A9A9A]">
+            <h2 className="text-base font-semibold">Your bag is empty</h2>
+            <p className="mt-2 max-w-[260px] text-sm text-grey">
               Save garments you like with &ldquo;Add to bag&rdquo; and find them here.
             </p>
             <Link
               href="/feed"
-              className="mt-6 flex h-[48px] items-center rounded-full px-7 text-[15px] font-medium text-[#1A1A1A]"
+              className="button-pill mt-6 text-background"
               style={{ backgroundColor: ACCENT }}
             >
               Explore the feed
@@ -199,7 +200,7 @@ export default function BagView() {
                 <li key={garment.id} className="relative">
                   <Link
                     href={`/garment/${garment.id}`}
-                    className="flex gap-3 rounded-[18px] bg-[#262626] p-3 pr-12"
+                    className="flex gap-3 rounded-[18px] bg-surface p-3 pr-12"
                   >
                     <span className="h-[88px] w-[72px] shrink-0 overflow-hidden rounded-[12px] bg-[#333]">
                       {cover && (
@@ -209,17 +210,17 @@ export default function BagView() {
                     </span>
 
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[15px] font-medium">{garment.name}</span>
-                      <span className="block truncate text-[12px] text-[#9A9A9A]">
+                      <span className="block truncate text-sm font-medium">{garment.name}</span>
+                      <span className="block truncate text-xs text-grey">
                         {[garment.brand?.name, garment.size?.label].filter(Boolean).join(' · ')}
                       </span>
-                      <span className="block truncate text-[12px] text-[#9A9A9A]">
+                      <span className="block truncate text-xs text-grey">
                         by @{garment.seller.username}
                       </span>
-                      <span className="mt-1 flex items-center gap-2 text-[14px] font-medium" style={{ color: ACCENT }}>
+                      <span className="mt-1 flex items-center gap-2 text-sm font-medium" style={{ color: ACCENT }}>
                         {priceLabel(garment)}
                         {!available && (
-                          <span className="rounded-full bg-[#FB3F0F] px-2 py-[1px] text-[11px] capitalize text-white">
+                          <span className="rounded-full bg-orange px-2 py-px text-xs capitalize text-foreground">
                             {garment.status}
                           </span>
                         )}
@@ -232,9 +233,9 @@ export default function BagView() {
                     aria-label={`Remove ${garment.name} from bag`}
                     onClick={() => handleRemove(garment.id)}
                     disabled={removing === garment.id}
-                    className="absolute right-3 top-3 flex h-[32px] w-[32px] items-center justify-center rounded-full bg-black/40 text-[18px] text-[#D6D6D6] disabled:opacity-40"
+                    className="absolute right-3 top-3 flex h-[32px] w-[32px] items-center justify-center rounded-full bg-black/40 text-sm text-[#D6D6D6] disabled:opacity-40 min-h-11 min-w-11"
                   >
-                    ×
+                    <span aria-hidden="true" className="inline-block h-4 w-4" />
                   </button>
                 </li>
               );
@@ -246,7 +247,7 @@ export default function BagView() {
           <button
             type="button"
             onClick={() => loadPage(page + 1)}
-            className="mx-auto mt-6 block h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px]"
+            className="button-pill mx-auto mt-6 block border border-[#6C6C6C]"
           >
             Load more
           </button>

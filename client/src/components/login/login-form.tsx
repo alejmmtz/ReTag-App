@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import AssetIcon from '../icons/asset-icon';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -76,7 +76,7 @@ export default function LoginForm() {
     <form action={handleSubmit} className="space-y-6">
       <fieldset className="space-y-6" disabled={isSubmitting}>
         <div>
-          <label htmlFor="email" className="mb-2 block text-[16px]">
+          <label htmlFor="email" className="mb-2 block text-sm">
             Email
           </label>
           <input
@@ -86,15 +86,15 @@ export default function LoginForm() {
             autoComplete="email"
             placeholder="you@example.com"
             required
-            className="h-8 w-full border-b border-grey bg-transparent px-0 pb-2 text-[14px] text-foreground outline-none placeholder:text-grey focus:border-white focus:ring-0"
+            className="h-8 w-full border-b border-grey bg-transparent px-0 pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:border-white focus:ring-0 min-h-11"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-2 block text-[16px]">
+          <label htmlFor="password" className="mb-2 block text-sm">
             Password
           </label>
-          <div className="flex h-8 items-center border-b border-grey focus-within:border-white">
+          <div className="flex min-h-11 items-center border-b border-grey focus-within:border-white">
             <input
               id="password"
               name="password"
@@ -102,26 +102,20 @@ export default function LoginForm() {
               autoComplete="current-password"
               placeholder={showPassword ? "Nothing to see here" : "••••••••"}
               required
-              className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pb-2 text-[14px] text-foreground outline-none placeholder:text-grey focus:ring-0"
+              className="h-full min-w-0 flex-1 border-0 bg-transparent px-0 pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:ring-0 min-h-11"
             />
             <button
               type="button"
               onClick={() => setShowPassword((visible) => !visible)}
               aria-label={showPassword ? "Hide password" : "Show password"}
               aria-pressed={showPassword}
-              className="mb-1 flex h-8 w-8 items-center justify-end text-grey transition-colors hover:text-foreground"
+              className="mb-1 flex h-8 w-8 items-center justify-end text-grey transition-colors active:text-foreground min-h-11 min-w-11"
             >
-              <Image
-                src={
-                  showPassword
-                    ? "/illustrations/eye.svg"
-                    : "/illustrations/eye-off-icon.svg"
-                }
-                alt=""
-                width={24}
-                height={24}
-                aria-hidden="true"
-                className="h-5 w-5 brightness-0 invert"
+              <AssetIcon
+                name={showPassword ? "eye" : "eye-off-icon"}
+                width={20}
+                height={20}
+                className="transition-colors"
               />
             </button>
           </div>
@@ -129,7 +123,7 @@ export default function LoginForm() {
       </fieldset>
 
       {error && (
-        <p role="alert" className="text-[14px] mb-[-12] leading-5 text-orange">
+        <p role="alert" className="text-sm mb-[-12] leading-5 text-orange">
           {error}
         </p>
       )}
@@ -137,7 +131,7 @@ export default function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="mt-8 flex w-full items-center justify-center rounded-full bg-green p-3 px-5 text-[16px] font-semibold text-background transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:cursor-wait disabled:opacity-70"
+        className="mt-8 flex w-full items-center justify-center rounded-full bg-green p-3 px-5 text-sm font-semibold text-background transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green disabled:cursor-wait disabled:opacity-70 min-h-11 min-w-11"
       >
         {isSubmitting ? "Logging In…" : "Log In"}
       </button>

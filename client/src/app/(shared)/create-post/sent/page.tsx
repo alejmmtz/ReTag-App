@@ -20,8 +20,8 @@ export default function PostSentPage() {
   const isStore = role === 'store';
 
   return (
-    <main className="flex h-screen flex-col items-center justify-center bg-[#191919] px-8 text-white">
-      <div className="flex w-full max-w-[560px] flex-col items-center text-center">
+    <main className="flex flex-col items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="flex w-full max-w-lg flex-col items-center text-center">
         <Image
           src="/illustrations/wow.png"
           alt="Post published"
@@ -31,20 +31,20 @@ export default function PostSentPage() {
           priority
         />
 
-        <h1 className="text-[20px] font-medium">
+        <h1 className="text-xl font-semibold">
           Your post was published!
         </h1>
 
-        <p className="mt-2 text-[15px] text-[#8A8A8A]">
+        <p className="mt-2 text-sm text-grey">
           Check it on home
         </p>
 
         <button
           type="button"
           onClick={() => router.push(isStore ? '/home' : '/feed')}
-          className="mt-8 h-[51px] w-[197px] max-w-[320px] rounded-full text-[15px] font-medium"
+          className="button-pill mt-8 w-[197px] max-w-[320px]"
           style={{
-            backgroundColor: isStore ? '#2864E8' : '#C8F66F',
+            backgroundColor: isStore ? '#1D5CEB' : '#C8F66F',
             color: isStore ? '#FFFFFF' : '#1A1A1A',
           }}
         >

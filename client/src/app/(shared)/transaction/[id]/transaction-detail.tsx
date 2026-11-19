@@ -154,7 +154,7 @@ export default function TransactionDetail({
 
   if (loading) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#1A1A1A] text-[#F5F5F5]">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         Loading...
       </main>
     );
@@ -163,7 +163,7 @@ export default function TransactionDetail({
 
   if (error && !transaction) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#1A1A1A] px-6 text-center text-[#F5F5F5]">
+      <main className="flex items-center justify-center bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         {error}
       </main>
     );

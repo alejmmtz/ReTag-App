@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../../../../components/icons/asset-icon';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { API_URL } from '../../../../lib/api';
@@ -107,7 +108,7 @@ export default function ProposeExchange({ garmentId }: Props) {
 
   if (loading) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#1A1A1A] text-[#F5F5F5]">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         Loading...
       </main>
     );
@@ -115,35 +116,35 @@ export default function ProposeExchange({ garmentId }: Props) {
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-[#1A1A1A] px-6 text-center text-[#F5F5F5]">
+      <main className="flex items-center justify-center bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         {error}
       </main>
     );
   }
 
   return (
-    <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto w-full max-w-3xl">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg">
         {/* Header */}
-        <header className="flex items-center gap-5 border-b border-[#2E2E2E] px-6 pb-5 pt-15 md:px-10">
+        <header className="flex items-center gap-5 border-b border-line pb-6">
           <button
             type="button"
             onClick={() => router.back()}
-            className="flex items-center justify-center text-[30px] md:text-[40px]"
+            className="flex items-center justify-center text-sm min-h-11 min-w-11"
             aria-label="Go back"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
 
-          <h1 className="text-[20px] font-medium md:text-[25px]">
+          <h1 className="text-xl font-semibold">
             Propose an exchange
           </h1>
         </header>
 
-      <section className="px-6 pb-32 pt-8 md:px-10">
+      <section className="pb-32 pt-8">
 
     {/* Instructions */}
-    <p className="mb-7 text-[14px] md:text-lg">
+    <p className="mb-7 text-sm">
       Which Garment of your closet are you going to offer?
     </p>
 
@@ -158,17 +159,17 @@ export default function ProposeExchange({ garmentId }: Props) {
     )}
 
     {/* Closet */}
-    <h2 className="mb-5 mt-10 text-[14px] font-medium md:text-[20px]">
+    <h2 className="mb-5 mt-10 text-base font-semibold">
       Your Closet
     </h2>
 
     {/* Closet garments */}
     {closet.length === 0 ? (
-      <div className="rounded-xl border border-white/15 p-6 text-center text-white/50">
+      <div className="rounded-xl border border-white/15 p-6 text-center text-foreground/50">
         You don&apos;t have garments in your closet yet.
       </div>
     ) : (
-      <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-5 md:grid-cols-3 min-w-0">
         {closet.map((garment) => {
           const selected =
             selectedGarment?.id === garment.id;
@@ -184,8 +185,8 @@ export default function ProposeExchange({ garmentId }: Props) {
                 active:scale-[0.98]
                 ${
                   selected
-                    ? 'border-[#C8F66F]'
-                    : 'border-[#F5F5F5]'
+                    ? 'border-green'
+                    : 'border-foreground'
                 }
               `}
             >
@@ -196,7 +197,7 @@ export default function ProposeExchange({ garmentId }: Props) {
                   className="aspect-square w-full object-cover"
                 />
               ) : (
-                <div className="flex aspect-square items-center justify-center bg-[#242424] text-sm text-white/50">
+                <div className="flex aspect-square items-center justify-center bg-surface text-sm text-foreground/50">
                   No image
                 </div>
               )}
@@ -209,24 +210,12 @@ export default function ProposeExchange({ garmentId }: Props) {
   </section>
 
         {/* Continue */}
-        <div className="fixed inset-x-0 bottom-0 border-t border-white/10 bg-[#1A1A1A]/95 px-6 py-5 backdrop-blur md:static md:border-t-0 md:px-10">
+        <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 border-t border-white/10 bg-background/95 px-8 py-5 backdrop-blur">
           <button
             type="button"
             disabled={!selectedGarment}
             onClick={handleContinue}
-            className="
-            mx-auto block w-full max-w-3xl
-            rounded-full
-            bg-[#C8F66F]
-            py-4
-            text-[15px] md:text-[17px]
-            font-medium
-            text-[#1A1A1A]
-            transition-all duration-150
-            active:scale-[0.98]
-            disabled:cursor-not-allowed
-            disabled:opacity-40
-            "
+            className="button-pill mx-auto block w-full max-w-lg bg-green text-background transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
           >
             Continue
           </button>

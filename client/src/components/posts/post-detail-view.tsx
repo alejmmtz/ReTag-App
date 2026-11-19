@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ import type { MeResponse, PostItem } from './post-types';
 
 type PostDetail = PostItem & { isFollowingAuthor: boolean };
 
-const ACCENT = { user: '#C8F66F', store: '#2864E8' } as const;
+const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
 
 export default function PostDetailView({ postId }: { postId: string }) {
   const router = useRouter();
@@ -111,12 +112,12 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-24 text-center text-white">
-        <p className="text-[15px] text-[#8A8A8A]">{error}</p>
+      <main className="bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <p className="text-sm text-grey">{error}</p>
         <button
           type="button"
           onClick={() => router.back()}
-          className="mt-6 h-[44px] rounded-full border border-[#6C6C6C] px-6 text-[14px]"
+          className="button-pill mt-6 border border-[#6C6C6C]"
         >
           Go back
         </button>
@@ -126,9 +127,9 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
   if (!post || !me) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
-        <div className="mx-auto w-full max-w-[560px]">
-          <div className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-[#262626]" />
+      <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+        <div className="mx-auto w-full max-w-lg">
+          <div className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-surface" />
         </div>
       </main>
     );
@@ -139,22 +140,23 @@ export default function PostDetailView({ postId }: { postId: string }) {
   const isOwner = post.author.id === me.id;
 
   return (
-    <main className="min-h-screen bg-[#191919] pb-[130px] text-white">
-      <div className="mx-auto w-full max-w-[560px] px-6 pt-14">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg mb-28">
         <header className="mb-5 flex items-center gap-2">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[40px] w-[40px] items-center justify-center text-[28px]"
+            className="flex h-[40px] w-[40px] items-center justify-center text-sm min-h-11 min-w-11"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
-          <h1 className="text-[20px] font-medium">Post</h1>
+          <h1 className="text-xl font-semibold">Post</h1>
         </header>
 
         <PostCard
           post={post}
+          viewerRole={me.role}
           showFollowing={post.isFollowingAuthor}
           onToggleLike={toggleLike}
         />
@@ -163,7 +165,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
         {post.garment && (
           <Link
             href={`/garment/${post.garment.id}`}
-            className="mt-4 flex h-[51px] w-full items-center justify-center rounded-full text-[15px] font-medium"
+            className="button-pill mt-4 w-full"
             style={{ backgroundColor: accent, color: accentText }}
           >
             See {post.garment.name}
@@ -173,7 +175,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
         {post.event && (
           <Link
             href={`/event/${post.event.id}`}
-            className="mt-4 flex h-[51px] w-full items-center justify-center rounded-full text-[15px] font-medium"
+            className="button-pill mt-4 w-full"
             style={{ backgroundColor: accent, color: accentText }}
           >
             See {post.event.title}
@@ -187,7 +189,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
               setDeleteError(null);
               setConfirmDelete(true);
             }}
-            className="mt-4 h-[51px] w-full rounded-full border border-[#FB3F0F] text-[15px] font-medium text-[#FB3F0F]"
+            className="button-pill mt-4 w-full border border-orange text-orange"
           >
             Delete post
           </button>
@@ -196,25 +198,25 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
       {confirmDelete && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/60">
-          <div className="w-full max-w-[560px] rounded-t-[23px] bg-[#171717] px-7 pb-8 pt-6">
-            <h2 className="text-[20px] font-medium">Delete this post?</h2>
-            <p className="mt-2 text-[14px] text-[#8A8A8A]">
+          <div className="w-full max-w-lg rounded-t-[23px] bg-[#171717] px-7 pb-8 pt-6">
+            <h2 className="text-base font-semibold">Delete this post?</h2>
+            <p className="mt-2 text-sm text-grey">
               It will disappear from the feed and your profile. This cannot be
               undone.
             </p>
 
             {deleteError && (
-              <p className="mt-3 text-[13px] text-[#FB3F0F]" role="alert">
+              <p className="mt-3 text-sm text-orange" role="alert">
                 {deleteError}
               </p>
             )}
 
-            <div className="mt-6 grid grid-cols-2 gap-3">
+            <div className="mt-6 grid grid-cols-2 gap-3 min-w-0">
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 disabled={deleting}
-                className="h-[48px] rounded-full border border-[#6C6C6C] text-[15px] disabled:opacity-50"
+                className="button-pill border border-[#6C6C6C] disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -223,7 +225,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
                 type="button"
                 onClick={handleDelete}
                 disabled={deleting}
-                className="h-[48px] rounded-full bg-[#FB3F0F] text-[15px] font-medium disabled:opacity-50"
+                className="button-pill bg-orange disabled:opacity-50"
               >
                 {deleting ? 'Deleting...' : 'Yes, delete'}
               </button>

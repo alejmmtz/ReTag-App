@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import AssetIcon from '../icons/asset-icon';
 import { useEffect, useRef, useState } from "react";
 
 export type PickedImage = {
@@ -74,7 +74,8 @@ export default function ImagePicker({
     onChange(images.filter((image) => image.id !== id));
   }
 
-  const current = images[selected] ?? images[0];
+  const currentIndex = images[selected] ? selected : 0;
+  const current = images[currentIndex];
 
   return (
     <div>
@@ -83,14 +84,14 @@ export default function ImagePicker({
         type="file"
         accept="image/*"
         multiple
-        className="hidden"
+        className="hidden text-sm"
         onChange={(event) => handleFiles(event.target.files)}
       />
 
       {/* Foto grande */}
       {current ? (
         <div
-          className={`relative w-full overflow-hidden bg-[#262626] ${variant === "garment" ? "aspect-square rounded-[18px]" : "aspect-[4/3] "}`}
+          className={`relative w-full overflow-hidden bg-surface ${variant === "garment" ? "aspect-square border-y border-line" : "aspect-[4/3] rounded-2xl border border-line"}`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -100,7 +101,7 @@ export default function ImagePicker({
           />
 
           {images[0]?.id === current.id && (
-            <span className="absolute bottom-3 left-3 rounded-full bg-black/70 px-3 py-1 text-[11px]">
+            <span className="image-overlay absolute bottom-3 left-3 rounded-full px-3 py-1.5 text-xs font-medium">
               Cover
             </span>
           )}
@@ -109,22 +110,26 @@ export default function ImagePicker({
             type="button"
             aria-label="Remove photo"
             onClick={() => handleRemove(current.id)}
-            className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-black/70 text-[18px] text-white"
+            className="button-icon image-overlay absolute right-3 top-3"
           >
-            ×
+            <span aria-hidden="true" className="inline-block h-3 w-3" />
           </button>
+          {images.length > 1 && (
+            <span className="image-overlay absolute bottom-3 right-3 rounded-full px-3 py-1.5 text-xs tabular-nums">
+              {currentIndex + 1} / {images.length}
+            </span>
+          )}
         </div>
       ) : (
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className={`flex w-full flex-col items-center justify-center gap-3 bg-[#202020] text-grey ${variant === "garment" ? "aspect-square rounded-[18px] text-[16px]" : "aspect-[4/3] rounded-[22px] text-[15px]"}`}
+          className={`flex w-full flex-col items-center justify-center gap-3 bg-surface/60 text-sm text-grey active:border-green/60 active:bg-surface ${variant === "garment" ? "aspect-square border-y border-line" : "aspect-[4/3] rounded-2xl border border-dashed border-grey/40"}`}
         >
-          <Image
-            src="/icons/image.svg"
-            alt=""
-            width={variant === "garment" ? 42 : 26}
-            height={variant === "garment" ? 42 : 26}
+          <AssetIcon
+            name="image"
+            width={32}
+            height={32}
           />
           {label}
         </button>
@@ -132,15 +137,17 @@ export default function ImagePicker({
 
       {/* Miniaturas */}
       {images.length > 0 && (
-        <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
+        <div className={`mt-3 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] ${variant === "garment" ? 'px-8' : ''}`}>
           {images.map((image, index) => (
             <button
               key={image.id}
               type="button"
               onClick={() => setSelected(index)}
-              className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[12px] border-2"
+              aria-label={`Select photo ${index + 1}`}
+              aria-pressed={index === currentIndex}
+              className={`size-16 shrink-0 overflow-hidden rounded-xl border-2 transition-[border-color,opacity] ${index === currentIndex ? 'opacity-100' : 'opacity-60'}`}
               style={{
-                borderColor: index === selected ? accent : "transparent",
+                borderColor: index === currentIndex ? accent : "transparent",
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -157,10 +164,10 @@ export default function ImagePicker({
               type="button"
               onClick={() => inputRef.current?.click()}
               aria-label="Add more photos"
-              className="flex h-[60px] w-[60px] shrink-0 items-center justify-center rounded-[12px] border border-dashed text-[24px]"
+              className="flex size-16 shrink-0 items-center justify-center rounded-xl border border-dashed bg-surface/60 active:bg-surface"
               style={{ borderColor: accent, color: accent }}
             >
-              +
+              <AssetIcon name="plus" />
             </button>
           )}
         </div>

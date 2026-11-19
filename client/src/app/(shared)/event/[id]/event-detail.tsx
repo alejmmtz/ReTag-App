@@ -1,5 +1,7 @@
 'use client';
 
+import AssetIcon from '../../../../components/icons/asset-icon';
+import Image from 'next/image';
 import {
   useEffect,
   useState,
@@ -12,7 +14,6 @@ import type {
 
 import { useRouter } from 'next/navigation';
 import { API_URL } from '../../../../lib/api';
-import Image from 'next/image';
 
 type Props = {
   eventId: string;
@@ -319,7 +320,7 @@ const [updatingParticipation, setUpdatingParticipation] =
 
   if (loading) {
     return (
-      <main className="flex h-screen items-center justify-center bg-[#191919] text-white">
+      <main className="flex items-center justify-center bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         Loading...
       </main>
     );
@@ -327,7 +328,7 @@ const [updatingParticipation, setUpdatingParticipation] =
 
   if (!event) {
     return (
-      <main className="flex h-screen items-center justify-center bg-[#191919] px-6 text-center text-white">
+      <main className="flex items-center justify-center bg-background text-center text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
         {error || 'Event not found.'}
       </main>
     );
@@ -351,27 +352,27 @@ const [updatingParticipation, setUpdatingParticipation] =
         : null;
 
   return (
-    <main className="flex h-screen flex-col overflow-hidden bg-[#191919] text-white">
-      <div className="min-h-0 flex-1 overflow-y-auto px-7 pb-10 pt-16">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="min-w-0 flex-1 pb-8">
 
         <button
           type="button"
           onClick={() => router.back()}
           aria-label="Go back"
-          className="text-[38px] font-light leading-none"
+          className="text-sm font-light leading-none min-h-11 min-w-11"
         >
-          ‹
+          <AssetIcon name="chevron" width={9} height={16} />
         </button>
 
         {/* Event content*/}
-        <h1 className="mt-8 text-[24px] font-semibold">
+        <h1 className="mt-8 text-xl font-semibold">
           {event.title}
         </h1>
 
         {/* Store */}
-        <div className="mt-7 flex items-center rounded-[18px] border border-[#343434] px-4 py-4">
+        <div className="mt-7 flex items-center rounded-[18px] border border-line px-4 py-4">
 
-          <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full bg-[#252525]">
+          <div className="h-[52px] w-[52px] shrink-0 overflow-hidden rounded-full bg-surface">
         {profileImage ? (
             <img
             src={profileImage.url}
@@ -391,18 +392,16 @@ const [updatingParticipation, setUpdatingParticipation] =
 
           <div className="ml-4">
             <div className="flex items-center gap-2">
-              <p className="text-[16px] font-medium">
+              <p className="text-sm font-medium">
                 {event.store?.storeName ??
                   'ReTag Store'}
               </p>
 
               {/* Verified */}
-              <span className="flex h-[16px] w-[16px] items-center justify-center rounded-full bg-[#2864E8] text-[10px] font-bold text-white">
-                ✓
-              </span>
+              <Image src="/icons/verified-badge.svg" alt="Verified" width={16} height={16} className="shrink-0" />
             </div>
 
-            <p className="mt-0 text-[13px] text-[#8B8B8B]">
+            <p className="mt-0 text-sm text-grey">
               Organizer
             </p>
           </div>
@@ -412,23 +411,22 @@ const [updatingParticipation, setUpdatingParticipation] =
         <div className="mt-8 space-y-5">
             
           <div className="flex items-center gap-4">
-            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[#343434]">
-            <Image
-                src="/icons/clock.svg"
-                alt=""
+            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-line">
+            <AssetIcon
+                name="clock"
                 width={22}
                 height={22}
             />
             </div>
 
             <div>
-              <p className="text-[16px] font-medium">
+              <p className="text-sm font-medium">
                 {formatDate(
                   event.startsAt,
                 )}
               </p>
 
-              <p className="mt-0 text-[13px] text-[#858585]">
+              <p className="mt-0 text-sm text-grey">
                 {formatTime(
                   event.startsAt,
                 )}
@@ -443,21 +441,20 @@ const [updatingParticipation, setUpdatingParticipation] =
           {/* Location */}
           {event.location && (
             <div className="flex items-center gap-4">
-              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[#343434]">
-                <Image
-                src="/icons/location.svg"
-                alt=""
+              <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-line">
+                <AssetIcon
+                name="location"
                 width={22}
                 height={22}
                 />
               </div>
 
               <div>
-                <p className="text-[16px] font-medium">
+                <p className="text-sm font-medium">
                   {event.location}
                 </p>
 
-                <p className="mt-0 text-[13px] text-[#858585]">
+                <p className="mt-0 text-sm text-grey">
                   Event location
                 </p>
               </div>
@@ -466,17 +463,16 @@ const [updatingParticipation, setUpdatingParticipation] =
 
           {/* Participants */}
           <div className="flex items-center gap-4">
-            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-[#343434]">
-              <Image
-                src="/icons/participants.svg"
-                alt=""
+            <div className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-full border border-line">
+              <AssetIcon
+                name="participants"
                 width={22}
                 height={22}
                 />
             </div>
 
             <div>
-              <p className="text-[16px] font-medium">
+              <p className="text-sm font-medium">
                 {event.participantsCount}{' '}
                 {event.participantsCount === 1
                   ? 'participant'
@@ -484,7 +480,7 @@ const [updatingParticipation, setUpdatingParticipation] =
               </p>
 
               {hasCapacity && (
-                <p className="mt-1 text-[13px] text-[#858585]">
+                <p className="mt-1 text-sm text-grey">
                   Capacity{' '}
                   {event.capacity}
                   {' · '}
@@ -498,11 +494,11 @@ const [updatingParticipation, setUpdatingParticipation] =
 
         {/* About */}
         <section className="mt-10">
-          <h2 className="text-[16px] font-medium">
+          <h2 className="text-base font-semibold">
             About the event
           </h2>
 
-          <p className="mt-2 text-[15px] leading-[1.6] text-[#F5F5F2]">
+          <p className="mt-2 text-sm leading-[1.6] text-foreground">
             {event.description}
           </p>
         </section>
@@ -519,8 +515,8 @@ const [updatingParticipation, setUpdatingParticipation] =
 
 {/* Store mode - owner */}
 {mode === 'store' && isOwner && (
-  <div className="shrink-0 border-t border-[#303030] bg-[#191919] px-7 py-5">
-    <div className="grid grid-cols-2 gap-3">
+  <div className="shrink-0 border-t border-line bg-background py-5">
+    <div className="grid grid-cols-2 gap-3 min-w-0">
       {/* Edit */}
       <button
         type="button"
@@ -529,7 +525,7 @@ const [updatingParticipation, setUpdatingParticipation] =
             `/event/${event.id}/edit`,
           )
         }
-        className="h-[47px] rounded-full bg-[#2864E8] text-[15px] font-medium text-white"
+        className="button-pill bg-blue text-foreground"
       >
         Edit event
       </button>
@@ -539,7 +535,7 @@ const [updatingParticipation, setUpdatingParticipation] =
         type="button"
         onClick={handleDelete}
         disabled={deleting}
-        className="h-[47px] rounded-full border border-white bg-transparent text-[15px] font-medium text-white disabled:opacity-50"
+        className="button-pill border border-white bg-transparent text-foreground disabled:opacity-50"
       >
         {deleting
           ? 'Deleting...'
@@ -551,15 +547,15 @@ const [updatingParticipation, setUpdatingParticipation] =
 
         {/* user mode and other stores event */}
         {mode === 'user' && !isOwner && (
-        <div className="shrink-0 border-t border-[#303030] bg-[#191919] px-7 py-5">
+        <div className="shrink-0 border-t border-line bg-background py-5">
             <button
             type="button"
             onClick={handleParticipation}
             disabled={updatingParticipation}
-            className={`h-[47px] w-full rounded-full text-[15px] font-medium transition ${
+            className={`button-pill  w-full    transition ${
                 joined
-                ? 'bg-[#c9f66f68] text-black'
-                : 'bg-[#C8F66F] text-black'
+                ? 'bg-green/20 text-green'
+                : 'bg-green text-black'
             } disabled:cursor-not-allowed disabled:opacity-50`}
             >
             {updatingParticipation

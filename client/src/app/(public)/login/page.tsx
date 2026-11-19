@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background px-8 text-foreground sm:px-10 sm:pt-12">
+    <main className="flex flex-col bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 page-enter">
       <div className="flex flex-1 flex-col justify-center">
         <div className="flex justify-center">
           <Image
@@ -18,17 +18,17 @@ export default function LoginPage() {
         </div>
 
         <section className="mt-8">
-          <h1 className="mb-6 text-center text-[32px] font-medium leading-tight tracking-[-0.03em]">
+          <h1 className="mb-6 text-center text-2xl font-semibold leading-tight tracking-tight">
             Hey there! <br />
             Welcome Back.
           </h1>
 
           <LoginForm />
-          <p className="mt-4 text-center text-[14px] text-grey">
+          <p className="mt-4 text-center text-sm text-grey">
             No account yet?{" "}
             <Link
               href="/sign-up"
-              className="font-semibold text-green underline decoration-1 underline-offset-2 hover:brightness-110"
+              className="font-semibold text-green underline decoration-1 underline-offset-2 active:brightness-110"
             >
               Sign Up
             </Link>

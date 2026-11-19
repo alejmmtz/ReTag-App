@@ -1,5 +1,6 @@
 'use client';
 
+import AssetIcon from '../icons/asset-icon';
 import { useRouter } from 'next/navigation';
 import TransactionGarmentCard from './transaction-garment-card';
 import type {
@@ -47,33 +48,33 @@ export default function TradeDetail({
   const router = useRouter();
 
   return (
-    <main className="min-h-dvh bg-[#1A1A1A] text-[#F5F5F5]">
-      <div className="mx-auto min-h-dvh w-full max-w-[520px]">
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-24 page-enter">
+      <div className="mx-auto w-full max-w-lg">
 
         {/* Header */}
-        <header className="flex items-center gap-4 border-b border-[#2E2E2E] px-7 pb-5 pt-12">
+        <header className="flex items-center gap-4 border-b border-line pb-6">
           <button
             type="button"
             onClick={() => router.back()}
-            className="text-[34px]"
+            className="text-sm min-h-11 min-w-11"
             aria-label="Go back"
           >
-            ‹
+            <AssetIcon name="chevron" width={9} height={16} />
           </button>
 
-          <h1 className="text-[20px] font-medium">
+          <h1 className="text-xl font-semibold">
             Go back
           </h1>
         </header>
 
         {/* Transaction content */}
         <section
-          className={`px-7 pt-7 ${
-            transaction.status === 'pending' &&
-            !isBuyer
-              ? 'pb-32'
-              : 'pb-7'
-          }`}
+          className={` pt-7 ${
+ transaction.status === 'pending' &&
+ !isBuyer
+ ? 'pb-32'
+ : 'pb-7'
+ }`}
         >
 
           <div className="mb-8 flex items-center justify-between">
@@ -87,12 +88,12 @@ export default function TradeDetail({
                   className="h-10 w-10 rounded-lg object-cover"
                 />
               ) : (
-                <div className="h-10 w-10 rounded-lg bg-[#F5F5F5]" />
+                <div className="h-10 w-10 rounded-lg bg-foreground" />
               )}
 
               {/* User information */}
               <div>
-                <p className="text-[15px] font-medium">
+                <p className="text-sm font-medium">
                   {isBuyer
                     ? `You Offered to @${otherUser?.username ?? 'user'}`
                     : `@${otherUser?.username ?? 'user'}`}
@@ -100,7 +101,7 @@ export default function TradeDetail({
 
                 {transaction.status === 'pending' &&
                   !isBuyer && (
-                    <p className="text-[13px]">
+                    <p className="text-sm">
                       Wants to trade with you
                     </p>
                   )}
@@ -108,7 +109,7 @@ export default function TradeDetail({
                 {transaction.status ===
                   'in_progress' &&
                   isBuyer && (
-                    <p className="text-[13px]">
+                    <p className="text-sm">
                       Your proposal was accepted
                     </p>
                   )}
@@ -116,7 +117,7 @@ export default function TradeDetail({
             </div>
 
             {/* Status */}
-            <div className="rounded-full border-2 border-[#1465FF] bg-[#1466ff51] px-4 py-2 text-[14px]">
+            <div className="rounded-full border-2 border-[#1465FF] bg-[#1466ff51] px-4 py-2 text-sm">
               {getStatusLabel(transaction.status)}
             </div>
           </div>
@@ -134,14 +135,8 @@ export default function TradeDetail({
             />
           )}
 
-          <div className="flex items-center justify-center py-6 text-[42px] leading-none">
-            <span className="text-[#F5F5F5]">
-              ↓
-            </span>
-
-            <span className="text-[#C8F66F]">
-              ↑
-            </span>
+          <div className="flex items-center justify-center py-6">
+            <span aria-hidden="true" className="inline-block h-6 w-6" />
           </div>
 
           {/* Garment received / given */}
@@ -165,9 +160,9 @@ export default function TradeDetail({
         {/* Accept / Reject */}
         {transaction.status === 'pending' &&
           !isBuyer && (
-            <div className="fixed inset-x-0 bottom-0 z-20 border-t border-[#2E2E2E] bg-[#1A1A1A]/95 px-7 py-5 backdrop-blur">
+            <div className="fixed mx-auto w-full max-w-lg inset-x-0 bottom-0 z-20 border-t border-line bg-background/95 px-8 py-5 backdrop-blur">
 
-              <div className="mx-auto flex max-w-[520px] gap-3">
+              <div className="mx-auto flex max-w-lg gap-3">
 
                 {/* Reject */}
                 <button
@@ -176,7 +171,7 @@ export default function TradeDetail({
                   onClick={() =>
                     onUpdateStatus('canceled')
                   }
-                  className="w-1/2 rounded-full border border-[#F5F5F5] py-4 text-[14px] font-medium active:scale-[0.98] disabled:opacity-40"
+                  className="button-pill w-1/2 border border-foreground active:scale-[0.98] disabled:opacity-40"
                 >
                   Reject
                 </button>
@@ -188,7 +183,7 @@ export default function TradeDetail({
                   onClick={() =>
                     onUpdateStatus('in_progress')
                   }
-                  className="w-1/2 rounded-full bg-[#C8F66F] py-4 text-[14px] font-medium text-[#1A1A1A] active:scale-[0.98] disabled:opacity-40"
+                  className="button-pill w-1/2 bg-green text-background active:scale-[0.98] disabled:opacity-40"
                 >
                   Accept
                 </button>

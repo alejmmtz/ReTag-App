@@ -3,7 +3,6 @@
 import { useState } from 'react';
 
 import ChevronDownIcon from '../icons/chevron-down-icon';
-import FeedStickers from './feed-stickers';
 import type { FeedFilter } from './post-types';
 
 type Option = {
@@ -49,19 +48,17 @@ export default function FeedFilterSelect({
         onClick={() => setOpen((previous) => !previous)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex h-[50px] w-full items-center gap-2 rounded-[12px] px-4 text-[16px] font-medium"
+        className="flex h-12 w-full items-center gap-2 rounded-[12px] px-4 text-sm font-medium min-h-11 min-w-11"
         style={{ backgroundColor: accent, color: accentText }}
       >
         {current?.label}
         <ChevronDownIcon />
       </button>
 
-      <FeedStickers />
-
       {open && (
         <ul
           role="listbox"
-          className="absolute left-0 right-0 top-[58px] z-30 overflow-hidden rounded-[12px] border border-[#303030] bg-[#171717]"
+          className="page-enter absolute left-0 right-0 top-[58px] z-30 overflow-hidden rounded-[12px] border border-line bg-[#171717]"
         >
           {options.map((option) => (
             <li key={option.value}>
@@ -70,7 +67,7 @@ export default function FeedFilterSelect({
                 role="option"
                 aria-selected={option.value === value}
                 onClick={() => select(option.value)}
-                className="w-full px-4 py-3 text-left text-[15px]"
+                className="w-full px-4 py-3 text-left text-sm min-h-11 min-w-11"
                 style={{
                   color: option.value === value ? accent : '#FFFFFF',
                 }}
