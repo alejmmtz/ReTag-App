@@ -50,44 +50,47 @@ const [updatingParticipation, setUpdatingParticipation] =
 
 
   useEffect(() => {
-    async function loadEvent() {
-      try {
-        const response = await fetch(
-          `${API_URL}/events/${eventId}`,
-          {
-            cache: 'no-store',
-          },
-        );
+  async function loadEvent() {
+  try {
+    const token =
+      localStorage.getItem('access_token');
 
-        if (!response.ok) {
-          setError(
-            'The event could not be found.',
-          );
-          return;
-        }
+    if (!token) {
+      setError('No active session was found.');
+      return;
+    }
 
-        const eventData: Event =
-          await response.json();
+    const response = await fetch(
+      `${API_URL}/events/${eventId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store',
+      },
+    );
 
-        setEvent(eventData);
+    if (!response.ok) {
+      setError(
+        'The event could not be found.',
+      );
+      return;
+    }
 
-        const token =
-          localStorage.getItem(
-            'access_token',
-          );
+    const eventData: Event =
+      await response.json();
 
-        if (!token) return;
+    setEvent(eventData);
 
-        const userResponse = await fetch(
-          `${API_URL}/auth/me`,
-          {
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-            cache: 'no-store',
-          },
-        );
+    const userResponse = await fetch(
+      `${API_URL}/auth/me`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        cache: 'no-store',
+      },
+    );
 
         if (!userResponse.ok) return;
 
