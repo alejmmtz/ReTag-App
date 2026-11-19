@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 export type PickedImage = {
   id: string;
@@ -15,7 +15,7 @@ type Props = {
   max?: number;
   accent: string;
   label?: string;
-  variant?: 'default' | 'garment';
+  variant?: "default" | "garment";
 };
 
 export default function ImagePicker({
@@ -23,8 +23,8 @@ export default function ImagePicker({
   onChange,
   max = 10,
   accent,
-  label = 'Add images',
-  variant = 'default',
+  label = "Add images",
+  variant = "default",
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const imagesRef = useRef(images);
@@ -59,7 +59,7 @@ export default function ImagePicker({
     onChange([...images, ...picked]);
 
     if (inputRef.current) {
-      inputRef.current.value = '';
+      inputRef.current.value = "";
     }
   }
 
@@ -89,7 +89,9 @@ export default function ImagePicker({
 
       {/* Foto grande */}
       {current ? (
-        <div className={`relative w-full overflow-hidden bg-[#262626] ${variant === 'garment' ? 'aspect-square rounded-[18px]' : 'aspect-[4/3] rounded-[22px]'}`}>
+        <div
+          className={`relative w-full overflow-hidden bg-[#262626] ${variant === "garment" ? "aspect-square rounded-[18px]" : "aspect-[4/3] "}`}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={current.previewUrl}
@@ -116,9 +118,14 @@ export default function ImagePicker({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className={`flex w-full flex-col items-center justify-center gap-3 bg-[#202020] text-grey ${variant === 'garment' ? 'aspect-square rounded-[18px] text-[16px]' : 'aspect-[4/3] rounded-[22px] text-[15px]'}`}
+          className={`flex w-full flex-col items-center justify-center gap-3 bg-[#202020] text-grey ${variant === "garment" ? "aspect-square rounded-[18px] text-[16px]" : "aspect-[4/3] rounded-[22px] text-[15px]"}`}
         >
-          <Image src="/icons/image.svg" alt="" width={variant === 'garment' ? 42 : 26} height={variant === 'garment' ? 42 : 26} />
+          <Image
+            src="/icons/image.svg"
+            alt=""
+            width={variant === "garment" ? 42 : 26}
+            height={variant === "garment" ? 42 : 26}
+          />
           {label}
         </button>
       )}
@@ -132,7 +139,9 @@ export default function ImagePicker({
               type="button"
               onClick={() => setSelected(index)}
               className="h-[60px] w-[60px] shrink-0 overflow-hidden rounded-[12px] border-2"
-              style={{ borderColor: index === selected ? accent : 'transparent' }}
+              style={{
+                borderColor: index === selected ? accent : "transparent",
+              }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

@@ -25,6 +25,26 @@ type Props = {
   garment?: GarmentDetail;
 };
 
+function SelectChevron({ color = "currentColor" }: { color?: string }) {
+  return (
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="none"
+      className="pointer-events-none h-4 w-4 shrink-0"
+      style={{ color }}
+    >
+      <path
+        d="M5 7.5L10 12.5L15 7.5"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function GarmentForm({ garment }: Props) {
   const router = useRouter();
   const isEdit = !!garment;
@@ -71,6 +91,7 @@ export default function GarmentForm({ garment }: Props) {
 
   const [materialsOpen, setMaterialsOpen] = useState(false);
   const [careOpen, setCareOpen] = useState(false);
+  const [colorsExpanded, setColorsExpanded] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +105,6 @@ export default function GarmentForm({ garment }: Props) {
     return false;
   }
 
-  // Carga el rol y los catálogos (categorías, marcas, tallas, colores...).
   useEffect(() => {
     let cancelled = false;
 
@@ -116,11 +136,11 @@ export default function GarmentForm({ garment }: Props) {
 
   if (!role || !catalogs) {
     return (
-      <main className="min-h-screen bg-[#191919] px-6 pt-16 text-white">
+      <main className="min-h-screen bg-[#141414] px-6 pt-16 text-white">
         {error ? (
           <p className="text-center text-[14px] text-[#FB3F0F]">{error}</p>
         ) : (
-          <div className="h-[48px] w-full animate-pulse rounded-full bg-[#262626]" />
+          <div className="mx-auto h-[48px] max-w-[520px] animate-pulse rounded-full bg-[#222222]" />
         )}
       </main>
     );
@@ -128,7 +148,7 @@ export default function GarmentForm({ garment }: Props) {
 
   const accent = ACCENT[role];
   const isStore = role === "store";
-  const accentText = isStore ? "#FFFFFF" : "#1A1A1A";
+  const accentText = isStore ? "#FFFFFF" : "#141414";
   const today = new Date().toISOString().slice(0, 10);
 
   const effectiveType: TransactionType = isStore ? "sale" : transactionType;
@@ -224,45 +244,47 @@ export default function GarmentForm({ garment }: Props) {
   function chipStyle(active: boolean) {
     return active
       ? { backgroundColor: accent, borderColor: accent, color: accentText }
-      : { borderColor: "#6C6C6C", color: "#F5F5F5" };
+      : {
+          backgroundColor: "#191919",
+          borderColor: "#2C2C2C",
+          color: "#D4D4D4",
+        };
   }
 
-  const showAllMaterials = materialsOpen;
-  const visibleMaterials = showAllMaterials ? MATERIALS : MATERIALS.slice(0, 4);
+  const visibleMaterials = materialsOpen ? MATERIALS : MATERIALS.slice(0, 4);
   const visibleCare = careOpen
     ? catalogs.careDetails
     : catalogs.careDetails.slice(0, 4);
-
-  const UNDERLINE =
-    "w-full border-b border-grey bg-transparent pb-2 text-[22px] text-foreground outline-none placeholder:text-grey focus:border-foreground";
-  const PILL_SELECT =
-    "h-[52px] w-full rounded-full px-5 text-[16px] font-medium outline-none";
+  const visibleColors = colorsExpanded
+    ? catalogs.colors
+    : catalogs.colors.slice(0, 3);
 
   return (
-    <main className="min-h-screen bg-background pb-[150px] text-foreground">
-      <div className="mx-auto w-full max-w-[520px] px-7 sm:px-8">
-        <header className="-mx-7 flex h-[104px] items-center gap-3 border-b border-white/10 px-7 sm:-mx-8 sm:px-8">
+    <main className="min-h-screen bg-[#141414] pb-[140px] text-[#F5F5F5]">
+      <div className="mx-auto w-full max-w-[520px]">
+        {/* Header */}
+        <header className="flex h-14 items-center gap-2 px-4">
           <button
             type="button"
             aria-label="Go back"
             onClick={() => router.back()}
-            className="flex h-[48px] w-[48px] items-center justify-start text-[42px] leading-none"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[24px] leading-none text-white/90 transition hover:bg-white/5"
           >
             ‹
           </button>
 
-          <h1 className="text-[28px] font-medium tracking-[-0.03em]">
+          <h1 className="text-[17px] font-medium tracking-[-0.02em] text-white">
             {isEdit ? "Edit Garment" : "New Garment"}
           </h1>
         </header>
 
         {/* Fotos actuales (solo al editar) */}
         {keptUrls.length > 0 && (
-          <div className="mt-5 flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none]">
+          <div className="mb-3 flex gap-2.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none]">
             {keptUrls.map((url, index) => (
               <div
                 key={url}
-                className="relative h-[96px] w-[80px] shrink-0 overflow-hidden rounded-[14px] bg-[#262626]"
+                className="relative h-24 w-20 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-[#1D1D1D]"
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -277,7 +299,7 @@ export default function GarmentForm({ garment }: Props) {
                   onClick={() =>
                     setKeptUrls(keptUrls.filter((item) => item !== url))
                   }
-                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-[14px] text-white"
+                  className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/75 text-[12px] text-white"
                 >
                   ×
                 </button>
@@ -286,8 +308,8 @@ export default function GarmentForm({ garment }: Props) {
           </div>
         )}
 
-        {/* Fotos (área grande arriba) */}
-        <section className="mt-5">
+        {/* Área de imágenes */}
+        <section className="w-full bg-[#191919]">
           <ImagePicker
             images={images}
             onChange={setImages}
@@ -297,330 +319,401 @@ export default function GarmentForm({ garment }: Props) {
           />
         </section>
 
-        {/* Nombre */}
-        <section className="mt-6">
-          <label className="text-[16px] text-grey" htmlFor="garment-name">
-            Name
-          </label>
-          <input
-            id="garment-name"
-            value={name}
-            onChange={(event) => setName(event.target.value.slice(0, 120))}
-            placeholder="e.g. True Religion Jeans"
-            className={`mt-1 ${UNDERLINE}`}
-          />
-        </section>
+        <div className="space-y-6 px-5 pt-6">
+          {/* Nombre */}
+          <section>
+            <label
+              className="block text-[12px] font-normal text-[#9E9E9E]"
+              htmlFor="garment-name"
+            >
+              Name
+            </label>
+            <input
+              id="garment-name"
+              value={name}
+              onChange={(event) => setName(event.target.value.slice(0, 120))}
+              placeholder="Stwd Jacket 2024 Winter"
+              className="mt-2 w-full border-b border-[#2E2E2E] bg-transparent pb-2.5 text-[14px] text-white outline-none placeholder:text-[#6B6B6B] focus:border-white/50"
+            />
+          </section>
 
-        {/* Modo de transacción: solo user y solo al crear */}
-        {!isStore && !isEdit && (
-          <section className="mt-6">
-            <p className="mb-4 text-[16px] text-grey">Transaction mode</p>
-            <div className="flex gap-2">
-              {(
-                [
-                  { value: "sale", label: "Purchase" },
-                  { value: "trade", label: "Exchange" },
-                  { value: "both", label: "Both" },
-                ] as { value: TransactionType; label: string }[]
-              ).map((type) => {
-                const active = transactionType === type.value;
+          {/* Modo de transacción */}
+          {!isStore && !isEdit && (
+            <section>
+              <p className="mb-2.5 text-[12px] text-[#9E9E9E]">
+                Transaction mode
+              </p>
+              <div className="grid grid-cols-3 gap-2.5">
+                {(
+                  [
+                    { value: "sale", label: "Purchase" },
+                    { value: "trade", label: "Exchange" },
+                    { value: "both", label: "Both" },
+                  ] as { value: TransactionType; label: string }[]
+                ).map((type) => {
+                  const active = transactionType === type.value;
+
+                  return (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() => setTransactionType(type.value)}
+                      className="py-3 rounded-full border px-3 text-[12px] font-medium transition"
+                      style={
+                        active
+                          ? {
+                              backgroundColor: "#FFFFFF",
+                              borderColor: "#FFFFFF",
+                              color: "#141414",
+                            }
+                          : {
+                              backgroundColor: "#191919",
+                              borderColor: "#2C2C2C",
+                              color: "#8E8E8E",
+                            }
+                      }
+                    >
+                      {type.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* Precio y fecha de adquisición */}
+          <section className="grid grid-cols-2 gap-3.5">
+            <div>
+              <label
+                className="block text-[12px] text-[#9E9E9E]"
+                htmlFor="garment-price"
+              >
+                Price
+              </label>
+              <div className="mt-2 flex h-[44px] items-center rounded-[12px] border border-[#2A2A2A] bg-[#191919] px-3.5 focus-within:border-white/40 disabled:opacity-40">
+                <span className="mr-1 text-[13px] text-[#777777]">$</span>
+                <input
+                  id="garment-price"
+                  type="number"
+                  inputMode="decimal"
+                  min={1}
+                  max={10000}
+                  value={needsPrice ? price : ""}
+                  disabled={!needsPrice}
+                  onChange={(event) => setPrice(event.target.value)}
+                  placeholder={needsPrice ? "9.99" : "Exchange"}
+                  className="w-full bg-transparent text-[13px] text-white outline-none placeholder:text-[#6B6B6B] disabled:opacity-40"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label
+                className="block text-[12px] text-[#9E9E9E]"
+                htmlFor="garment-date"
+              >
+                Date of Acquisition
+              </label>
+              <div className="relative mt-2 flex h-[44px] items-center rounded-[12px] border border-[#2A2A2A] bg-[#191919] px-3.5 focus-within:border-white/40">
+                <input
+                  id="garment-date"
+                  type="date"
+                  value={datePurchased}
+                  max={today}
+                  onChange={(event) => setDatePurchased(event.target.value)}
+                  className="w-full bg-transparent pr-7 text-[13px] text-white outline-none [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0"
+                />
+                <Image
+                  src="/icons/calendar.svg"
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 opacity-75"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Categoría */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Category</p>
+            <div className="relative">
+              <select
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+                aria-label="Category"
+                className="py-3 mt-2 text-center w-full appearance-none rounded-full text-[12px] font-medium outline-none"
+                style={{ backgroundColor: accent, color: accentText }}
+              >
+                {catalogs.categories.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3 top-7.5 -translate-y-1/2">
+                <SelectChevron color={accentText} />
+              </span>
+            </div>
+          </section>
+
+          {/* ReTags */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">ReTags</p>
+            <div className="flex flex-wrap gap-2">
+              {catalogs.tags.map((tag) => {
+                const active = tagIds.includes(tag.id);
 
                 return (
                   <button
-                    key={type.value}
+                    key={tag.id}
                     type="button"
-                    onClick={() => setTransactionType(type.value)}
-                    className="h-[54px] flex-1 rounded-full border px-2 text-[15px] font-medium"
-                    style={
-                      active
-                        ? {
-                            backgroundColor: "#FFFFFF",
-                            borderColor: "#FFFFFF",
-                            color: "#1A1A1A",
-                          }
-                        : { borderColor: "#6C6C6C", color: "#F5F5F5" }
-                    }
+                    aria-pressed={active}
+                    onClick={() => toggle(tagIds, tag.id, setTagIds)}
+                    className="inline-flex h-[34px] items-center rounded-full border px-3.5 text-[12px] font-medium transition"
+                    style={chipStyle(active)}
                   >
-                    {type.label}
+                    #{tag.name}
+                    {active && <span className="ml-1.5 text-[13px]">×</span>}
                   </button>
                 );
               })}
             </div>
           </section>
-        )}
 
-        {/* Precio y fecha de adquisición, lado a lado */}
-        <section className="mt-6 grid grid-cols-2 gap-5">
-          <div>
-            <label
-              className="text-[16px] text-grey"
-              htmlFor="garment-price"
-            >
-              Price (USD)
-            </label>
-            <input
-              id="garment-price"
-              type="number"
-              inputMode="decimal"
-              min={1}
-              max={10000}
-              value={needsPrice ? price : ""}
-              disabled={!needsPrice}
-              onChange={(event) => setPrice(event.target.value)}
-              placeholder={needsPrice ? "0" : "Exchange"}
-              className={`mt-3 h-[66px] rounded-[18px] border border-white/10 px-5 ${UNDERLINE} disabled:opacity-40`}
-            />
-          </div>
-
-          <div>
-            <label
-              className="text-[16px] text-grey"
-              htmlFor="garment-date"
-            >
-              Date of Acquisition
-            </label>
-            <div className="relative mt-3">
-              <input
-                id="garment-date"
-                type="date"
-                value={datePurchased}
-                max={today}
-                onChange={(event) => setDatePurchased(event.target.value)}
-                className={`h-[66px] rounded-[18px] border border-white/10 px-5 pr-14 ${UNDERLINE} [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0`}
-              />
-              <Image src="/icons/calendar.svg" alt="" width={22} height={24} className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-        </section>
-
-        {/* Categoría */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">Category</p>
-          <select
-            value={categoryId}
-            onChange={(event) => setCategoryId(event.target.value)}
-            aria-label="Category"
-            className={PILL_SELECT}
-            style={{ backgroundColor: accent, color: accentText }}
-          >
-            <option value="">Select a category</option>
-            {catalogs.categories.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
-        </section>
-
-        {/* ReTags */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">ReTags</p>
-          <div className="flex flex-wrap gap-2">
-            {catalogs.tags.map((tag) => {
-              const active = tagIds.includes(tag.id);
-
-              return (
-                <button
-                  key={tag.id}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => toggle(tagIds, tag.id, setTagIds)}
-                  className="h-[48px] rounded-full border px-5 text-[16px] font-medium"
-                  style={chipStyle(active)}
-                >
-                  #{tag.name}
-                  {active && <span className="ml-2">×</span>}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Marca y talla, lado a lado */}
-        <section className="mt-6 grid grid-cols-2 gap-5">
-          <div>
-            <label
-              className="text-[16px] text-grey"
-              htmlFor="garment-brand"
-            >
-              Brand
-            </label>
-            <select
-              id="garment-brand"
-              value={brandId}
-              onChange={(event) => setBrandId(event.target.value)}
-              className={`mt-3 h-[66px] rounded-[18px] border border-white/10 px-5 ${UNDERLINE} [color-scheme:dark]`}
-            >
-              <option value="">Select</option>
-              {catalogs.brands.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label
-              className="text-[16px] text-grey"
-              htmlFor="garment-size"
-            >
-              Size
-            </label>
-            <select
-              id="garment-size"
-              value={sizeId}
-              onChange={(event) => setSizeId(event.target.value)}
-              className={`mt-3 h-[66px] rounded-[18px] border border-white/10 px-5 ${UNDERLINE} [color-scheme:dark]`}
-            >
-              <option value="">Select</option>
-              {catalogs.sizes.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.type} · {item.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </section>
-
-        {/* Materiales */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">Materials</p>
-          <div className="flex flex-wrap gap-2">
-            {visibleMaterials.map((item) => (
-              <button
-                key={item}
-                type="button"
-                aria-pressed={material === item}
-                onClick={() => setMaterial(material === item ? "" : item)}
-                className="h-[48px] rounded-full border px-5 text-[16px] capitalize"
-                style={chipStyle(material === item)}
+          {/* Marca y talla */}
+          <section className="grid grid-cols-2 gap-3.5">
+            <div>
+              <label
+                className="block text-[12px] text-[#9E9E9E]"
+                htmlFor="garment-brand"
               >
-                {item}
-              </button>
-            ))}
-            {!showAllMaterials && MATERIALS.length > 4 && (
+                Brand
+              </label>
+              <div className="relative mt-2">
+                <select
+                  id="garment-brand"
+                  value={brandId}
+                  onChange={(event) => setBrandId(event.target.value)}
+                  className="h-[44px] w-full appearance-none rounded-[12px] border border-[#2A2A2A] bg-[#191919] pl-3.5 pr-9 text-[13px] text-white outline-none focus:border-white/40"
+                >
+                  {catalogs.brands.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9E9E9E]">
+                  <SelectChevron />
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label
+                className="block text-[12px] text-[#9E9E9E]"
+                htmlFor="garment-size"
+              >
+                Size
+              </label>
+              <div className="relative mt-2">
+                <select
+                  id="garment-size"
+                  value={sizeId}
+                  onChange={(event) => setSizeId(event.target.value)}
+                  className="h-[44px] w-full appearance-none rounded-[12px] border border-[#2A2A2A] bg-[#191919] pl-3.5 pr-9 text-[13px] text-white outline-none focus:border-white/40"
+                >
+                  {catalogs.sizes.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.type} · {item.label}
+                    </option>
+                  ))}
+                </select>
+                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#9E9E9E]">
+                  <SelectChevron />
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* Materiales */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Materials</p>
+            <div className="flex flex-wrap gap-2">
+              {visibleMaterials.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  aria-pressed={material === item}
+                  onClick={() => setMaterial(material === item ? "" : item)}
+                  className="h-[34px] rounded-full border px-3.5 text-[12px] font-medium capitalize transition"
+                  style={chipStyle(material === item)}
+                >
+                  {item}
+                </button>
+              ))}
+              {!materialsOpen && MATERIALS.length > 4 && (
+                <button
+                  type="button"
+                  onClick={() => setMaterialsOpen(true)}
+                  className="h-[34px] rounded-full border border-[#2C2C2C] bg-[#191919] px-3.5 text-[12px] text-[#CFCFCF] transition hover:border-white/30"
+                >
+                  More +
+                </button>
+              )}
+            </div>
+          </section>
+
+          {/* Condición */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Condition</p>
+            <div className="relative">
+              <select
+                value={condition}
+                onChange={(event) => setCondition(event.target.value)}
+                aria-label="Condition"
+                className="py-3 w-full appearance-none rounded-full pl-4 pr-9 text-[12px] font-medium capitalize outline-none"
+                style={{ backgroundColor: accent, color: accentText }}
+              >
+                {CONDITIONS.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2">
+                <SelectChevron color={accentText} />
+              </span>
+            </div>
+          </section>
+
+          {/* Cuidado y detalles */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">
+              Care &amp; details
+            </p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {visibleCare.map((item) => {
+                const active = careId === String(item.id);
+
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setCareId(active ? "" : String(item.id))}
+                    className="flex h-[42px] items-center gap-2.5 rounded-[12px] border px-3.5 text-left text-[12px] font-medium transition"
+                    style={chipStyle(active)}
+                  >
+                    <Image
+                      src="/icons/garment.svg"
+                      alt=""
+                      width={16}
+                      height={16}
+                      className="shrink-0 opacity-85"
+                      style={{
+                        filter: active
+                          ? "brightness(0)"
+                          : "brightness(0) invert(1)",
+                      }}
+                    />
+                    <span className="truncate">{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+            {!careOpen && catalogs.careDetails.length > 4 && (
               <button
                 type="button"
-                onClick={() => setMaterialsOpen(true)}
-                className="h-[48px] rounded-full border border-[#6C6C6C] px-5 text-[16px]"
+                onClick={() => setCareOpen(true)}
+                className="mt-2.5 h-[32px] rounded-full border border-[#2C2C2C] bg-[#191919] px-3.5 text-[12px] text-[#CFCFCF]"
               >
                 More +
               </button>
             )}
-          </div>
-        </section>
+          </section>
 
-        {/* Condición */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">Condition</p>
-          <select
-            value={condition}
-            onChange={(event) => setCondition(event.target.value)}
-            aria-label="Condition"
-            className={`${PILL_SELECT} capitalize`}
-            style={{ backgroundColor: accent, color: accentText }}
-          >
-            <option value="">Select a condition</option>
-            {CONDITIONS.map((item) => (
-              <option key={item} value={item}>
-                {item}
-              </option>
-            ))}
-          </select>
-        </section>
+          {/* Colores */}
+          <section>
+            <p className="mb-2.5 text-[12px] text-[#9E9E9E]">Colors</p>
+            <div className="flex flex-wrap items-center gap-2.5">
+              {visibleColors.map((color) => {
+                const active = colorIds.includes(color.id);
 
-        {/* Cuidado y detalles */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">Care &amp; details</p>
-          <div className="grid grid-cols-2 gap-3">
-            {visibleCare.map((item) => {
-              const active = careId === String(item.id);
+                return (
+                  <button
+                    key={color.id}
+                    type="button"
+                    aria-label={color.name}
+                    aria-pressed={active}
+                    title={color.name}
+                    onClick={() => toggle(colorIds, color.id, setColorIds)}
+                    className="flex h-[32px] w-[32px] items-center justify-center rounded-full border transition"
+                    style={{
+                      borderColor: active ? accent : "#383838",
+                      boxShadow: active ? `0 0 0 1.5px ${accent}` : undefined,
+                    }}
+                  >
+                    <span
+                      className="h-[24px] w-[24px] rounded-full"
+                      style={{ backgroundColor: color.hexcode }}
+                    />
+                  </button>
+                );
+              })}
 
-              return (
+              {!colorsExpanded && catalogs.colors.length > 3 && (
                 <button
-                  key={item.id}
                   type="button"
-                  aria-pressed={active}
-                  onClick={() => setCareId(active ? "" : String(item.id))}
-                  className="flex min-h-[72px] items-center gap-3 rounded-[18px] border px-4 text-left text-[15px] leading-tight"
-                  style={chipStyle(active)}
+                  aria-label="Show more colors"
+                  onClick={() => setColorsExpanded(true)}
+                  className="flex h-[32px] w-[32px] items-center justify-center rounded-full border border-[#383838] bg-transparent text-[15px] text-[#BDBDBD] transition hover:border-white/40 hover:text-white"
                 >
-                  <Image src="/icons/garment.svg" alt="" width={26} height={24} className="shrink-0 brightness-0 invert" />
-                  {item.name}
+                  +
                 </button>
-              );
-            })}
-          </div>
-          {!careOpen && catalogs.careDetails.length > 4 && (
-            <button
-              type="button"
-              onClick={() => setCareOpen(true)}
-              className="mt-3 h-[34px] rounded-full border border-[#6C6C6C] px-4 text-[13px]"
+              )}
+            </div>
+          </section>
+
+          {/* Descripción */}
+          <section>
+            <label
+              className="mb-2 block text-[12px] text-[#9E9E9E]"
+              htmlFor="garment-description"
             >
-              More +
-            </button>
+              Description
+            </label>
+            <textarea
+              id="garment-description"
+              value={description}
+              onChange={(event) =>
+                setDescription(event.target.value.slice(0, MAX_DESCRIPTION))
+              }
+              rows={4}
+              placeholder="Write about the garment..."
+              className="w-full resize-none rounded-[14px] border border-[#2A2A2A] bg-[#191919] p-3.5 text-[13px] text-white outline-none placeholder:text-[#6B6B6B] focus:border-white/40"
+            />
+            <p className="mt-1 text-right text-[11px] text-[#7A7A7A]">
+              {description.length}/{MAX_DESCRIPTION}
+            </p>
+          </section>
+
+          {error && (
+            <p className="text-[12px] text-[#FB3F0F]" role="alert">
+              {error}
+            </p>
           )}
-        </section>
-
-        {/* Colores */}
-        <section className="mt-6">
-          <p className="mb-4 text-[16px] text-grey">Colors</p>
-          <div className="flex flex-wrap gap-3">
-            {catalogs.colors.map((color) => {
-              const active = colorIds.includes(color.id);
-
-              return (
-                <button
-                  key={color.id}
-                  type="button"
-                  aria-label={color.name}
-                  aria-pressed={active}
-                  title={color.name}
-                  onClick={() => toggle(colorIds, color.id, setColorIds)}
-                  className="h-[42px] w-[42px] rounded-full border-2"
-                  style={{
-                    backgroundColor: color.hexcode,
-                    borderColor: active ? accent : "rgba(255,255,255,0.25)",
-                    boxShadow: active ? `0 0 0 2px ${accent}55` : undefined,
-                  }}
-                />
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Descripción */}
-        <section className="mt-6">
-          <textarea
-            value={description}
-            onChange={(event) =>
-              setDescription(event.target.value.slice(0, MAX_DESCRIPTION))
-            }
-            rows={4}
-            placeholder="Description: tell us about this garment..."
-            className="h-[190px] w-full resize-none rounded-[22px] border border-white/10 bg-transparent p-5 text-[18px] text-foreground outline-none placeholder:text-grey focus:border-white/25"
-          />
-          <p className="mt-1 text-right text-[12px] text-[#8A8A8A]">
-            {description.length}/{MAX_DESCRIPTION}
-          </p>
-        </section>
-
-        {error && (
-          <p className="mt-2 text-[13px] text-[#FB3F0F]" role="alert">
-            {error}
-          </p>
-        )}
+        </div>
       </div>
 
       {/* Botón fijo abajo */}
-      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#191919] via-[#191919] to-transparent pb-8 pt-6">
-        <div className="mx-auto w-full max-w-[520px] px-7 sm:px-8">
+      <div className="fixed inset-x-0 bottom-0 z-40 bg-gradient-to-t from-[#141414] via-[#141414]/95 to-transparent pb-6 pt-5">
+        <div className="mx-auto w-full max-w-[520px] px-5">
           <button
             type="button"
             onClick={handleSubmit}
             disabled={!canSubmit}
-            className="h-[51px] w-full rounded-full text-[15px] font-medium disabled:opacity-40"
+            className="h-[48px] w-full rounded-full text-[14px] font-medium transition disabled:opacity-40"
             style={{ backgroundColor: accent, color: accentText }}
           >
             {submitting

@@ -106,9 +106,9 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
     async function load() {
       try {
-        const [userData, postsData, garmentsData, statsData, storeData, eventsData] =
+        const userData = await authFetch<ProfileUser>(`/users/${targetId}`);
+        const [postsData, garmentsData, statsData, storeData, eventsData] =
           await Promise.all([
-            authFetch<ProfileUser>(`/users/${targetId}`),
             authFetch<Paginated<ProfilePost>>(
               `/users/${targetId}/posts?page=1&limit=${PAGE_SIZE}`,
             ),
@@ -120,9 +120,11 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               : Promise.resolve(null),
             storeMode
               ? authFetch<StoreProfile>('/stores/me')
-              : authFetch<StoreProfile>(`/stores/user/${targetId}`).catch(
-                  () => null,
-                ),
+              : userData.role === 'store'
+                ? authFetch<StoreProfile>(`/stores/user/${targetId}`).catch(
+                    () => null,
+                  )
+                : Promise.resolve(null),
             storeMode
               ? authFetch<ProfileEvent[]>('/events/mine')
               : Promise.resolve([] as ProfileEvent[]),
