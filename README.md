@@ -10,14 +10,14 @@
 
 <p align="center">
   <strong>
-ReTag is a full-stack university project with the philosophy of serving as a digital platform that drives the growth of circular fashion. We are currently working with Nest.js, Next.js, TypeORM, and a PostgreSQL database to provide industry-level technology that ensures the project’s goals are met. 
+ReTag is a full-stack university project with the philosophy of serving as a digital platform that drives the growth of circular fashion. We are currently working with Nest.js, Next.js, TypeORM, and a PostgreSQL database to provide industry-level technology that ensures the project’s goals are met.
 </strong><br>
 
 </p>
 
 </br>
   <p align="center">
-    <a href=""><strong>View Demo <em>(Currently in Development)</em></strong></a>
+    <a href="#deployment"><strong>View Demo</strong></a>
     &middot;
     <a href="https://github.com/alejmmtz/ReTag-App/issues/new?labels=bug&template=bug-report---.md"><strong>Report Bug</strong></a>
 
@@ -41,27 +41,28 @@ ReTag is a full-stack university project with the philosophy of serving as a dig
 - [About the Project](#about-the-project)
 - [Our Main Features](#our-main-features)
 - [Architecture](#architecture)
-  - [Why SPA?](#why-spa)
+  - [Frontend–Backend Integration](#frontendbackend-integration)
   - [Architecture Diagram](#architecture-diagram)
   - [Backend Modules](#backend-modules)
+- [Frontend Structure](#frontend-structure)
+- [Authentication & Authorization](#authentication--authorization)
+- [UI States & Error Handling](#ui-states--error-handling)
 - [Database Model](#database-model)
-- [Performance](#performance)
 - [Installation](#installation)
   - [Prerequisites](#prerequisites)
   - [NestJs Settings](#nestjs-settings)
   - [Setup](#setup)
+  - [Frontend Setup](#frontend-setup)
   - [Environment Configuration](#environment-configuration)
   - [Running the Project](#running-the-project)
-- [Where to Go](#where-to-go)
-  - [Basic Usage](#basic-usage)
 - [API Reference](#api-reference)
 - [Development](#development)
 - [Testing](#testing)
+- [Challenges & Decisions](#challenges--decisions)
 - [Deployment](#deployment)
 - [Demo Credentials](#demo-credentials)
 - [Our Team](#our-team)
-- [Roadmap](#roadmap)
-
+  
 </br>
 
 ## About the Project
@@ -95,7 +96,7 @@ Finally, at ReTag, we aim to provide the best user experience. We incorporate ou
 - **Feature 2 - Social Feed**: In the app, we’ll manage a social media feed that hosts different types of posts, including:
   - **Show Off Posts:** Related to Garments purchased by users who later show them off on the app, thereby increasing the visibility and completeness of the transactions.
   - **Community Posts:** Related to progress in our advocacy for circular fashion and the environment, where users can promote an eco-friendly lifestyle through community efforts.
-  - **Offer Posts:** Offers from Garment sellers in post format to increase product visibility and secure a spot in the app's feed. [(See Feature 1 / For Offers)]()
+  - **Offer Posts:** Offers from Garment sellers in post format to increase product visibility and secure a spot in the app's feed.
   - **Event Posts:** Related to events hosted by clothing stores and the app used to invite the community to a specific gathering based on shared interests and goals.
 
   All posts can have likes, captions, and creation dates, and can be viewed later from the user’s profile.
@@ -114,17 +115,26 @@ Finally, at ReTag, we aim to provide the best user experience. We incorporate ou
 
 - **Feature 4 - Who Are You? On Another Level**: At ReTag, we take your identity and your participation in our platform very seriously. We want both users and stores to be able to take control of their content and sales to the next level. Furthermore, our main goal is for our app to foster a constant sense of community where each of us feels the importance of our role in the project. We provide personalized support and tailor your experience to your needs.
 
+</br>
+
 ## Architecture
-
-In this project, we will use a modern web app architecture based on the **single-page application(SPA)** pattern.
-
-### Why SPA?
-
-It provides a fast rendering after the initial load _(although initial load times can be slow)_ and a highly responsive user experience. It's suitable for large and growing apps. This makes for a smoother, faster user experience without annoying page reloads.
 
 - **Server Side**: Our backend is being built using the **_Nest.js_** framework. We follow modular organization practices and map database entities using **_TypeORM_**.
 - **Client Side**: Our front end is being built using **_Next.js_** and **_React_** to create a modern, user-friendly, and high-performance UI.
 - **Database**: Thanks to **_PostgreSQL_**, we can create a robust and comprehensive relational database that allows us to provide users with all the information they need for their experience.
+
+### Frontend–Backend Integration
+
+ReTag uses a full-stack architecture that separates the user interface, the application logic and the database. The Next.js frontend communicates with the NestJS backend through a REST API, while TypeORM manages access to PostgreSQL.
+
+```mermaid
+flowchart TD
+    A[Next.js / React Frontend] <-->|HTTP requests / JSON responses| B[NestJS REST API]
+    B <--> C[TypeORM]
+    C <--> D[(PostgreSQL)]
+```
+
+When a user performs an action, the frontend sends a request to the API. The backend validates the request and the applicable permissions, executes the corresponding business rules, and interacts with the database when necessary. The response is then used to update the interface.
 
 ### Architecture Diagram
 
@@ -174,6 +184,105 @@ The `common` directory contains shared resources used throughout the backend, in
 
 This modular structure allows ReTag to separate responsibilities while keeping the different parts of the application connected.
 
+</br>
+
+## Frontend Structure
+
+The ReTag frontend is developed with Next.js and React. Its main purpose is to provide a coherent interface for the platform's features and connect these experiences to the backend.
+
+### Pages & Navigation
+
+The frontend includes user and store experiences, with navigation and available actions adapted to the current role.
+
+List and exploration views provide access to content, while detail views display information related to individual resources such as garments and events.
+
+<!-- D3: Document the actual frontend folder structure and static and dynamic routes. -->
+
+### Reusable Components
+
+Shared interface elements help maintain visual and functional consistency across the application.
+
+The Events flow includes reusable event cards, and the user and store experiences include navigation bars, floating action buttons and creation sheets.
+
+Reusable components reduce code duplication and maintain consistency between different screens and functionalities.
+
+### Hooks & State Management
+
+React hooks support interactive interfaces and reusable stateful logic. Custom hooks should encapsulate functionality used across multiple components.
+
+<!-- D3: Add the actual custom hooks implemented in the frontend, including their names and purposes. -->
+
+### Forms & API Integration
+
+Forms allow users to submit information to the backend. Event creation and editing are examples of this integration.
+
+The backend remains responsible for validating submitted data and applying business rules.
+
+### Responsive Design
+
+The frontend is designed around ReTag's visual identity and aims to adapt to different viewport sizes while maintaining readable content, usable forms and coherent navigation.
+
+<!-- D3: Add tested screen sizes and any responsive limitations. -->
+
+</br>
+
+## Authentication & Authorization
+
+Authentication and authorization are essential to the connection between the frontend and the backend.
+
+The authenticated session must be used for protected API requests, and access to restricted actions must be validated on the backend.
+
+### Authentication Flow
+
+1. The user submits their credentials through the login interface.
+2. The frontend sends the credentials to the authentication endpoint.
+3. The backend validates the credentials and returns the authentication response.
+4. The frontend uses the authenticated session when making protected API requests.
+5. Logging out must clear or invalidate the local session as appropriate and prevent further access to protected screens without authentication.
+
+<!-- D3: Confirm the token storage mechanism, logout implementation and protected route strategy. -->
+
+### Role-Based Experience
+
+ReTag provides different experiences depending on the authenticated account.
+
+| User | Store |
+| --- | --- |
+| Explore garments and events | Access store-specific management views |
+| Request sale or trade transactions | Access store-related transaction views |
+| Join and leave events | Create, edit and delete their own events |
+| Navigate the regular user experience | Navigate the store experience |
+
+The frontend adapts navigation and available actions according to the role. The backend must enforce the corresponding permissions and ownership rules, independently of the interface.
+
+### Unauthorized Responses
+
+- **401 Unauthorized:** Indicates that authentication is missing or invalid. Protected access should require a valid session.
+- **403 Forbidden:** Indicates that an authenticated user does not have permission to perform the requested action.
+
+<!-- D3: Verify the actual frontend behavior for unauthorized and forbidden responses. -->
+
+</br>
+
+## UI States & Error Handling
+
+The frontend should communicate the result of each interaction and provide feedback when data is being retrieved or submitted.
+
+The following states define the expected behavior for the application:
+
+| State | Description |
+| --- | --- |
+| Loading | Indicates that a request is in progress. |
+| Empty | Informs the user when there is no content to display. |
+| Error | Displays meaningful feedback when a request or validation fails. |
+| Success | Confirms completed actions or updates the interface with the resulting data. |
+
+Backend validation and business-rule errors should be communicated through the interface without exposing sensitive technical details.
+
+<!-- D3: Verify these states and add screenshots of their actual implementations. -->
+
+</br>
+
 ## Database Model
 
 The following diagram represents the current relational database model used by ReTag and the relationships between its main entities.
@@ -184,15 +293,7 @@ The following diagram represents the current relational database model used by R
 
 The current model connects the main entities required by the platform, including users, stores, garments, posts, events, transactions and their related information.
 
-## Performance
-
 </br>
-
-<p align="">
-  <img src="./resources/Error.png" alt="ReTag App Logo" width="150"/>
-</p>
-
-It's not you. It's us... we haven't figured out this part of our project yet.
 
 ## Installation
 
@@ -201,6 +302,8 @@ It's not you. It's us... we haven't figured out this part of our project yet.
 - **Node.js version 18.0.0 or superior**
 - **npm / yarn / pnpm**
 - **Docker**
+
+> Check the Node.js version required by both projects' dependencies before installation.
 
 ### NestJs Settings
 
@@ -215,8 +318,22 @@ npm install -g @nestjs/cli
 # Clone the repository
 git clone https://github.com/alejmmtz/ReTag-App.git
 
+# Navigate to the repository
+cd ReTag-App
+
 # Install dependencies
 cd server
+npm install
+```
+
+### Frontend Setup
+
+Open a separate terminal from the repository root. Navigate to the directory that contains the Next.js application and install its dependencies.
+
+<!-- D3: Replace FRONTEND_DIRECTORY with the actual frontend folder. -->
+
+```bash
+cd FRONTEND_DIRECTORY
 npm install
 ```
 
@@ -248,6 +365,26 @@ The `.env.example` file documents the variables required to run the application 
 
 > Never commit passwords, JWT secrets, tokens or production credentials to the repository.
 
+#### Frontend Environment Configuration
+
+Configure the Next.js frontend to use the backend API URL.
+
+For local development, the API base URL is:
+
+```text
+http://localhost:3000/retag-server/api
+```
+
+<!-- D3: Replace API_BASE_URL_VARIABLE with the actual environment variable used by the frontend. -->
+
+```env
+API_BASE_URL_VARIABLE=http://localhost:3000/retag-server/api
+```
+
+Use the environment configuration file expected by the frontend.
+
+Never expose database credentials, authentication secrets or other private backend configuration through the frontend environment.
+
 ### Running the Project
 
 Start the PostgreSQL database using Docker:
@@ -272,13 +409,27 @@ If another port is configured in the `.env` file, replace `3000` with the corres
 
 </br>
 
-## Where to Go
+In a separate terminal, navigate to the frontend directory and start the Next.js development server:
 
-### Basic Usage
-
-```javascript
-`http://localhost:${port}/`;
+```bash
+# From the repository root
+cd FRONTEND_DIRECTORY
+npm run dev -- --port 3001
 ```
+
+The suggested frontend address is:
+
+```text
+http://localhost:3001
+```
+
+This example uses a different port from the local backend to avoid conflicts.
+
+Verify the actual frontend development script and port configuration. If the browser accesses the backend directly, its origin must be allowed by the backend's CORS configuration.
+
+Keep the database, backend and frontend running during local integration testing.
+
+</br>
 
 ## API Reference
 
@@ -287,8 +438,6 @@ If another port is configured in the `.env` file, replace `3000` with the corres
 <p align="center">
   <img src="./resources/World.png" alt="ReTag API Illustration" width="150"/>
 </p>
-
-We are currently working on the server and its endpoints, once that work is complete, we will focus as quickly as possible to create a complete documentation. **[Documentation on Progress](a)**.
 
 ### Current API
 
@@ -343,6 +492,8 @@ These variables allow requests to reuse authentication information and IDs gener
 
 Authentication tokens and other sensitive values should not be committed to the repository.
 
+</br>
+
 ## Development
 
 To start contributing to the development:
@@ -353,8 +504,14 @@ docker compose up -d
 
 # Deploy Nestjs Server
 cd server
-npm run:start dev
+npm run start:dev
 ```
+
+Start the frontend in a separate terminal following the [Running the Project](#running-the-project) instructions.
+
+Contributions involving frontend–backend integration should be tested with the real API before merging.
+
+</br>
 
 ## Testing
 
@@ -376,6 +533,23 @@ Unit tests use mocked repositories and dependencies to isolate the logic of each
 
 This allows the project to verify that the application's business rules behave correctly in both successful and error scenarios.
 
+</br>
+
+## Challenges & Decisions
+
+During the frontend implementation and integration process, different technical and design decisions were made to maintain consistency across the application.
+
+| Challenge | Decision |
+| --- | --- |
+| Managing different user and store experiences | Role-based navigation and available actions |
+| Repeated event information across screens | Reusable event cards and shared event types |
+| Connecting event actions to persistent data | Integration of event management and participation with the backend |
+| Integrating multiple feature flows | REST API integration aligned with backend business rules |
+
+<!-- D3: Add additional challenges, actual solutions and unresolved limitations. -->
+
+</br>
+
 ## Deployment
 
 The deployed ReTag backend is available at:
@@ -391,6 +565,20 @@ BACKEND_URL_HERE/retag-server/api
 ```
 
 > Replace `BACKEND_URL_HERE` with the final deployed backend URL before submission.
+
+### Frontend Deployment
+
+The ReTag frontend demonstration URL:
+
+```text
+FRONTEND_URL_HERE
+```
+
+The deployed frontend must be configured to use the production API base URL.
+
+> Replace `FRONTEND_URL_HERE` with the final deployed frontend URL before submission.
+
+</br>
 
 ## Demo Credentials
 
@@ -411,6 +599,8 @@ Password: STORE_DEMO_PASSWORD
 ```
 
 > Replace these values with the final demonstration accounts before submission. Do not use personal accounts or sensitive credentials.
+
+</br>
 
 ## Our Team
 
@@ -435,10 +625,6 @@ ReTag consists of three college students majoring in interactive media design an
 </br>
 
 Please see [AUTHORS.md](./AUTHORS.md) for details.
-
-## Roadmap
-
-Check our [ROADMAP.md](./ROADMAP.md) for planned features.
 
 ---
 
