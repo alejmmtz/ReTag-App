@@ -143,7 +143,6 @@ export default function GarmentDetailView({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [inBag, setInBag] = useState(false);
   const [bagBusy, setBagBusy] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(true);
 
@@ -206,43 +205,47 @@ export default function GarmentDetailView({
   const canUseBag =
     !!me && !!garment && me.role === "user" && garment.seller.id !== me.id;
 
-  useEffect(() => {
-    if (!canUseBag) return;
-    let cancelled = false;
-    authFetch(`/bags/${garmentId}`)
-      .then(() => !cancelled && setInBag(true))
-      .catch(() => !cancelled && setInBag(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [canUseBag, garmentId]);
-
   const categoryLabel = useMemo(() => garment?.category?.name ?? "", [garment]);
 
   async function handlePurchase() {
-    if (!canUseBag || !garment || bagBusy) return;
-    if (inBag) {
-      router.push("/bag");
+  if (!canUseBag || !garment || bagBusy) {
+    return;
+  }
+
+  setBagBusy(true);
+
+  try {
+    await authFetch<{ id: string }>(
+      "/transactions",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          garmentId: garment.id,
+          transactionType: "sale",
+        }),
+      },
+    );
+
+    router.push("/activity");
+  } catch (err) {
+    if (
+      err instanceof ApiError &&
+      err.status === 401
+    ) {
+      clearSession();
+      router.replace("/login");
       return;
     }
 
-    setBagBusy(true);
-    try {
-      await authFetch("/bags", {
-        method: "POST",
-        body: JSON.stringify({ garmentId: garment.id }),
-      });
-      setInBag(true);
-      router.push("/bag");
-    } catch (err) {
-      if (err instanceof ApiError && err.status === 401) {
-        clearSession();
-        router.replace("/login");
-      }
-    } finally {
-      setBagBusy(false);
-    }
+    setError(
+      err instanceof Error
+        ? err.message
+        : "The purchase request could not be sent.",
+    );
+  } finally {
+    setBagBusy(false);
   }
+}
 
   async function handleDelete() {
     if (!garment || deleting) return;

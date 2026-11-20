@@ -462,7 +462,13 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
         </>
       )}
 
-      {me.role === "store" ? <StoreBottomNav /> : <UserBottomNav />}
+      {isOwn && (
+      me.role === "store" ? (
+        <StoreBottomNav />
+      ) : (
+        <UserBottomNav />
+      )
+    )}
     </main>
   );
 }

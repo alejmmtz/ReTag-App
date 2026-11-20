@@ -13,7 +13,6 @@ type Option = {
 const options: Option[] = [
   { value: 'for_you', label: 'For You' },
   { value: 'following', label: 'Following' },
-  { value: 'underground', label: 'Underground' },
 ];
 
 type Props = {

@@ -45,9 +45,11 @@ export class TransactionsController {
     @Req() request: AuthenticatedRequest,
     @Query(requestValidationPipe) query: FilterTransactionsQueryDto,
   ) {
-    const buyerId = request.user.id;
-
-    return this.transactionsService.findAll(buyerId, query);
+    return this.transactionsService.findAll(
+      request.user.id,
+      request.user.role,
+      query,
+    );
   }
 
   @Get(':id')

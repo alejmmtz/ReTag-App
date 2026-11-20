@@ -6,6 +6,7 @@ import StoreBottomNav from '../../../../components/navigation/store-bottom-nav';
 import StoreEventCard from '../../../../components/events/store-event-card';
 import StoreCreateSheet from '../../../../components/events/store-create-sheet';
 import { API_URL } from '../../../../lib/api';
+import RoleGuard from "../../../../components/auth/role-guard";
 
 type EventItem = {
   id: string;
@@ -61,6 +62,7 @@ export default function StoreEventsPage() {
   }, []);
 
   return (
+    <RoleGuard role="store">
     <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full max-w-lg mb-28">
         <h1 className="text-xl font-semibold">
@@ -104,5 +106,6 @@ export default function StoreEventsPage() {
 
       <StoreBottomNav />
     </main>
+    </RoleGuard>
   );
 }

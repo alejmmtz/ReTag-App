@@ -1,5 +1,10 @@
-import CreateEventForm from './create-event-form';
+import CreateEventForm from "./create-event-form";
+import RoleGuard from "../../../components/auth/role-guard";
 
 export default function CreateEventPage() {
-  return <CreateEventForm />;
+  return (
+    <RoleGuard role="store">
+      <CreateEventForm />
+    </RoleGuard>
+  );
 }

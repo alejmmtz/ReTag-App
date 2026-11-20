@@ -12,6 +12,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import {
   TransactionStatusEnum,
   TransactionTypeEnum,
+  UserRoleEnum,
 } from '../common/types/enums';
 import { FilterTransactionsQueryDto } from './dto/filter-transactions-query.dto';
 import { UpdateTransactionStatusDto } from './dto/update-transaction-status.dto';
@@ -87,16 +88,45 @@ export class TransactionsService {
     return this.transactionsRepository.save(transaction);
   }
 
-  async findAll(buyerId: string, query: FilterTransactionsQueryDto) {
+  async findAll(
+    userId: string,
+    role: UserRoleEnum,
+    query: FilterTransactionsQueryDto,
+  ) {
     return this.transactionsRepository.find({
-      where: {
-        buyerId,
-        ...(query.status && { status: query.status }),
-      },
+      where:
+        role === UserRoleEnum.STORE
+          ? {
+              garment: {
+                seller: {
+                  id: userId,
+                },
+              },
+              ...(query.status && {
+                status: query.status,
+              }),
+            }
+          : {
+              buyerId: userId,
+              ...(query.status && {
+                status: query.status,
+              }),
+            },
+
       relations: {
-        garment: true,
-        tradeGarment: true,
+        buyer: true,
+
+        garment: {
+          seller: true,
+          images: true,
+        },
+
+        tradeGarment: {
+          seller: true,
+          images: true,
+        },
       },
+
       order: {
         createdAt: 'DESC',
       },
