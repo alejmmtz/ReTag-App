@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
-import StoreBottomNav from '../navigation/store-bottom-nav';
-import UserBottomNav from '../navigation/user-bottom-nav';
-import type { MeResponse } from '../posts/post-types';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
+import StoreBottomNav from "../navigation/store-bottom-nav";
+import UserBottomNav from "../navigation/user-bottom-nav";
+import type { MeResponse } from "../posts/post-types";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
 
 const PAGE_SIZE = 15;
-const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
+const ACCENT = { user: "#C8F66F", store: "#1D5CEB" } as const;
 
 type NotificationItem = {
-  type: 'like' | 'follow' | 'bag';
+  type: "like" | "follow" | "bag";
   createdAt: string;
   actor: { id: string; username: string; profilePicture: string | null };
   postId?: string;
@@ -26,10 +26,10 @@ type NotificationsPage = {
   meta: { page: number; limit: number; total: number; totalPages: number };
 };
 
-const TEXT: Record<NotificationItem['type'], string> = {
-  like: 'liked your post',
-  follow: 'started following you',
-  bag: 'added your garment to their bag',
+const TEXT: Record<NotificationItem["type"], string> = {
+  like: "liked your post",
+  follow: "started following you",
+  bag: "added your garment to their bag",
 };
 
 function timeAgo(dateString: string) {
@@ -39,7 +39,7 @@ function timeAgo(dateString: string) {
   );
 
   if (seconds < 60) {
-    return 'now';
+    return "now";
   }
 
   const minutes = Math.floor(seconds / 60);
@@ -65,11 +65,11 @@ function timeAgo(dateString: string) {
 
 // Cada aviso lleva al post, a la prenda o al perfil de quien lo generó.
 function hrefOf(item: NotificationItem) {
-  if (item.type === 'like' && item.postId) {
+  if (item.type === "like" && item.postId) {
     return `/post/${item.postId}`;
   }
 
-  if (item.type === 'bag' && item.garmentId) {
+  if (item.type === "bag" && item.garmentId) {
     return `/garment/${item.garmentId}`;
   }
 
@@ -79,7 +79,7 @@ function hrefOf(item: NotificationItem) {
 export default function NotificationsView() {
   const router = useRouter();
 
-  const [role, setRole] = useState<'user' | 'store'>('user');
+  const [role, setRole] = useState<"user" | "store">("user");
   const [items, setItems] = useState<NotificationItem[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
@@ -101,11 +101,11 @@ export default function NotificationsView() {
       } catch (err) {
         if (err instanceof ApiError && err.status === 401) {
           clearSession();
-          router.replace('/login');
+          router.replace("/login");
           return;
         }
 
-        setError('We could not load your notifications.');
+        setError("We could not load your notifications.");
       } finally {
         setLoading(false);
       }
@@ -114,7 +114,7 @@ export default function NotificationsView() {
   );
 
   useEffect(() => {
-    authFetch<MeResponse>('/auth/me')
+    authFetch<MeResponse>("/auth/me")
       .then((me) => setRole(me.role))
       .catch(() => undefined);
 
@@ -123,7 +123,7 @@ export default function NotificationsView() {
   }, [loadPage]);
 
   const accent = ACCENT[role];
-  const accentText = role === 'store' ? '#FFFFFF' : '#1A1A1A';
+  const accentText = role === "store" ? "#FFFFFF" : "#1A1A1A";
 
   return (
     <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
@@ -161,7 +161,8 @@ export default function NotificationsView() {
             />
             <h2 className="text-base font-semibold">Nothing here yet</h2>
             <p className="mt-2 max-w-[260px] text-sm text-grey">
-              When someone likes your posts or follows you, you will see it here.
+              When someone likes your posts or follows you, you will see it
+              here.
             </p>
           </div>
         )}
@@ -169,7 +170,9 @@ export default function NotificationsView() {
         {items.length > 0 && (
           <ul className="mt-6 space-y-3">
             {items.map((item, index) => (
-              <li key={`${item.type}-${item.actor.id}-${item.createdAt}-${index}`}>
+              <li
+                key={`${item.type}-${item.actor.id}-${item.createdAt}-${index}`}
+              >
                 <Link
                   href={hrefOf(item)}
                   className="flex items-center gap-3 rounded-[18px] bg-surface p-3"
@@ -191,7 +194,7 @@ export default function NotificationsView() {
                   </span>
 
                   <p className="min-w-0 flex-1 text-sm leading-snug">
-                    <span className="font-medium">@{item.actor.username}</span>{' '}
+                    <span className="font-medium">@{item.actor.username}</span>{" "}
                     <span className="text-[#D6D6D6]">{TEXT[item.type]}</span>
                   </p>
 
@@ -215,7 +218,7 @@ export default function NotificationsView() {
         )}
       </div>
 
-      {role === 'store' ? <StoreBottomNav /> : <UserBottomNav />}
+      {role === "store" ? <StoreBottomNav /> : <UserBottomNav />}
     </main>
   );
 }

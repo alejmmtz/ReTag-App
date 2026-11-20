@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import AssetIcon from '../icons/asset-icon';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import AssetIcon from "../icons/asset-icon";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import StoreBottomNav from '../navigation/store-bottom-nav';
-import UserBottomNav from '../navigation/user-bottom-nav';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import PostCard from './post-card';
-import { withOfferImages } from './post-images';
-import type { MeResponse, PostItem } from './post-types';
+import StoreBottomNav from "../navigation/store-bottom-nav";
+import UserBottomNav from "../navigation/user-bottom-nav";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
+import PostCard from "./post-card";
+import { withOfferImages } from "./post-images";
+import type { MeResponse, PostItem } from "./post-types";
 
 type PostDetail = PostItem & { isFollowingAuthor: boolean };
 
-const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
+const ACCENT = { user: "#C8F66F", store: "#1D5CEB" } as const;
 
 export default function PostDetailView({ postId }: { postId: string }) {
   const router = useRouter();
@@ -33,7 +33,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
     async function load() {
       try {
         const [meData, postData] = await Promise.all([
-          authFetch<MeResponse>('/auth/me'),
+          authFetch<MeResponse>("/auth/me"),
           authFetch<PostDetail>(`/posts/${postId}`).then(withOfferImages),
         ]);
 
@@ -48,14 +48,14 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
         if (err instanceof ApiError && err.status === 401) {
           clearSession();
-          router.replace('/login');
+          router.replace("/login");
           return;
         }
 
         setError(
           err instanceof ApiError && (err.status === 404 || err.status === 400)
-            ? 'This post does not exist.'
-            : 'We could not load this post.',
+            ? "This post does not exist."
+            : "We could not load this post.",
         );
       }
     }
@@ -80,14 +80,14 @@ export default function PostDetailView({ postId }: { postId: string }) {
 
     try {
       await authFetch(`/posts/${current.id}/like`, {
-        method: liked ? 'POST' : 'DELETE',
+        method: liked ? "POST" : "DELETE",
       });
     } catch (err) {
       setLike(current.likedByMe, current.likesCount);
 
       if (err instanceof ApiError && err.status === 401) {
         clearSession();
-        router.replace('/login');
+        router.replace("/login");
       }
     }
   }
@@ -101,11 +101,13 @@ export default function PostDetailView({ postId }: { postId: string }) {
     setDeleteError(null);
 
     try {
-      await authFetch(`/posts/${post.id}`, { method: 'DELETE' });
-      router.replace(me?.role === 'store' ? '/home' : '/feed');
+      await authFetch(`/posts/${post.id}`, { method: "DELETE" });
+      router.replace(me?.role === "store" ? "/home" : "/feed");
     } catch (err) {
       setDeleteError(
-        err instanceof ApiError ? err.message : 'We could not delete this post.',
+        err instanceof ApiError
+          ? err.message
+          : "We could not delete this post.",
       );
       setDeleting(false);
     }
@@ -137,7 +139,7 @@ export default function PostDetailView({ postId }: { postId: string }) {
   }
 
   const accent = ACCENT[me.role];
-  const accentText = me.role === 'store' ? '#FFFFFF' : '#1A1A1A';
+  const accentText = me.role === "store" ? "#FFFFFF" : "#1A1A1A";
   const isOwner = post.author.id === me.id;
 
   return (
@@ -228,14 +230,14 @@ export default function PostDetailView({ postId }: { postId: string }) {
                 disabled={deleting}
                 className="button-pill bg-orange disabled:opacity-50"
               >
-                {deleting ? 'Deleting...' : 'Yes, delete'}
+                {deleting ? "Deleting..." : "Yes, delete"}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {me.role === 'store' ? <StoreBottomNav /> : <UserBottomNav />}
+      {me.role === "store" ? <StoreBottomNav /> : <UserBottomNav />}
     </main>
   );
 }

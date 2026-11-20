@@ -1,4 +1,4 @@
-import { authFetch } from "./http";
+import { authFetch } from "./authInfo";
 
 export type UploadBucket = "Posts" | "Events" | "Users" | "Garments";
 

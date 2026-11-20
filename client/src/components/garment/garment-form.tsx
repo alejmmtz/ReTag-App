@@ -1,12 +1,12 @@
 "use client";
 
-import AssetIcon from '../icons/asset-icon';
+import AssetIcon from "../icons/asset-icon";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import ImagePicker, { type PickedImage } from "../posts/image-picker";
 import type { MeResponse } from "../posts/post-types";
-import { ApiError, authFetch, clearSession } from "../../lib/http";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
 import { uploadImages } from "../../lib/uploads";
 import type { GarmentDetail } from "./garment-detail-types";
 import {
@@ -257,9 +257,7 @@ export default function GarmentForm({ garment }: Props) {
     : catalogs.colors.slice(0, 3);
 
   return (
-    <main
-      className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter"
-    >
+    <main className="bg-background text-foreground mx-auto min-h-dvh w-full max-w-lg px-8 py-12 pt-18 page-enter">
       <div className="mx-auto w-full mb-28">
         {/* Header */}
         <header className="flex items-center gap-2 border-b border-grey pb-6">
@@ -339,9 +337,7 @@ export default function GarmentForm({ garment }: Props) {
           {/* Modo de transacción */}
           {!isStore && !isEdit && (
             <section>
-              <p className="mb-2.5 text-xs text-grey">
-                Transaction mode
-              </p>
+              <p className="mb-2.5 text-xs text-grey">Transaction mode</p>
               <div className="grid grid-cols-3 gap-2.5 min-w-0">
                 {(
                   [
@@ -407,10 +403,7 @@ export default function GarmentForm({ garment }: Props) {
             </div>
 
             <div>
-              <label
-                className="block text-xs text-grey"
-                htmlFor="garment-date"
-              >
+              <label className="block text-xs text-grey" htmlFor="garment-date">
                 Date of Acquisition
               </label>
               <div className="relative mt-2 flex h-[44px] items-center rounded-[12px] border border-line bg-background px-3.5 focus-within:border-white/40">
@@ -475,7 +468,14 @@ export default function GarmentForm({ garment }: Props) {
                     style={chipStyle(active)}
                   >
                     #{tag.name}
-                    {active && <AssetIcon name="x icon" width={14} height={14} className="ml-2" />}
+                    {active && (
+                      <AssetIcon
+                        name="x icon"
+                        width={14}
+                        height={14}
+                        className="ml-2"
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -514,10 +514,7 @@ export default function GarmentForm({ garment }: Props) {
             </div>
 
             <div>
-              <label
-                className="block text-xs text-grey"
-                htmlFor="garment-size"
-              >
+              <label className="block text-xs text-grey" htmlFor="garment-size">
                 Size
               </label>
               <div className="relative mt-2">
@@ -599,9 +596,7 @@ export default function GarmentForm({ garment }: Props) {
 
           {/* Cuidado y detalles */}
           <section>
-            <p className="mb-2.5 text-xs text-grey">
-              Care &amp; details
-            </p>
+            <p className="mb-2.5 text-xs text-grey">Care &amp; details</p>
             <div className="grid grid-cols-2 gap-2.5 min-w-0">
               {visibleCare.map((item) => {
                 const active = careId === String(item.id);
@@ -615,7 +610,10 @@ export default function GarmentForm({ garment }: Props) {
                     className="flex h-[42px] items-center gap-2.5 rounded-[12px] border px-3.5 text-left text-sm font-medium transition min-h-11 min-w-11"
                     style={chipStyle(active)}
                   >
-                    <span aria-hidden="true" className="inline-block h-4 w-4 shrink-0" />
+                    <span
+                      aria-hidden="true"
+                      className="inline-block h-4 w-4 shrink-0"
+                    />
                     <span className="truncate">{item.name}</span>
                   </button>
                 );

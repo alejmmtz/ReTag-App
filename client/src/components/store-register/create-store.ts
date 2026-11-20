@@ -1,6 +1,11 @@
-import { ApiError, authFetch } from '../../lib/http';
-import { uploadImage } from '../../lib/uploads';
-import { normalizeStore, validateStore, validateStorePhoto, type StoreFields } from './store-fields';
+import { ApiError, authFetch } from "../../lib/authInfo";
+import { uploadImage } from "../../lib/uploads";
+import {
+  normalizeStore,
+  validateStore,
+  validateStorePhoto,
+  type StoreFields,
+} from "./store-fields";
 
 type StoreResult = { id: string };
 
@@ -23,17 +28,20 @@ export async function createStore(
     if (!file) return null;
     const cached = uploaded.get(file);
     if (cached) return cached;
-    const url = await uploadImage(file, 'Users');
+    const url = await uploadImage(file, "Users");
     uploaded.set(file, url);
     return url;
   }
 
-  const [profileUrl, coverUrl] = await Promise.all([upload(profile), upload(cover)]);
+  const [profileUrl, coverUrl] = await Promise.all([
+    upload(profile),
+    upload(cover),
+  ]);
   const photo = profileUrl ?? existingProfile;
   const data = normalizeStore(fields);
   try {
-    return await authFetch<StoreResult>('/stores', {
-      method: 'POST',
+    return await authFetch<StoreResult>("/stores", {
+      method: "POST",
       body: JSON.stringify({
         storeName: data.storeName,
         ...(data.location ? { location: data.location } : {}),
@@ -41,7 +49,9 @@ export async function createStore(
         ...(data.schedule ? { schedule: data.schedule } : {}),
         ...(data.description ? { description: data.description } : {}),
         images: [
-          ...(coverUrl ? [{ url: coverUrl, isCover: true, isProfile: false }] : []),
+          ...(coverUrl
+            ? [{ url: coverUrl, isCover: true, isProfile: false }]
+            : []),
           ...(photo ? [{ url: photo, isCover: false, isProfile: true }] : []),
         ],
       }),
@@ -49,7 +59,9 @@ export async function createStore(
   } catch (error) {
     // A retry after a lost response can find a store that was already saved.
     if (error instanceof ApiError && error.status === 409) {
-      const existing = await authFetch<StoreResult>('/stores/me').catch(() => null);
+      const existing = await authFetch<StoreResult>("/stores/me").catch(
+        () => null,
+      );
       if (existing) return existing;
     }
     throw error;

@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import CreateAction from '../navigation/create-action';
-import AssetIcon from '../icons/asset-icon';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import CreateAction from "../navigation/create-action";
+import AssetIcon from "../icons/asset-icon";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
-import StoreCreateSheet from '../events/store-create-sheet';
-import StoreEventCard from '../events/store-event-card';
-import UserCreateSheet from '../events/user-create-sheet';
-import StoreBottomNav from '../navigation/store-bottom-nav';
-import UserBottomNav from '../navigation/user-bottom-nav';
-import type { MeResponse } from '../posts/post-types';
-import { withOfferImagesForPosts } from '../posts/post-images';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import { ClosetGrid, PostsGrid } from './profile-grids';
-import ProfileHeader from './profile-header';
+import StoreCreateSheet from "../events/store-create-sheet";
+import StoreEventCard from "../events/store-event-card";
+import UserCreateSheet from "../events/user-create-sheet";
+import StoreBottomNav from "../navigation/store-bottom-nav";
+import UserBottomNav from "../navigation/user-bottom-nav";
+import type { MeResponse } from "../posts/post-types";
+import { withOfferImagesForPosts } from "../posts/post-images";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
+import { ClosetGrid, PostsGrid } from "./profile-grids";
+import ProfileHeader from "./profile-header";
 import type {
   MyStatistics,
   Paginated,
@@ -24,12 +24,12 @@ import type {
   ProfilePost,
   ProfileUser,
   StoreProfile,
-} from './profile-types';
+} from "./profile-types";
 
 const PAGE_SIZE = 12;
-const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
+const ACCENT = { user: "#C8F66F", store: "#1D5CEB" } as const;
 
-type Tab = 'posts' | 'closet' | 'events';
+type Tab = "posts" | "closet" | "events";
 
 type Props = {
   userId?: string;
@@ -44,7 +44,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
   const [stats, setStats] = useState<MyStatistics | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [tab, setTab] = useState<Tab>('posts');
+  const [tab, setTab] = useState<Tab>("posts");
   const [posts, setPosts] = useState<Paginated<ProfilePost> | null>(null);
   const [garments, setGarments] = useState<Paginated<ProfileGarment> | null>(
     null,
@@ -61,7 +61,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
     (err: unknown) => {
       if (err instanceof ApiError && err.status === 401) {
         clearSession();
-        router.replace('/login');
+        router.replace("/login");
         return true;
       }
 
@@ -76,13 +76,13 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
   useEffect(() => {
     let cancelled = false;
 
-    authFetch<MeResponse>('/auth/me')
+    authFetch<MeResponse>("/auth/me")
       .then((data) => {
         if (cancelled) {
           return;
         }
-        if (storeMode && data.role !== 'store') {
-          router.replace('/profile');
+        if (storeMode && data.role !== "store") {
+          router.replace("/profile");
           return;
         }
 
@@ -90,7 +90,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
       })
       .catch((err) => {
         if (!cancelled && !handleSessionError(err)) {
-          setError('We could not load this profile.');
+          setError("We could not load this profile.");
         }
       });
 
@@ -122,17 +122,17 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               `/users/${targetId}/garments?page=1&limit=${PAGE_SIZE}`,
             ),
             own
-              ? authFetch<MyStatistics>('/users/me/statistics')
+              ? authFetch<MyStatistics>("/users/me/statistics")
               : Promise.resolve(null),
             storeMode
-              ? authFetch<StoreProfile>('/stores/me')
-              : userData.role === 'store'
+              ? authFetch<StoreProfile>("/stores/me")
+              : userData.role === "store"
                 ? authFetch<StoreProfile>(`/stores/user/${targetId}`).catch(
                     () => null,
                   )
                 : Promise.resolve(null),
             storeMode
-              ? authFetch<ProfileEvent[]>('/events/mine')
+              ? authFetch<ProfileEvent[]>("/events/mine")
               : Promise.resolve([] as ProfileEvent[]),
           ]);
 
@@ -151,8 +151,8 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
         setError(
           err instanceof ApiError && err.status === 404
-            ? 'This user does not exist.'
-            : 'We could not load this profile.',
+            ? "This user does not exist."
+            : "We could not load this profile.",
         );
       }
     }
@@ -165,9 +165,13 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
   }, [targetId, me, storeMode, handleSessionError]);
 
   async function loadMore() {
-    const current = tab === 'posts' ? posts : garments;
+    const current = tab === "posts" ? posts : garments;
 
-    if (!current || loadingMore || current.meta.page >= current.meta.totalPages) {
+    if (
+      !current ||
+      loadingMore ||
+      current.meta.page >= current.meta.totalPages
+    ) {
       return;
     }
 
@@ -175,15 +179,20 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
     try {
       const next = current.meta.page + 1;
-      const path = tab === 'posts' ? 'posts' : 'garments';
+      const path = tab === "posts" ? "posts" : "garments";
       const data = await authFetch<Paginated<ProfilePost & ProfileGarment>>(
         `/users/${targetId}/${path}?page=${next}&limit=${PAGE_SIZE}`,
       );
 
-      if (tab === 'posts') {
-        const postsPage = { ...data, data: await withOfferImagesForPosts(data.data) };
+      if (tab === "posts") {
+        const postsPage = {
+          ...data,
+          data: await withOfferImagesForPosts(data.data),
+        };
         setPosts((prev) =>
-          prev ? { ...postsPage, data: [...prev.data, ...postsPage.data] } : postsPage,
+          prev
+            ? { ...postsPage, data: [...prev.data, ...postsPage.data] }
+            : postsPage,
         );
       } else {
         setGarments((prev) =>
@@ -207,7 +216,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
     try {
       await authFetch(`/users/${user.id}/follow`, {
-        method: following ? 'DELETE' : 'POST',
+        method: following ? "DELETE" : "POST",
       });
       setFollowing(!following);
     } catch (err) {
@@ -253,30 +262,32 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
   }
 
   const accent = ACCENT[user.role];
-  const accentText = user.role === 'store' ? '#FFFFFF' : '#1A1A1A';
+  const accentText = user.role === "store" ? "#FFFFFF" : "#1A1A1A";
 
   const headerStats = stats
     ? [
-        { label: 'Follow', value: stats.community.following },
-        { label: 'Followers', value: stats.community.followers },
-        { label: 'Likes', value: stats.community.likesReceived },
+        { label: "Follow", value: stats.community.following },
+        { label: "Followers", value: stats.community.followers },
+        { label: "Likes", value: stats.community.likesReceived },
       ]
     : [
-        { label: 'Posts', value: posts.meta.total },
-        { label: 'Closet', value: garments.meta.total },
+        { label: "Posts", value: posts.meta.total },
+        { label: "Closet", value: garments.meta.total },
       ];
 
   function logout() {
     clearSession();
-    router.replace('/login');
+    router.replace("/login");
   }
 
-  const tabs: Tab[] = storeMode ? ['posts', 'closet', 'events'] : ['posts', 'closet'];
-  const showingEvents = tab === 'events';
-  const current = tab === 'closet' ? garments : posts;
+  const tabs: Tab[] = storeMode
+    ? ["posts", "closet", "events"]
+    : ["posts", "closet"];
+  const showingEvents = tab === "events";
+  const current = tab === "closet" ? garments : posts;
   const hasMore = !showingEvents && current.meta.page < current.meta.totalPages;
 
-  const dim = '#898989';
+  const dim = "#898989";
 
   return (
     <main className="mx-auto min-h-dvh w-full max-w-lg bg-background pb-12 text-foreground page-enter">
@@ -299,11 +310,15 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 className="button-pill border disabled:opacity-50"
                 style={
                   following
-                    ? { borderColor: '#6C6C6C', color: '#F5F5F5' }
-                    : { backgroundColor: accent, borderColor: accent, color: accentText }
+                    ? { borderColor: "#6C6C6C", color: "#F5F5F5" }
+                    : {
+                        backgroundColor: accent,
+                        borderColor: accent,
+                        color: accentText,
+                      }
                 }
               >
-                {following ? 'Following' : 'Follow'}
+                {following ? "Following" : "Follow"}
               </button>
             ) : (
               <Link
@@ -328,7 +343,13 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
             {tabs.map((item) => {
               const active = item === tab;
               const label =
-                item === 'closet' ? (store ? 'Garments' : 'Closet') : item === 'posts' ? 'Posts' : 'Events';
+                item === "closet"
+                  ? store
+                    ? "Garments"
+                    : "Closet"
+                  : item === "posts"
+                    ? "Posts"
+                    : "Events";
 
               return (
                 <button
@@ -341,22 +362,20 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                   onClick={() => setTab(item)}
                   className="flex min-h-16 min-w-0 items-center justify-center gap-2 rounded-t-3xl px-3 py-4 text-sm font-medium transition-[color,background-color,border-color]"
                   style={{
-                    color: active ? '#F5F5F5' : dim,
-                    backgroundColor: active ? 'var(--color-surface)' : 'transparent',
-                    borderBottom: `2px solid ${active ? '#F5F5F5' : 'transparent'}`,
+                    color: active ? "#F5F5F5" : dim,
+                    backgroundColor: active
+                      ? "var(--color-surface)"
+                      : "transparent",
+                    borderBottom: `2px solid ${active ? "#F5F5F5" : "transparent"}`,
                   }}
                 >
-                  {item === 'posts' && (
-                    <AssetIcon
-                      name="posts"
-                      width={20}
-                      height={20}
-                    />
+                  {item === "posts" && (
+                    <AssetIcon name="posts" width={20} height={20} />
                   )}
-                  {item === 'closet' && (
+                  {item === "closet" && (
                     <AssetIcon name="garment" width={20} height={20} />
                   )}
-                  {item === 'events' && (
+                  {item === "events" && (
                     <AssetIcon name="calendar" width={20} height={20} />
                   )}
                   {label}
@@ -365,10 +384,18 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
             })}
           </div>
 
-          <div key={tab} id={`profile-${tab}-panel`} role="tabpanel" aria-labelledby={`profile-${tab}-tab`} className="mt-8 page-enter">
+          <div
+            key={tab}
+            id={`profile-${tab}-panel`}
+            role="tabpanel"
+            aria-labelledby={`profile-${tab}-tab`}
+            className="mt-8 page-enter"
+          >
             {showingEvents ? (
               events.length === 0 ? (
-                <p className="py-12 text-center text-sm text-grey">No events yet.</p>
+                <p className="py-12 text-center text-sm text-grey">
+                  No events yet.
+                </p>
               ) : (
                 <div className="space-y-4">
                   {events.map((event) => (
@@ -378,9 +405,11 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
               )
             ) : current.data.length === 0 ? (
               <p className="py-12 text-center text-sm text-grey">
-                {tab === 'posts' ? 'No posts yet.' : 'Nothing in the closet yet.'}
+                {tab === "posts"
+                  ? "No posts yet."
+                  : "Nothing in the closet yet."}
               </p>
-            ) : tab === 'posts' ? (
+            ) : tab === "posts" ? (
               <PostsGrid posts={posts.data} />
             ) : (
               <ClosetGrid
@@ -389,9 +418,9 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 accentText={accentText}
                 title={
                   store
-                    ? 'Our garments'
+                    ? "Our garments"
                     : isOwn
-                      ? 'Welcome to my Closet!'
+                      ? "Welcome to my Closet!"
                       : `${user.name ?? user.username}'s Closet`
                 }
               />
@@ -404,7 +433,7 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
                 disabled={loadingMore}
                 className="button-pill mx-auto mt-6 block border border-[#6C6C6C] disabled:opacity-50"
               >
-                {loadingMore ? 'Loading...' : 'Load more'}
+                {loadingMore ? "Loading..." : "Load more"}
               </button>
             )}
           </div>
@@ -413,17 +442,27 @@ export default function ProfileView({ userId, storeMode = false }: Props) {
 
       {isOwn && (
         <>
-          <CreateAction role={me.role} open={sheetOpen} onClick={() => setSheetOpen(true)} />
+          <CreateAction
+            role={me.role}
+            open={sheetOpen}
+            onClick={() => setSheetOpen(true)}
+          />
 
-          {me.role === 'store' ? (
-            <StoreCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+          {me.role === "store" ? (
+            <StoreCreateSheet
+              open={sheetOpen}
+              onClose={() => setSheetOpen(false)}
+            />
           ) : (
-            <UserCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
+            <UserCreateSheet
+              open={sheetOpen}
+              onClose={() => setSheetOpen(false)}
+            />
           )}
         </>
       )}
 
-      {me.role === 'store' ? <StoreBottomNav /> : <UserBottomNav />}
+      {me.role === "store" ? <StoreBottomNav /> : <UserBottomNav />}
     </main>
   );
 }

@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { authFetch } from '../../lib/http';
+import { authFetch } from "../../lib/authInfo";
 
 type SearchUser = {
   id: string;
   username: string;
   name: string | null;
   profilePicture: string | null;
-  role: 'user' | 'store';
+  role: "user" | "store";
 };
 
 type SearchPage = { data: SearchUser[] };
@@ -22,9 +22,13 @@ type Props = {
 };
 
 // Resultados del buscador del feed (usuarios y tiendas), con espera al escribir.
-export default function UserSearchResults({ query, accent, accentText }: Props) {
+export default function UserSearchResults({
+  query,
+  accent,
+  accentText,
+}: Props) {
   const [results, setResults] = useState<SearchUser[]>([]);
-  const [settledQuery, setSettledQuery] = useState('');
+  const [settledQuery, setSettledQuery] = useState("");
   const [failed, setFailed] = useState(false);
 
   const term = query.trim();
@@ -102,24 +106,33 @@ export default function UserSearchResults({ query, accent, accentText }: Props) 
               <span
                 className="flex h-[44px] w-[44px] shrink-0 items-center justify-center overflow-hidden rounded-full text-base font-medium"
                 style={{
-                  backgroundColor: user.role === 'store' ? '#1D5CEB' : '#C8F66F',
-                  color: user.role === 'store' ? '#FFFFFF' : '#1A1A1A',
+                  backgroundColor:
+                    user.role === "store" ? "#1D5CEB" : "#C8F66F",
+                  color: user.role === "store" ? "#FFFFFF" : "#1A1A1A",
                 }}
               >
                 {user.profilePicture ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={user.profilePicture} alt="" className="h-full w-full object-cover" />
+                  <img
+                    src={user.profilePicture}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   shownName.charAt(0).toUpperCase()
                 )}
               </span>
 
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium">{shownName}</span>
-                <span className="block truncate text-sm text-grey">@{user.username}</span>
+                <span className="block truncate text-sm font-medium">
+                  {shownName}
+                </span>
+                <span className="block truncate text-sm text-grey">
+                  @{user.username}
+                </span>
               </span>
 
-              {user.role === 'store' && (
+              {user.role === "store" && (
                 <span
                   className="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
                   style={{ backgroundColor: accent, color: accentText }}

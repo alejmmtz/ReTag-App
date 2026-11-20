@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import AssetIcon from '../icons/asset-icon';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import AssetIcon from "../icons/asset-icon";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
-import UserBottomNav from '../navigation/user-bottom-nav';
-import type { MeResponse } from '../posts/post-types';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
+import UserBottomNav from "../navigation/user-bottom-nav";
+import type { MeResponse } from "../posts/post-types";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
 
 const PAGE_SIZE = 10;
-const ACCENT = '#C8F66F';
+const ACCENT = "#C8F66F";
 
 type BagItem = {
   addedAt: string;
@@ -19,7 +19,7 @@ type BagItem = {
     id: string;
     name: string;
     price: number | string | null;
-    transactionType: 'sale' | 'trade' | 'both' | null;
+    transactionType: "sale" | "trade" | "both" | null;
     status: string;
     brand: { id: number; name: string } | null;
     size: { id: number; label: string } | null;
@@ -33,9 +33,9 @@ type BagPage = {
   meta: { page: number; limit: number; total: number; totalPages: number };
 };
 
-function priceLabel(garment: BagItem['garment']) {
-  if (garment.transactionType === 'trade' || garment.price == null) {
-    return 'Trade';
+function priceLabel(garment: BagItem["garment"]) {
+  if (garment.transactionType === "trade" || garment.price == null) {
+    return "Trade";
   }
 
   return `$${Number(garment.price)}`;
@@ -56,7 +56,7 @@ export default function BagView() {
     (err: unknown) => {
       if (err instanceof ApiError && err.status === 401) {
         clearSession();
-        router.replace('/login');
+        router.replace("/login");
         return true;
       }
 
@@ -80,7 +80,7 @@ export default function BagView() {
         setTotal(data.meta.total);
       } catch (err) {
         if (!handleSessionError(err)) {
-          setError('We could not load your bag.');
+          setError("We could not load your bag.");
         }
       } finally {
         setLoading(false);
@@ -91,10 +91,10 @@ export default function BagView() {
 
   useEffect(() => {
     // Las tiendas no tienen bolsa: se mandan a su inicio.
-    authFetch<MeResponse>('/auth/me')
+    authFetch<MeResponse>("/auth/me")
       .then((me) => {
-        if (me.role === 'store') {
-          router.replace('/home');
+        if (me.role === "store") {
+          router.replace("/home");
         }
       })
       .catch(() => undefined);
@@ -112,7 +112,7 @@ export default function BagView() {
     setRemoving(garmentId);
 
     try {
-      await authFetch(`/bags/${garmentId}`, { method: 'DELETE' });
+      await authFetch(`/bags/${garmentId}`, { method: "DELETE" });
       setItems((previous) =>
         previous.filter((item) => item.garment.id !== garmentId),
       );
@@ -144,9 +144,7 @@ export default function BagView() {
             <AssetIcon name="chevron" width={9} height={16} />
           </button>
           <h1 className="text-xl font-semibold">My bag</h1>
-          {total > 0 && (
-            <span className="text-sm text-grey">({total})</span>
-          )}
+          {total > 0 && <span className="text-sm text-grey">({total})</span>}
         </header>
 
         {loading && (
@@ -177,7 +175,8 @@ export default function BagView() {
             />
             <h2 className="text-base font-semibold">Your bag is empty</h2>
             <p className="mt-2 max-w-[260px] text-sm text-grey">
-              Save garments you like with &ldquo;Add to bag&rdquo; and find them here.
+              Save garments you like with &ldquo;Add to bag&rdquo; and find them
+              here.
             </p>
             <Link
               href="/feed"
@@ -193,8 +192,11 @@ export default function BagView() {
           <ul className="mt-6 space-y-3">
             {items.map((item) => {
               const { garment } = item;
-              const cover = (garment.images.find((image) => image.isCover) ?? garment.images[0])?.url;
-              const available = garment.status === 'available';
+              const cover = (
+                garment.images.find((image) => image.isCover) ??
+                garment.images[0]
+              )?.url;
+              const available = garment.status === "available";
 
               return (
                 <li key={garment.id} className="relative">
@@ -205,19 +207,30 @@ export default function BagView() {
                     <span className="h-[88px] w-[72px] shrink-0 overflow-hidden rounded-[12px] bg-[#333]">
                       {cover && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={cover} alt={garment.name} className="h-full w-full object-cover" />
+                        <img
+                          src={cover}
+                          alt={garment.name}
+                          className="h-full w-full object-cover"
+                        />
                       )}
                     </span>
 
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium">{garment.name}</span>
+                      <span className="block truncate text-sm font-medium">
+                        {garment.name}
+                      </span>
                       <span className="block truncate text-xs text-grey">
-                        {[garment.brand?.name, garment.size?.label].filter(Boolean).join(' · ')}
+                        {[garment.brand?.name, garment.size?.label]
+                          .filter(Boolean)
+                          .join(" · ")}
                       </span>
                       <span className="block truncate text-xs text-grey">
                         by @{garment.seller.username}
                       </span>
-                      <span className="mt-1 flex items-center gap-2 text-sm font-medium" style={{ color: ACCENT }}>
+                      <span
+                        className="mt-1 flex items-center gap-2 text-sm font-medium"
+                        style={{ color: ACCENT }}
+                      >
                         {priceLabel(garment)}
                         {!available && (
                           <span className="rounded-full bg-orange px-2 py-px text-xs capitalize text-foreground">

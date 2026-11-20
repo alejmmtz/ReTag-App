@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import AssetIcon from '../icons/asset-icon';
-import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import AssetIcon from "../icons/asset-icon";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
-import type { MeResponse } from '../posts/post-types';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import { uploadImage } from '../../lib/uploads';
-import type { ProfileUser, StoreProfile } from './profile-types';
+import type { MeResponse } from "../posts/post-types";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
+import { uploadImage } from "../../lib/uploads";
+import type { ProfileUser, StoreProfile } from "./profile-types";
 
-const ACCENT = { user: '#C8F66F', store: '#1D5CEB' } as const;
+const ACCENT = { user: "#C8F66F", store: "#1D5CEB" } as const;
 const MAX_DESCRIPTION = 300;
 
 const UNDERLINE =
-  'min-h-11 w-full border-b border-line bg-transparent pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:border-foreground';
+  "min-h-11 w-full border-b border-line bg-transparent pb-2 text-sm text-foreground outline-none placeholder:text-grey focus:border-foreground";
 
 export default function EditProfileForm() {
   const router = useRouter();
@@ -24,12 +24,12 @@ export default function EditProfileForm() {
   const [store, setStore] = useState<StoreProfile | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [storeName, setStoreName] = useState('');
-  const [handle, setHandle] = useState('');
-  const [location, setLocation] = useState('');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
+  const [storeName, setStoreName] = useState("");
+  const [handle, setHandle] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
 
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -42,7 +42,7 @@ export default function EditProfileForm() {
   function handleSessionError(err: unknown) {
     if (err instanceof ApiError && err.status === 401) {
       clearSession();
-      router.replace('/login');
+      router.replace("/login");
       return true;
     }
 
@@ -54,11 +54,11 @@ export default function EditProfileForm() {
 
     async function load() {
       try {
-        const meData = await authFetch<MeResponse>('/auth/me');
+        const meData = await authFetch<MeResponse>("/auth/me");
         const [user, storeData] = await Promise.all([
           authFetch<ProfileUser>(`/users/${meData.id}`),
-          meData.role === 'store'
-            ? authFetch<StoreProfile>('/stores/me')
+          meData.role === "store"
+            ? authFetch<StoreProfile>("/stores/me")
             : Promise.resolve(null),
         ]);
 
@@ -68,7 +68,7 @@ export default function EditProfileForm() {
 
         setMe(meData);
         setStore(storeData);
-        setName(user.name ?? '');
+        setName(user.name ?? "");
         setUsername(user.username);
         setPhotoUrl(
           storeData?.images.find((image) => image.isProfile)?.url ??
@@ -78,13 +78,13 @@ export default function EditProfileForm() {
           storeData?.images.find((image) => image.isCover && !image.isProfile)
             ?.url ?? null,
         );
-        setStoreName(storeData?.storeName ?? '');
-        setHandle(storeData?.socialmedia ?? '');
-        setLocation(storeData?.location ?? '');
-        setDescription(storeData?.description ?? user.description ?? '');
+        setStoreName(storeData?.storeName ?? "");
+        setHandle(storeData?.socialmedia ?? "");
+        setLocation(storeData?.location ?? "");
+        setDescription(storeData?.description ?? user.description ?? "");
       } catch (err) {
         if (!cancelled && !handleSessionError(err)) {
-          setLoadError('We could not load your profile.');
+          setLoadError("We could not load your profile.");
         }
       }
     }
@@ -116,14 +116,13 @@ export default function EditProfileForm() {
     );
   }
 
-  const isStore = me.role === 'store';
+  const isStore = me.role === "store";
   const accent = ACCENT[me.role];
-  const accentText = isStore ? '#FFFFFF' : '#1A1A1A';
+  const accentText = isStore ? "#FFFFFF" : "#1A1A1A";
   const displayName = isStore ? storeName : name || username;
 
   const canSave =
-    !saving &&
-    (isStore ? storeName.trim() !== '' : username.trim() !== '');
+    !saving && (isStore ? storeName.trim() !== "" : username.trim() !== "");
 
   function pick(
     event: React.ChangeEvent<HTMLInputElement>,
@@ -148,8 +147,8 @@ export default function EditProfileForm() {
 
     try {
       const [newPhoto, newCover] = await Promise.all([
-        photoFile ? uploadImage(photoFile, 'Users') : Promise.resolve(null),
-        coverFile ? uploadImage(coverFile, 'Users') : Promise.resolve(null),
+        photoFile ? uploadImage(photoFile, "Users") : Promise.resolve(null),
+        coverFile ? uploadImage(coverFile, "Users") : Promise.resolve(null),
       ]);
 
       const finalPhoto = newPhoto ?? photoUrl;
@@ -162,7 +161,7 @@ export default function EditProfileForm() {
         ];
 
         await authFetch(`/stores/${store.id}`, {
-          method: 'PATCH',
+          method: "PATCH",
           body: JSON.stringify({
             storeName: storeName.trim(),
             ...(handle.trim() ? { socialmedia: handle.trim() } : {}),
@@ -172,12 +171,12 @@ export default function EditProfileForm() {
           }),
         });
 
-        router.push('/store');
+        router.push("/store");
         return;
       }
 
-      await authFetch('/users/me', {
-        method: 'PUT',
+      await authFetch("/users/me", {
+        method: "PUT",
         body: JSON.stringify({
           name: name.trim(),
           username: username.trim(),
@@ -186,7 +185,7 @@ export default function EditProfileForm() {
         }),
       });
 
-      router.push('/profile');
+      router.push("/profile");
     } catch (err) {
       if (handleSessionError(err)) {
         return;
@@ -195,7 +194,7 @@ export default function EditProfileForm() {
       setError(
         err instanceof ApiError
           ? err.message
-          : 'We could not save your profile. Try again.',
+          : "We could not save your profile. Try again.",
       );
       setSaving(false);
     }
@@ -233,11 +232,19 @@ export default function EditProfileForm() {
             >
               {coverUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={coverUrl} alt="" className="absolute inset-0 h-full w-full object-cover opacity-70" />
+                <img
+                  src={coverUrl}
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover opacity-70"
+                />
               )}
               <span className="image-overlay relative inline-flex min-h-11 items-center gap-2 rounded-full px-4 py-2">
-                <AssetIcon name={coverUrl ? "image" : "plus"} width={18} height={18} />
-                {coverUrl ? 'Change cover' : 'Add a cover photo'}
+                <AssetIcon
+                  name={coverUrl ? "image" : "plus"}
+                  width={18}
+                  height={18}
+                />
+                {coverUrl ? "Change cover" : "Add a cover photo"}
               </span>
             </button>
           </section>
@@ -264,9 +271,13 @@ export default function EditProfileForm() {
             >
               {photoUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={photoUrl} alt="" className="h-full w-full object-cover" />
+                <img
+                  src={photoUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
               ) : (
-                (displayName || '?').charAt(0).toUpperCase()
+                (displayName || "?").charAt(0).toUpperCase()
               )}
             </span>
             <span
@@ -283,32 +294,48 @@ export default function EditProfileForm() {
         {isStore ? (
           <>
             <section className="mt-6">
-              <label className="text-sm text-grey" htmlFor="store-name">Store name</label>
+              <label className="text-sm text-grey" htmlFor="store-name">
+                Store name
+              </label>
               <input
                 id="store-name"
                 value={storeName}
-                onChange={(event) => setStoreName(event.target.value.slice(0, 40))}
+                onChange={(event) =>
+                  setStoreName(event.target.value.slice(0, 40))
+                }
                 className={`mt-1 ${UNDERLINE}`}
               />
             </section>
 
             <section className="mt-6">
-              <label className="text-sm text-grey" htmlFor="store-handle">Social media handle</label>
+              <label className="text-sm text-grey" htmlFor="store-handle">
+                Social media handle
+              </label>
               <input
                 id="store-handle"
                 value={handle}
-                onChange={(event) => setHandle(event.target.value.replace(/[^a-zA-Z_0-9]/g, '').slice(0, 20))}
+                onChange={(event) =>
+                  setHandle(
+                    event.target.value
+                      .replace(/[^a-zA-Z_0-9]/g, "")
+                      .slice(0, 20),
+                  )
+                }
                 placeholder="your_store"
                 className={`mt-1 ${UNDERLINE}`}
               />
             </section>
 
             <section className="mt-6">
-              <label className="text-sm text-grey" htmlFor="store-location">Location</label>
+              <label className="text-sm text-grey" htmlFor="store-location">
+                Location
+              </label>
               <input
                 id="store-location"
                 value={location}
-                onChange={(event) => setLocation(event.target.value.slice(0, 255))}
+                onChange={(event) =>
+                  setLocation(event.target.value.slice(0, 255))
+                }
                 placeholder="Street, city"
                 className={`mt-1 ${UNDERLINE}`}
               />
@@ -317,7 +344,9 @@ export default function EditProfileForm() {
         ) : (
           <>
             <section className="mt-6">
-              <label className="text-sm text-grey" htmlFor="profile-name">Name</label>
+              <label className="text-sm text-grey" htmlFor="profile-name">
+                Name
+              </label>
               <input
                 id="profile-name"
                 value={name}
@@ -327,11 +356,15 @@ export default function EditProfileForm() {
             </section>
 
             <section className="mt-6">
-              <label className="text-sm text-grey" htmlFor="profile-username">Username</label>
+              <label className="text-sm text-grey" htmlFor="profile-username">
+                Username
+              </label>
               <input
                 id="profile-username"
                 value={username}
-                onChange={(event) => setUsername(event.target.value.slice(0, 20))}
+                onChange={(event) =>
+                  setUsername(event.target.value.slice(0, 20))
+                }
                 className={`mt-1 ${UNDERLINE}`}
               />
             </section>
@@ -341,7 +374,9 @@ export default function EditProfileForm() {
         <section className="mt-6">
           <textarea
             value={description}
-            onChange={(event) => setDescription(event.target.value.slice(0, MAX_DESCRIPTION))}
+            onChange={(event) =>
+              setDescription(event.target.value.slice(0, MAX_DESCRIPTION))
+            }
             rows={4}
             placeholder="Bio: tell the community about you..."
             className="w-full resize-none rounded-[22px] bg-surface p-4 text-sm text-foreground outline-none placeholder:text-grey"
@@ -367,7 +402,7 @@ export default function EditProfileForm() {
             className="button-pill w-full disabled:opacity-40"
             style={{ backgroundColor: accent, color: accentText }}
           >
-            {saving ? 'Saving...' : 'Save changes'}
+            {saving ? "Saving..." : "Save changes"}
           </button>
         </div>
       </div>

@@ -1,15 +1,19 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import type { MeResponse } from '../posts/post-types';
-import type { GarmentDetail } from './garment-detail-types';
-import GarmentForm from './garment-form';
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
+import type { MeResponse } from "../posts/post-types";
+import type { GarmentDetail } from "./garment-detail-types";
+import GarmentForm from "./garment-form";
 
 // Carga la prenda y, si es del usuario y sigue disponible, muestra el formulario.
-export default function GarmentEditLoader({ garmentId }: { garmentId: string }) {
+export default function GarmentEditLoader({
+  garmentId,
+}: {
+  garmentId: string;
+}) {
   const router = useRouter();
   const [garment, setGarment] = useState<GarmentDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -20,7 +24,7 @@ export default function GarmentEditLoader({ garmentId }: { garmentId: string }) 
     async function load() {
       try {
         const [me, data] = await Promise.all([
-          authFetch<MeResponse>('/auth/me'),
+          authFetch<MeResponse>("/auth/me"),
           authFetch<GarmentDetail>(`/garments/${garmentId}`),
         ]);
 
@@ -29,9 +33,9 @@ export default function GarmentEditLoader({ garmentId }: { garmentId: string }) 
         }
 
         if (data.seller.id !== me.id) {
-          setError('You can only edit your own garments.');
-        } else if (data.status !== 'available') {
-          setError('Only available garments can be edited.');
+          setError("You can only edit your own garments.");
+        } else if (data.status !== "available") {
+          setError("Only available garments can be edited.");
         } else {
           setGarment(data);
         }
@@ -42,14 +46,14 @@ export default function GarmentEditLoader({ garmentId }: { garmentId: string }) 
 
         if (err instanceof ApiError && err.status === 401) {
           clearSession();
-          router.replace('/login');
+          router.replace("/login");
           return;
         }
 
         setError(
           err instanceof ApiError && err.status === 404
-            ? 'This garment does not exist.'
-            : 'We could not load this garment.',
+            ? "This garment does not exist."
+            : "We could not load this garment.",
         );
       }
     }

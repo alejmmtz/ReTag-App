@@ -1,57 +1,57 @@
-'use client';
+"use client";
 
-import CreateAction from '../navigation/create-action';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import CreateAction from "../navigation/create-action";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import StoreCreateSheet from '../events/store-create-sheet';
-import UserCreateSheet from '../events/user-create-sheet';
-import BagIcon from '../icons/bag-icon';
-import HeartIcon from '../icons/heart-icon';
-import SearchIcon from '../icons/search-icon';
-import StoreBottomNav from '../navigation/store-bottom-nav';
-import UserBottomNav from '../navigation/user-bottom-nav';
-import { ApiError, authFetch, clearSession } from '../../lib/http';
-import FeedFilterSelect from './feed-filter-select';
-import PostCard from './post-card';
-import { withOfferImagesForPosts } from './post-images';
-import UserSearchResults from './user-search-results';
+import StoreCreateSheet from "../events/store-create-sheet";
+import UserCreateSheet from "../events/user-create-sheet";
+import BagIcon from "../icons/bag-icon";
+import HeartIcon from "../icons/heart-icon";
+import SearchIcon from "../icons/search-icon";
+import StoreBottomNav from "../navigation/store-bottom-nav";
+import UserBottomNav from "../navigation/user-bottom-nav";
+import { ApiError, authFetch, clearSession } from "../../lib/authInfo";
+import FeedFilterSelect from "./feed-filter-select";
+import PostCard from "./post-card";
+import { withOfferImagesForPosts } from "./post-images";
+import UserSearchResults from "./user-search-results";
 import type {
   FeedFilter,
   MeResponse,
   PostItem,
   PostsPage,
   PublicUser,
-} from './post-types';
+} from "./post-types";
 
 const PAGE_SIZE = 10;
 
 const THEME = {
-  user: { accent: '#C8F66F', text: '#1A1A1A', glow: 'rgba(200,246,111,0.45)' },
-  store: { accent: '#1D5CEB', text: '#FFFFFF', glow: 'rgba(29,92,235,0.5)' },
+  user: { accent: "#C8F66F", text: "#1A1A1A", glow: "rgba(200,246,111,0.45)" },
+  store: { accent: "#1D5CEB", text: "#FFFFFF", glow: "rgba(29,92,235,0.5)" },
 } as const;
 
 type Props = {
   // Qué pantalla de inicio es: /feed (user) o /home (store).
-  role: 'user' | 'store';
+  role: "user" | "store";
 };
 
 export default function FeedScreen({ role }: Props) {
   const theme = THEME[role];
   const router = useRouter();
 
-  const [filter, setFilter] = useState<FeedFilter>('for_you');
+  const [filter, setFilter] = useState<FeedFilter>("for_you");
   const [posts, setPosts] = useState<PostItem[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [error, setError] = useState('');
-  const [name, setName] = useState('');
+  const [error, setError] = useState("");
+  const [name, setName] = useState("");
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [searchText, setSearchText] = useState('');
+  const [searchText, setSearchText] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -60,7 +60,7 @@ export default function FeedScreen({ role }: Props) {
     (error: unknown) => {
       if (error instanceof ApiError && error.status === 401) {
         clearSession();
-        router.replace('/login');
+        router.replace("/login");
         return true;
       }
 
@@ -72,11 +72,11 @@ export default function FeedScreen({ role }: Props) {
   useEffect(() => {
     async function loadMe() {
       try {
-        const me = await authFetch<MeResponse>('/auth/me');
+        const me = await authFetch<MeResponse>("/auth/me");
 
         // Cada rol tiene su propio inicio: si entra al equivocado, lo mandamos al suyo.
         if (me.role !== role) {
-          router.replace(me.role === 'store' ? '/home' : '/feed');
+          router.replace(me.role === "store" ? "/home" : "/feed");
           return;
         }
 
@@ -96,7 +96,7 @@ export default function FeedScreen({ role }: Props) {
 
     async function loadFirstPage() {
       setLoading(true);
-      setError('');
+      setError("");
 
       try {
         const result = await authFetch<PostsPage>(
@@ -118,9 +118,7 @@ export default function FeedScreen({ role }: Props) {
 
         setPosts([]);
         setError(
-          error instanceof Error
-            ? error.message
-            : 'Something went wrong.',
+          error instanceof Error ? error.message : "Something went wrong.",
         );
       } finally {
         if (!cancelled) {
@@ -179,7 +177,7 @@ export default function FeedScreen({ role }: Props) {
           loadMore();
         }
       },
-      { rootMargin: '300px' },
+      { rootMargin: "300px" },
     );
 
     observer.observe(sentinel);
@@ -202,7 +200,7 @@ export default function FeedScreen({ role }: Props) {
 
     try {
       await authFetch(`/posts/${post.id}/like`, {
-        method: liked ? 'POST' : 'DELETE',
+        method: liked ? "POST" : "DELETE",
       });
     } catch (error) {
       setLike(post.likedByMe, post.likesCount);
@@ -216,7 +214,7 @@ export default function FeedScreen({ role }: Props) {
         {/* Header */}
         <header className="flex items-center justify-between gap-4">
           <h1 className="min-w-0 break-words text-xl font-semibold leading-tight">
-            Keep it Circular{name ? `, ${name}` : ''}!
+            Keep it Circular{name ? `, ${name}` : ""}!
           </h1>
 
           <div className="flex shrink-0 items-center gap-4">
@@ -224,7 +222,7 @@ export default function FeedScreen({ role }: Props) {
               <HeartIcon />
             </Link>
 
-            {role === 'user' && (
+            {role === "user" && (
               <Link href="/bag" aria-label="Bag">
                 <BagIcon />
               </Link>
@@ -251,102 +249,103 @@ export default function FeedScreen({ role }: Props) {
           />
         ) : (
           <>
-        <div className="mt-5">
-          <FeedFilterSelect
-            value={filter}
-            onChange={setFilter}
-            accent={theme.accent}
-            accentText={theme.text}
-          />
-        </div>
-
-        {/* Loading */}
-        {loading && (
-          <div className="mt-6 space-y-5">
-            {[0, 1].map((item) => (
-              <div
-                key={item}
-                className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-surface"
+            <div className="mt-5">
+              <FeedFilterSelect
+                value={filter}
+                onChange={setFilter}
+                accent={theme.accent}
+                accentText={theme.text}
               />
-            ))}
-          </div>
-        )}
+            </div>
 
-        {/* Empty or error */}
-        {!loading && posts.length === 0 && (
-          <div className="flex flex-col items-center px-6 pt-24 text-center">
-            <Image
-              src="/illustrations/error.png"
-              alt=""
-              width={150}
-              height={94}
-              className="h-auto w-[150px] brightness-0 invert"
-            />
-
-            <h2 className="mt-8 text-base font-semibold">
-              We couldn’t find any posts
-            </h2>
-
-            <p className="mt-2 text-sm text-grey">
-              {error
-                ? 'Don’t worry, looks like you are offline.'
-                : filter === 'following'
-                  ? 'Follow someone to see their posts here.'
-                  : 'Be the first to post something.'}
-            </p>
-
-            {error && (
-              <button
-                type="button"
-                onClick={() => setReloadKey((previous) => previous + 1)}
-                className="mt-6 h-[44px] rounded-full px-8 text-sm font-medium min-h-11 min-w-11"
-                style={{ backgroundColor: theme.accent, color: theme.text }}
-              >
-                Try again
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Posts */}
-        {!loading && posts.length > 0 && (
-          <div className="mt-6 space-y-5">
-            {posts.map((post) => (
-              <PostCard
-                key={post.id}
-                post={post}
-                viewerRole={role}
-                showFollowing={filter === 'following'}
-                onToggleLike={toggleLike}
-              />
-            ))}
-
-            {loadingMore && (
-              <p className="py-4 text-center text-grey">Loading...</p>
+            {/* Loading */}
+            {loading && (
+              <div className="mt-6 space-y-5">
+                {[0, 1].map((item) => (
+                  <div
+                    key={item}
+                    className="aspect-[4/5] w-full animate-pulse rounded-[22px] bg-surface"
+                  />
+                ))}
+              </div>
             )}
 
-            <div ref={sentinelRef} className="h-1" />
-          </div>
-        )}
+            {/* Empty or error */}
+            {!loading && posts.length === 0 && (
+              <div className="flex flex-col items-center px-6 pt-24 text-center">
+                <Image
+                  src="/illustrations/error.png"
+                  alt=""
+                  width={150}
+                  height={94}
+                  className="h-auto w-[150px] brightness-0 invert"
+                />
+
+                <h2 className="mt-8 text-base font-semibold">
+                  We couldn’t find any posts
+                </h2>
+
+                <p className="mt-2 text-sm text-grey">
+                  {error
+                    ? "Don’t worry, looks like you are offline."
+                    : filter === "following"
+                      ? "Follow someone to see their posts here."
+                      : "Be the first to post something."}
+                </p>
+
+                {error && (
+                  <button
+                    type="button"
+                    onClick={() => setReloadKey((previous) => previous + 1)}
+                    className="mt-6 h-[44px] rounded-full px-8 text-sm font-medium min-h-11 min-w-11"
+                    style={{ backgroundColor: theme.accent, color: theme.text }}
+                  >
+                    Try again
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Posts */}
+            {!loading && posts.length > 0 && (
+              <div className="mt-6 space-y-5">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    viewerRole={role}
+                    showFollowing={filter === "following"}
+                    onToggleLike={toggleLike}
+                  />
+                ))}
+
+                {loadingMore && (
+                  <p className="py-4 text-center text-grey">Loading...</p>
+                )}
+
+                <div ref={sentinelRef} className="h-1" />
+              </div>
+            )}
           </>
         )}
       </div>
 
-      <CreateAction role={role} open={sheetOpen} onClick={() => setSheetOpen(true)} />
+      <CreateAction
+        role={role}
+        open={sheetOpen}
+        onClick={() => setSheetOpen(true)}
+      />
 
-      {role === 'store' ? (
+      {role === "store" ? (
         <StoreCreateSheet
           open={sheetOpen}
           onClose={() => setSheetOpen(false)}
         />
       ) : (
-        <UserCreateSheet
-          open={sheetOpen}
-          onClose={() => setSheetOpen(false)}
-        />
+        <UserCreateSheet open={sheetOpen} onClose={() => setSheetOpen(false)} />
       )}
 
-      {role === 'store' ? <StoreBottomNav /> : <UserBottomNav />}
+      {role === "store" ? <StoreBottomNav /> : <UserBottomNav />}
     </main>
   );
 }
