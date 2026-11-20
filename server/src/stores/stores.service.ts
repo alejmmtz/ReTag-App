@@ -11,8 +11,6 @@ import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { paginationResponse } from '../common/utils/pagination-response';
-import { UserEntity } from '../users/entities/user.entity';
-import { UserRoleEnum } from '../common/types/enums';
 
 @Injectable()
 export class StoresService {
@@ -21,8 +19,6 @@ export class StoresService {
     private readonly storesRepository: Repository<StoreEntity>,
     @InjectRepository(StoreImage)
     private readonly storeImagesRepository: Repository<StoreImage>,
-    @InjectRepository(UserEntity)
-    private readonly usersRepository: Repository<UserEntity>,
   ) {}
 
   async create(userId: string, createStoreDto: CreateStoreDto) {
@@ -55,9 +51,6 @@ export class StoresService {
 
     try {
       const saved = await this.storesRepository.save(store);
-
-      // Promote the user role to STORE so guards work on subsequent requests.
-      await this.usersRepository.update(userId, { role: UserRoleEnum.STORE });
 
       return { id: saved.id };
     } catch (error) {

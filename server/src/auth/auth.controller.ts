@@ -5,6 +5,7 @@ import { RegisterUserDto } from '../users/dto/register-user.dto';
 import { requestValidationPipe } from '../common/pipes/pipes';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import type { AuthenticatedRequest } from '../common/types/authenticated-request';
+import { RegisterStoreDto } from '../stores/dto/register-store.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -18,6 +19,11 @@ export class AuthController {
   @Post('register/user')
   registerUser(@Body(requestValidationPipe) dto: RegisterUserDto) {
     return this.authService.registerUser(dto);
+  }
+
+  @Post('register/store')
+  registerStore(@Body(requestValidationPipe) dto: RegisterStoreDto) {
+    return this.authService.registerStore(dto);
   }
 
   @Post('login')

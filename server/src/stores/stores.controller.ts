@@ -28,7 +28,7 @@ export class StoresController {
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRoleEnum.USER, UserRoleEnum.STORE)
+  @Roles(UserRoleEnum.STORE)
   create(
     @Req() request: AuthenticatedRequest,
     @Body(requestValidationPipe) createStoreDto: CreateStoreDto,

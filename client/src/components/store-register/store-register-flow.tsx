@@ -1,11 +1,19 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  type FormEvent,
+} from "react";
+
+import StepOne from "../register/step-1";
+import type { AccountFields } from "../register/types";
+
 import StoreInformation from "./store-information";
 import StoreIdentity from "./store-identity";
-import { createStore } from "./create-store";
+import { registerStoreAccount } from "./register-store-account";
+
 import {
   EMPTY_STORE,
   validateStore,
@@ -14,34 +22,88 @@ import {
   type StoreFields,
 } from "./store-fields";
 
+const EMPTY_ACCOUNT: AccountFields = {
+  name: "",
+  username: "",
+  email: "",
+  phone: "",
+  password: "",
+};
+
 export default function StoreRegisterFlow() {
   const router = useRouter();
-  const [step, setStep] = useState(0);
-  const [fields, setFields] = useState<StoreFields>(EMPTY_STORE);
-  const [errors, setErrors] = useState<StoreErrors>({});
 
-  // Image state
-  const [profileFile, setProfileFile] = useState<File | null>(null);
-  const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [profilePreview, setProfilePreview] = useState("");
-  const [coverPreview, setCoverPreview] = useState("");
-  const [hasSelectedProfile, setHasSelectedProfile] = useState(false);
+  // 1 = account
+  // 2 = store information
+  // 3 = visual identity
+  const [step, setStep] = useState(1);
 
-  const [globalError, setGlobalError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const uploaded = useRef(new Map<File, string>());
+  // Account information
+  const [account, setAccount] =
+    useState<AccountFields>(EMPTY_ACCOUNT);
 
-  // Clean up object URLs on unmount
+  // Store information
+  const [fields, setFields] =
+    useState<StoreFields>(EMPTY_STORE);
+
+  const [errors, setErrors] =
+    useState<StoreErrors>({});
+
+  // Store images
+  const [profileFile, setProfileFile] =
+    useState<File | null>(null);
+
+  const [coverFile, setCoverFile] =
+    useState<File | null>(null);
+
+  const [profilePreview, setProfilePreview] =
+    useState("");
+
+  const [coverPreview, setCoverPreview] =
+    useState("");
+
+  const [hasSelectedProfile, setHasSelectedProfile] =
+    useState(false);
+
+  const [globalError, setGlobalError] =
+    useState("");
+
+  const [isSubmitting, setIsSubmitting] =
+    useState(false);
+
   useEffect(() => {
     return () => {
-      if (profilePreview) URL.revokeObjectURL(profilePreview);
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+      if (profilePreview) {
+        URL.revokeObjectURL(profilePreview);
+      }
 
-  function updateField(field: keyof StoreFields, value: string) {
-    setFields((current) => ({ ...current, [field]: value }));
+      if (coverPreview) {
+        URL.revokeObjectURL(coverPreview);
+      }
+    };
+  }, [profilePreview, coverPreview]);
+
+  // Account fields
+  function updateAccount(
+    field: keyof AccountFields,
+    value: string,
+  ) {
+    setAccount((current) => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  // Store fields
+  function updateField(
+    field: keyof StoreFields,
+    value: string,
+  ) {
+    setFields((current) => ({
+      ...current,
+      [field]: value,
+    }));
+
     setErrors((current) => {
       const next = { ...current };
       delete next[field];
@@ -49,50 +111,93 @@ export default function StoreRegisterFlow() {
     });
   }
 
-  function handleContinue(event: FormEvent<HTMLFormElement>) {
+  // Store information → visual identity
+  function handleContinue(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
-    const validationErrors = validateStore(fields);
-    if (Object.keys(validationErrors).length) {
+
+    const validationErrors =
+      validateStore(fields);
+
+    if (
+      Object.keys(validationErrors).length
+    ) {
       setErrors(validationErrors);
       return;
     }
+
     setErrors({});
     setGlobalError("");
-    setStep(2);
+    setStep(3);
   }
 
-  function handleSelectImage(kind: "profile" | "cover", file: File | null) {
+  function handleSelectImage(
+    kind: "profile" | "cover",
+    file: File | null,
+  ) {
     if (file) {
-      const photoError = validateStorePhoto(file);
+      const photoError =
+        validateStorePhoto(file);
+
       if (photoError) {
         setGlobalError(photoError);
         return;
       }
     }
+
     setGlobalError("");
 
     if (kind === "profile") {
-      if (profilePreview) URL.revokeObjectURL(profilePreview);
-      const url = file ? URL.createObjectURL(file) : "";
+      if (profilePreview) {
+        URL.revokeObjectURL(
+          profilePreview,
+        );
+      }
+
+      const url = file
+        ? URL.createObjectURL(file)
+        : "";
+
       setProfileFile(file);
       setProfilePreview(url);
       setHasSelectedProfile(!!file);
     } else {
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
-      const url = file ? URL.createObjectURL(file) : "";
+      if (coverPreview) {
+        URL.revokeObjectURL(
+          coverPreview,
+        );
+      }
+
+      const url = file
+        ? URL.createObjectURL(file)
+        : "";
+
       setCoverFile(file);
       setCoverPreview(url);
     }
   }
 
-  function handleClearImage(kind: "profile" | "cover") {
+  function handleClearImage(
+    kind: "profile" | "cover",
+  ) {
     if (kind === "profile") {
-      if (profilePreview) URL.revokeObjectURL(profilePreview);
+      if (profilePreview) {
+        URL.revokeObjectURL(
+          profilePreview,
+        );
+      }
+
       setProfileFile(null);
       setProfilePreview("");
       setHasSelectedProfile(false);
     } else {
-      if (coverPreview) URL.revokeObjectURL(coverPreview);
+      if (coverPreview) {
+        URL.revokeObjectURL(
+          coverPreview,
+        );
+      }
+
       setCoverFile(null);
       setCoverPreview("");
     }
@@ -101,14 +206,15 @@ export default function StoreRegisterFlow() {
   async function handleSubmit() {
     setIsSubmitting(true);
     setGlobalError("");
+
     try {
-      await createStore(
+      await registerStoreAccount(
+        account,
         fields,
         profileFile,
         coverFile,
-        null,
-        uploaded.current,
       );
+
       router.replace("/home");
     } catch (cause) {
       setGlobalError(
@@ -121,54 +227,41 @@ export default function StoreRegisterFlow() {
     }
   }
 
-  // ── Step 0: Welcome ──
-  if (step === 0) {
-    return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-8 text-foreground page-enter">
-        <div className="flex flex-col items-center text-center">
-          <div className="relative mb-8">
-            <Image
-              src="/illustrations/retag-recycle.png"
-              alt="Store"
-              width={120}
-              height={120}
-              className="object-contain"
-            />
-          </div>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Your store starts here
-          </h1>
-          <p className="mt-2 text-sm text-grey">
-            Set it up and connect with the ReTag community.
-          </p>
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="button-pill mt-8 bg-blue px-10 text-white"
-          >
-            Create store
-          </button>
-        </div>
-      </main>
-    );
+  function goBack() {
+    if (step === 1) {
+      router.push("/sign-up");
+      return;
+    }
+
+    setStep(step - 1);
   }
 
-  // ── Progress bar ──
-  const progress = step === 1 ? "50%" : "100%";
+  const progress =
+    step === 1
+      ? "33%"
+      : step === 2
+        ? "66%"
+        : "100%";
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
       <div className="mx-auto w-full max-w-lg px-6 py-8 page-enter">
+
         {/* Header */}
         <div className="mb-8 flex items-center gap-4">
           <button
             type="button"
-            onClick={() => setStep(step - 1)}
+            onClick={goBack}
             disabled={isSubmitting}
             aria-label="Go back"
-            className="flex size-10 items-center justify-center rounded-full text-foreground active:bg-surface min-h-11 min-w-11"
+            className="flex size-10 min-h-11 min-w-11 items-center justify-center rounded-full text-foreground active:bg-surface"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+            >
               <path
                 d="M12.5 15L7.5 10L12.5 5"
                 stroke="currentColor"
@@ -178,10 +271,13 @@ export default function StoreRegisterFlow() {
               />
             </svg>
           </button>
-          <h1 className="flex-1 text-lg font-semibold">Create your store</h1>
+
+          <h1 className="flex-1 text-lg font-semibold">
+            Create your store
+          </h1>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress */}
         <div className="mb-8 h-1 w-full overflow-hidden rounded-full bg-surface">
           <div
             className="h-full rounded-full bg-blue transition-all duration-300"
@@ -189,24 +285,50 @@ export default function StoreRegisterFlow() {
           />
         </div>
 
-        <div key={step} className="page-enter">
-          {/* ── Step 1: Store Information ── */}
+        <div
+          key={step}
+          className="page-enter"
+        >
+
+          {/* Step 1: Account */}
           {step === 1 && (
+            <StepOne
+              fields={account}
+              updateField={updateAccount}
+              error={globalError}
+              setError={setGlobalError}
+              clearError={() =>
+                setGlobalError("")
+              }
+              goToStep={setStep}
+            />
+          )}
+
+          {/* Step 2: Store information */}
+          {step === 2 && (
             <>
               <h2 className="mb-6 text-lg font-semibold">
                 Store information
               </h2>
+
               <StoreInformation
                 fields={fields}
                 errors={errors}
                 onChange={updateField}
-                onContinue={handleContinue}
+                onContinue={
+                  handleContinue
+                }
               />
+
               {globalError && (
-                <p role="alert" className="mt-4 text-sm text-orange">
+                <p
+                  role="alert"
+                  className="mt-4 text-sm text-orange"
+                >
                   {globalError}
                 </p>
               )}
+
               <button
                 type="submit"
                 form="store-information"
@@ -217,33 +339,50 @@ export default function StoreRegisterFlow() {
             </>
           )}
 
-          {/* ── Step 2: Visual Identity ── */}
-          {step === 2 && (
+          {/* Step 3: Visual identity */}
+          {step === 3 && (
             <>
-              <h2 className="mb-6 text-lg font-semibold">Visual identity</h2>
+              <h2 className="mb-6 text-lg font-semibold">
+                Visual identity
+              </h2>
+
               <StoreIdentity
                 fields={fields}
                 profile={profilePreview}
                 cover={coverPreview}
-                hasSelectedProfile={hasSelectedProfile}
-                onSelect={handleSelectImage}
-                onClear={handleClearImage}
+                hasSelectedProfile={
+                  hasSelectedProfile
+                }
+                onSelect={
+                  handleSelectImage
+                }
+                onClear={
+                  handleClearImage
+                }
               />
+
               {globalError && (
-                <p role="alert" className="mt-6 text-sm text-orange">
+                <p
+                  role="alert"
+                  className="mt-6 text-sm text-orange"
+                >
                   {globalError}
                 </p>
               )}
+
               <button
                 type="button"
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className="button-pill mt-8 w-full bg-blue text-white disabled:opacity-70"
               >
-                {isSubmitting ? "Creating store…" : "Create store"}
+                {isSubmitting
+                  ? "Creating store…"
+                  : "Create store"}
               </button>
             </>
           )}
+
         </div>
       </div>
     </main>
